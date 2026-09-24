@@ -311,6 +311,7 @@ body.gated{overflow:hidden}
 .w-form{display:grid;gap:10px;margin-top:6px}
 .w-form input{font:inherit;font-size:17px;border:1px solid var(--line);border-radius:10px;padding:13px 14px;background:var(--card);color:var(--ink)}
 .w-form .btn{padding:13px 16px;font-size:17px}
+.w-lab{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:-4px}
 .w-msg{margin:0;min-height:1em}
 .w-note{margin:0;font-size:13.5px;color:var(--muted)}
 .report-auto{grid-template-columns:1fr}
@@ -1840,7 +1841,7 @@ function buildReport(){
     rows.push("S"+String(n).padStart(2,"0")+"  "+(i.complete?"DONE   ":i.fin?"STARTED":"—      ")+"  "+String(pct).padStart(3," ")+"%  ("+i.fin+"/"+i.total+" activities)"); }
   const all=L.flatMap(actsOf).concat(FINAL_ACTS); const xp=scoreOf(all)*10, mx=maxList(all)*10;
   const code=sign(progressCore(name,stamp,pcts,xp));
-  return ["COMM QUEST 003 · PROGRESS REPORT","Student: "+name,"Date: "+stamp,"Sessions complete: "+done+" / 16","XP: "+xp+" / "+mx,"Scores: "+pcts.join(","),"-----",...rows,"-----","Code: "+code].join("\n");
+  return ["COMM QUEST 003 · PROGRESS REPORT","Student: "+name,"Student ID: "+(S.sid||""),"Date: "+stamp,"Sessions complete: "+done+" / 16","XP: "+xp+" / "+mx,"Scores: "+pcts.join(","),"-----",...rows,"-----","Code: "+code].join("\n");
 }
 function parseReports(text){
   const out=[]; const blocks=text.split(/COMM QUEST 003 · PROGRESS REPORT/).slice(1);
@@ -1955,26 +1956,32 @@ function welcomeGate(){
   const card=h("div",{class:"w-card"});
   card.appendChild(h("div",{class:"eyebrow"},"A1 Global College"));
   card.appendChild(h("h1",{id:"wTitle"},"Module 3 : <span class=\"hl\">Business Communication</span>"));
-  card.appendChild(h("p",{class:"w-sub"},"Welcome! Enter your full name to start the course."));
+  card.appendChild(h("p",{class:"w-sub"},"Welcome! Enter your full name and your Student ID to start the course."));
   const f=h("form",{class:"w-form"});
-  const inp=h("input",{id:"wName",type:"text",autocomplete:"name",placeholder:"First and last name",maxlength:"60","aria-label":"Full name"});
+  const lab1=h("label",{for:"wName",class:"w-lab"},"Full name");
+  const inp=h("input",{id:"wName",type:"text",autocomplete:"name",placeholder:"First and last name",maxlength:"60"});
+  if(S.name) inp.value=S.name;
+  const lab2=h("label",{for:"wSid",class:"w-lab"},"Student ID");
+  const sid=h("input",{id:"wSid",type:"text",autocomplete:"off",autocapitalize:"characters",placeholder:"Your college Student ID",maxlength:"20"});
   const b=h("button",{class:"btn",type:"submit"},"Start");
   const msg=h("p",{class:"msg bad w-msg"});
-  f.append(inp,b); card.append(f,msg);
-  card.appendChild(h("p",{class:"w-note"},"Use the name registered at the college. Your progress is saved automatically."));
+  f.append(lab1,inp,lab2,sid,b); card.append(f,msg);
+  card.appendChild(h("p",{class:"w-note"},"Use the name and Student ID registered at the college. Your progress is saved automatically. On another phone or computer, enter the same name and ID to continue."));
   ov.appendChild(card); document.body.appendChild(ov); document.body.classList.add("gated");
   setTimeout(()=>inp.focus(),80);
   f.addEventListener("submit",async e=>{
     e.preventDefault(); msg.textContent="";
     const v=inp.value.trim().replace(/\s+/g," ");
     if(v.split(" ").length<2||v.length<4){ msg.textContent="Please enter your first and last name."; return; }
+    const id=sid.value.trim().replace(/\s+/g,"").toUpperCase();
+    if(!/^[A-Z0-9-]{3,20}$/.test(id)){ msg.textContent="Please enter your Student ID (letters and numbers only)."; return; }
     b.disabled=true; b.textContent="Opening…";
     let restored=false;
     if(typeof CLOUD==="function" && CLOUD()){
-      try{ const key=await cloudKey(v,""); S.key=key; const j=await cloudGet(key); if(j.ok&&j.found&&j.data){ importState(JSON.parse(j.data)); restored=true; } }catch(err){}
+      try{ const key=await cloudKey(v,id); S.key=key; const j=await cloudGet(key); if(j.ok&&j.found&&j.data){ importState(JSON.parse(j.data)); restored=true; } }catch(err){}
     }
     if(!restored) S.name=v;
-    save(); renderWho();
+    S.sid=id; save(); renderWho();
     if(!restored && typeof sendProgress==="function") sendProgress("Started the course");
     ov.remove(); document.body.classList.remove("gated");
     let n=1; for(let k=1;k<=16;k++){ if(studentOpen(k)) n=k; }
@@ -1996,7 +2003,7 @@ function sendProgress(eventText){
   const all=L.flatMap(actsOf).concat(FINAL_ACTS);
   let done=0; for(let n=1;n<=16;n++) if(sessInfo(n).complete) done++;
   const body=new URLSearchParams();
-  body.append(FORM.fields.name, S.name);
+  body.append(FORM.fields.name, S.name+(S.sid?" ("+S.sid+")":""));
   if(FORM.fields.event) body.append(FORM.fields.event, eventText);
   if(FORM.fields.sessions) body.append(FORM.fields.sessions, done+" / 16");
   if(FORM.fields.xp) body.append(FORM.fields.xp, String(scoreOf(all)*10));
@@ -2022,8 +2029,8 @@ const CLOUD = () => !!CLOUD_URL && typeof fetch==="function";
 async function sha256hex(t){ const b=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
 const normName = n => n.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ");
 async function cloudKey(name,pin){ return sha256hex("cq003|"+normName(name)+"|"+pin); }
-function exportState(){ return {v:1,name:S.name,best:S.best,done:S.done,ticks:S.ticks,drafts:S.drafts,found:S.found||{},sent:S.sent||{},sess:S.sess,savedAt:S.savedAt||0}; }
-function importState(d){ ["name","best","done","ticks","drafts","found","sent","sess","savedAt"].forEach(k=>{ if(d[k]!==undefined) S[k]=d[k]; }); }
+function exportState(){ return {v:1,name:S.name,sid:S.sid,best:S.best,done:S.done,ticks:S.ticks,drafts:S.drafts,found:S.found||{},sent:S.sent||{},sess:S.sess,savedAt:S.savedAt||0}; }
+function importState(d){ ["name","sid","best","done","ticks","drafts","found","sent","sess","savedAt"].forEach(k=>{ if(d[k]!==undefined) S[k]=d[k]; }); }
 let CLOUD_STATE="idle", CLOUD_TIMER=null, CLOUD_LAST="";
 function setCloudStatus(st){ CLOUD_STATE=st; const el=document.getElementById("cloudStatus"); if(!el) return;
   el.textContent = st==="saving" ? "Saving…" : st==="saved" ? "Saved · "+CLOUD_LAST : st==="offline" ? "Not saved yet (no connection). Retrying…" : st==="loaded" ? "Progress restored" : S.key ? "Saved" : "";
@@ -2035,14 +2042,14 @@ function cloudPut(){
   const all=L.flatMap(actsOf).concat(FINAL_ACTS);
   let data=JSON.stringify(exportState());
   if(data.length>45000){ const st=exportState(); st.drafts={}; data=JSON.stringify(st); }
-  const body=JSON.stringify({key:S.key,name:S.name,sessions:done+" / 16",xp:scoreOf(all)*10,data});
+  const body=JSON.stringify({key:S.key,name:S.name,sid:S.sid||"",sessions:done+" / 16",xp:scoreOf(all)*10,data});
   setCloudStatus("saving");
   return fetch(CLOUD_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body}).then(r=>r.json()).then(j=>{ if(!j.ok) throw 0; CLOUD_LAST=new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}); setCloudStatus("saved"); return true; }).catch(()=>{ setCloudStatus("offline"); clearTimeout(CLOUD_TIMER); CLOUD_TIMER=setTimeout(cloudPut,30000); return false; });
 }
 function scheduleCloud(){ if(!CLOUD()||!S.key) return; clearTimeout(CLOUD_TIMER); CLOUD_TIMER=setTimeout(cloudPut,2500); }
 const _localSave = save;
 save = function(){ S.savedAt=Date.now(); _localSave(); scheduleCloud(); };
-window.addEventListener("pagehide",()=>{ if(CLOUD()&&S.key&&CLOUD_STATE!=="saved"){ try{ let done=0; for(let n=1;n<=16;n++) if(sessInfo(n).complete) done++; const all=L.flatMap(actsOf).concat(FINAL_ACTS); navigator.sendBeacon && navigator.sendBeacon(CLOUD_URL,new Blob([JSON.stringify({key:S.key,name:S.name,sessions:done+" / 16",xp:scoreOf(all)*10,data:JSON.stringify(exportState())})],{type:"text/plain"})); }catch(e){} } });
+window.addEventListener("pagehide",()=>{ if(CLOUD()&&S.key&&CLOUD_STATE!=="saved"){ try{ let done=0; for(let n=1;n<=16;n++) if(sessInfo(n).complete) done++; const all=L.flatMap(actsOf).concat(FINAL_ACTS); navigator.sendBeacon && navigator.sendBeacon(CLOUD_URL,new Blob([JSON.stringify({key:S.key,name:S.name,sid:S.sid||"",sessions:done+" / 16",xp:scoreOf(all)*10,data:JSON.stringify(exportState())})],{type:"text/plain"})); }catch(e){} } });
 async function cloudSync(){
   if(!CLOUD()||!S.key) return;
   try{ const j=await cloudGet(S.key); if(j.ok&&j.found&&j.data){ const d=JSON.parse(j.data); if((d.savedAt||0)>(S.savedAt||0)){ importState(d); _localSave(); setCloudStatus("loaded"); show(S.tab); return; } } setCloudStatus("idle"); }catch(e){}
@@ -2155,7 +2162,7 @@ function viewPlan(p){
 }
 
 function viewWeek(p, w){
-  if(!S.name && !TEACHER){ nameGate(p,()=>show(w)); return; }
+  if((!S.name || !S.sid) && !TEACHER){ p.appendChild(h("div",{class:"lockbox"},"<h3>Sign in to continue</h3>")); setTimeout(()=>{ if(!document.getElementById("welcome")) welcomeGate(); },0); return; }
   if(weekOf(S.sess)!==w) S.sess=(w-1)*4+1;
   const n=S.sess, s=SESS[n-1], row=planRow(n);
   sessBar(p,w);
@@ -2275,8 +2282,7 @@ document.getElementById("tForm").addEventListener("submit",e=>{
 (async()=>{ try{ const u = window.claude && window.claude.use ? await window.claude.use("user") : null; if(u && await u.isOwner()){ TEACHER=true; show(S.tab); } }catch(e){} })();
 
 renderWho();
-if(S.name && !S.key && typeof CLOUD==="function" && CLOUD()){ cloudKey(S.name,"").then(k=>{ S.key=k; save(); }).catch(()=>{}); }
-if(!S.name && !TEACHER && location.hash!=="#instructor") setTimeout(welcomeGate,0);
+if((!S.name || !S.sid) && !TEACHER && location.hash!=="#instructor") setTimeout(welcomeGate,0);
 if(location.hash==="#instructor"){ const f=document.getElementById("tForm"); if(f){ f.hidden=false; setTimeout(()=>f.scrollIntoView(),300); } }
 if(typeof flushPending==="function") setTimeout(flushPending,1500);
 if(typeof cloudSync==="function") setTimeout(cloudSync,800);
