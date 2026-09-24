@@ -4,14 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>html{-webkit-text-size-adjust:100%}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
-<link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#16213A">
 <link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Comm Quest">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Comm Quest 003</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1917,20 +1911,8 @@ function checkerPanel(){
   return pn;
 }
 
-/* ---------- phone app install ---------- */
-let INSTALL_EVT=null;
-window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); INSTALL_EVT=e; const b=document.getElementById("instBtn"); if(b) b.hidden=false; });
-function installPanel(){
-  const pn=h("div",{class:"panel install"});
-  pn.appendChild(h("h3",{},"Use it like an app on your phone"));
-  pn.appendChild(h("ul",{},"<li><strong>iPhone (Safari):</strong> tap Share, then <strong>Add to Home Screen</strong>.</li><li><strong>Android (Chrome):</strong> tap ⋮, then <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li><li>Always open the course from the same phone and browser: your progress is saved there.</li>"));
-  const b=h("button",{class:"btn",type:"button",id:"instBtn",style:"margin-top:10px"},"Install the app");
-  b.hidden=!INSTALL_EVT;
-  b.addEventListener("click",async()=>{ if(!INSTALL_EVT) return; INSTALL_EVT.prompt(); try{ await INSTALL_EVT.userChoice; }catch(e){} INSTALL_EVT=null; b.hidden=true; });
-  pn.appendChild(b);
-  return pn;
-}
-if("serviceWorker" in navigator && location.protocol==="https:" && !/claude\.ai|claudeusercontent/.test(location.hostname)){ window.addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
+/* remove any previously installed service worker */
+if("serviceWorker" in navigator){ navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{}); }
 
 /* ---------- automatic progress sending (Google Form) ----------
    Fill FORM.action with the form's "formResponse" URL and FORM.fields with the entry ids.
@@ -2045,7 +2027,6 @@ function viewPlan(p){
   const g=h("ul",{class:"goals"}); ["Session 1 is open from the start","Finish every activity of a session","Reach at least 60% of its points","The next session unlocks right away"].forEach(x=>g.appendChild(h("li",{},x))); gw.appendChild(g);
   head.append(hl,gw); p.appendChild(head);
   if(TEACHER){ p.appendChild(teacherBar()); p.appendChild(checkerPanel()); }
-  p.appendChild(installPanel());
   p.appendChild(label("Calendar · four sessions per week"));
   const ws=h("div",{class:"weeks"});
   PLAN.forEach(w=>{
