@@ -299,6 +299,10 @@ textarea{width:100%;min-height:170px;font:inherit;font-size:15px;line-height:1.5
 .rp-auto{margin:0;font-size:15.5px;color:var(--muted)}
 .rp-auto strong{color:var(--good)}
 .rp-status{margin:8px 0 0;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.cloud-st{margin:6px 0 0;font-family:var(--mono);font-size:12px;color:var(--good)}
+.cloud-st.offline{color:var(--bad)}
+.namegate .pin{flex:0 0 130px;min-width:0;letter-spacing:.3em}
+.ng-note{font-size:13.5px}
 .rp-empty{margin:0;color:var(--muted)}
 table.chk{border-collapse:collapse;width:100%;font-size:14px}
 table.chk th,table.chk td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left}
@@ -1839,16 +1843,38 @@ function parseReports(text){
   return out;
 }
 function nameGate(p, after){
+  const cloud = typeof CLOUD==="function" && CLOUD();
   const box=h("div",{class:"lockbox namegate"});
   box.appendChild(h("div",{class:"eyebrow"},"Before you start"));
-  box.appendChild(h("h3",{},"Enter your full name"));
-  box.appendChild(h("p",{},"Your name appears on the progress report you send to your instructor. Use the name registered at the college."));
+  box.appendChild(h("h3",{},cloud?"Sign in to the course":"Enter your full name"));
+  box.appendChild(h("p",{},cloud?"Enter your full name and a 4-digit PIN. Your progress is saved in the cloud, so you can continue on any phone or computer with the same name and PIN.":"Your name appears on the progress report you send to your instructor. Use the name registered at the college."));
   const f=h("form",{class:"ng-form"});
   const inp=h("input",{id:"stName",type:"text",autocomplete:"name",placeholder:"First and last name",maxlength:"60","aria-label":"Full name"});
+  if(S.name) inp.value=S.name;
+  const pin=h("input",{id:"stPin",type:"password",inputmode:"numeric",pattern:"[0-9]*",maxlength:"4",autocomplete:"off",placeholder:"4-digit PIN","aria-label":"4-digit PIN",class:"pin"});
   const b=h("button",{class:"btn",type:"submit"},"Start the course");
   const msg=h("span",{class:"msg bad"});
-  f.append(inp,b); box.append(f,msg);
-  f.addEventListener("submit",e=>{ e.preventDefault(); const v=inp.value.trim().replace(/\s+/g," "); if(v.split(" ").length<2||v.length<4){ msg.textContent="Please enter your first and last name."; return; } S.name=v; save(); renderWho(); if(typeof sendProgress==="function") sendProgress("Started the course"); after(); });
+  f.append(inp); if(cloud) f.append(pin); f.append(b); box.append(f,msg);
+  if(cloud) box.appendChild(h("p",{class:"ng-note"},"New here? Choose any 4 digits and write them down. Already started on another device? Use the same name and PIN."));
+  f.addEventListener("submit",async e=>{
+    e.preventDefault(); msg.textContent="";
+    const v=inp.value.trim().replace(/\s+/g," ");
+    if(v.split(" ").length<2||v.length<4){ msg.textContent="Please enter your first and last name."; return; }
+    if(cloud && !/^\d{4}$/.test(pin.value)){ msg.textContent="Your PIN must be exactly 4 digits."; return; }
+    if(cloud){
+      b.disabled=true; b.textContent="Checking…";
+      const key=await cloudKey(v,pin.value);
+      let restored=false;
+      try{ const j=await cloudGet(key); if(j.ok&&j.found&&j.data){ importState(JSON.parse(j.data)); restored=true; } }
+      catch(err){ /* offline: start locally, cloud save retries later */ }
+      S.key=key; if(!restored) S.name=v;
+      save(); renderWho();
+      if(!restored && typeof sendProgress==="function") sendProgress("Started the course");
+      if(restored) setCloudStatus("loaded");
+      after(); return;
+    }
+    S.name=v; save(); renderWho(); if(typeof sendProgress==="function") sendProgress("Started the course"); after();
+  });
   p.appendChild(box); setTimeout(()=>inp.focus(),50);
 }
 function renderWho(){
@@ -1864,13 +1890,14 @@ function reportPanel(){
   if(typeof AUTO==="function" && AUTO()){
     l.appendChild(h("p",{class:"rp-auto"},"Your progress is sent to your instructor <strong>automatically</strong> each time you complete a session. You don’t need to do anything."));
     const st=h("p",{class:"rp-status",id:"sendStatus"}); l.appendChild(st);
+    l.appendChild(h("p",{class:"cloud-st",id:"cloudStatus"}));
     const sn=h("button",{class:"btn",type:"button",style:"margin-top:10px"},"Send my progress now");
     sn.addEventListener("click",()=>{ sn.disabled=true; sn.textContent="Sending…"; sendProgress("Sent manually").then(ok=>{ sn.disabled=false; sn.textContent= ok?"Sent":"Not sent: check your connection"; setTimeout(()=>sn.textContent="Send my progress now",3000); }); });
     if(S.name) l.appendChild(sn);
     sec.append(l);
     const r2=h("div",{class:"rp-box"});
     if(S.name){ const pre=h("pre",{class:"rp-pre",id:"rpPre"}); pre.textContent=buildReport(); r2.appendChild(pre); } else r2.appendChild(h("p",{class:"rp-empty"},"Enter your name in Week 1 first."));
-    sec.append(r2); setTimeout(updateSendStatus,0); return;
+    sec.append(r2); setTimeout(()=>{ updateSendStatus(); if(typeof setCloudStatus==="function") setCloudStatus(CLOUD_STATE); },0); return;
   }
   l.appendChild(h("ol",{class:"rp-steps"},"<li>Press <strong>Copy my report</strong>.</li><li>Open your college email and write to:<br><strong>"+INSTR_EMAIL+"</strong></li><li>Paste the report in the message and send it. Send a new report at the end of each week.</li>"));
   const r=h("div",{class:"rp-box"});
@@ -1945,6 +1972,38 @@ function flushPending(){ if(!AUTO()||!S.pending||!S.pending.length) return; cons
 function updateSendStatus(){
   const el=document.getElementById("sendStatus"); if(!el) return;
   el.textContent = S.pending&&S.pending.length ? "Not sent yet (no connection). It will be sent automatically next time." : S.lastSent ? "Last sent automatically: "+S.lastSent : "Your progress is sent automatically each time you complete a session.";
+}
+
+/* ---------- cloud save (Google Apps Script web app writing to the instructor's sheet) ---------- */
+const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzzKoKtW4GpnE0ga3DUkbCjfFTy5HwkR020Y0qaUIT1u3wpWARaMKtncVFkUotWvIcNTA/exec";   // Apps Script web app /exec URL
+const CLOUD = () => !!CLOUD_URL && typeof fetch==="function";
+async function sha256hex(t){ const b=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
+const normName = n => n.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ");
+async function cloudKey(name,pin){ return sha256hex("cq003|"+normName(name)+"|"+pin); }
+function exportState(){ return {v:1,name:S.name,best:S.best,done:S.done,ticks:S.ticks,drafts:S.drafts,found:S.found||{},sent:S.sent||{},sess:S.sess,savedAt:S.savedAt||0}; }
+function importState(d){ ["name","best","done","ticks","drafts","found","sent","sess","savedAt"].forEach(k=>{ if(d[k]!==undefined) S[k]=d[k]; }); }
+let CLOUD_STATE="idle", CLOUD_TIMER=null, CLOUD_LAST="";
+function setCloudStatus(st){ CLOUD_STATE=st; const el=document.getElementById("cloudStatus"); if(!el) return;
+  el.textContent = st==="saving" ? "☁ Saving to the cloud…" : st==="saved" ? "☁ Saved to the cloud · "+CLOUD_LAST : st==="offline" ? "☁ Not saved yet (no connection). It will retry automatically." : st==="loaded" ? "☁ Progress restored from the cloud" : S.key ? "☁ Cloud save is on" : "";
+  el.className="cloud-st "+st; }
+function cloudGet(key){ return fetch(CLOUD_URL+"?key="+encodeURIComponent(key),{method:"GET"}).then(r=>r.json()); }
+function cloudPut(){
+  if(!CLOUD()||!S.key) return Promise.resolve(false);
+  let done=0; for(let n=1;n<=16;n++) if(sessInfo(n).complete) done++;
+  const all=L.flatMap(actsOf).concat(FINAL_ACTS);
+  let data=JSON.stringify(exportState());
+  if(data.length>45000){ const st=exportState(); st.drafts={}; data=JSON.stringify(st); }
+  const body=JSON.stringify({key:S.key,name:S.name,sessions:done+" / 16",xp:scoreOf(all)*10,data});
+  setCloudStatus("saving");
+  return fetch(CLOUD_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body}).then(r=>r.json()).then(j=>{ if(!j.ok) throw 0; CLOUD_LAST=new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}); setCloudStatus("saved"); return true; }).catch(()=>{ setCloudStatus("offline"); clearTimeout(CLOUD_TIMER); CLOUD_TIMER=setTimeout(cloudPut,30000); return false; });
+}
+function scheduleCloud(){ if(!CLOUD()||!S.key) return; clearTimeout(CLOUD_TIMER); CLOUD_TIMER=setTimeout(cloudPut,2500); }
+const _localSave = save;
+save = function(){ S.savedAt=Date.now(); _localSave(); scheduleCloud(); };
+window.addEventListener("pagehide",()=>{ if(CLOUD()&&S.key&&CLOUD_STATE!=="saved"){ try{ let done=0; for(let n=1;n<=16;n++) if(sessInfo(n).complete) done++; const all=L.flatMap(actsOf).concat(FINAL_ACTS); navigator.sendBeacon && navigator.sendBeacon(CLOUD_URL,new Blob([JSON.stringify({key:S.key,name:S.name,sessions:done+" / 16",xp:scoreOf(all)*10,data:JSON.stringify(exportState())})],{type:"text/plain"})); }catch(e){} } });
+async function cloudSync(){
+  if(!CLOUD()||!S.key) return;
+  try{ const j=await cloudGet(S.key); if(j.ok&&j.found&&j.data){ const d=JSON.parse(j.data); if((d.savedAt||0)>(S.savedAt||0)){ importState(d); _localSave(); setCloudStatus("loaded"); show(S.tab); return; } } setCloudStatus("idle"); }catch(e){}
 }
 
 /* ---------- sessions ---------- */
@@ -2054,7 +2113,7 @@ function viewPlan(p){
 }
 
 function viewWeek(p, w){
-  if(!S.name && !TEACHER){ nameGate(p,()=>show(w)); return; }
+  if((!S.name || (typeof CLOUD==="function" && CLOUD() && !S.key)) && !TEACHER){ nameGate(p,()=>show(w)); return; }
   if(weekOf(S.sess)!==w) S.sess=(w-1)*4+1;
   const n=S.sess, s=SESS[n-1], row=planRow(n);
   sessBar(p,w);
@@ -2175,6 +2234,7 @@ document.getElementById("tForm").addEventListener("submit",e=>{
 
 renderWho();
 if(typeof flushPending==="function") setTimeout(flushPending,1500);
+if(typeof cloudSync==="function") setTimeout(cloudSync,800);
 const hm=(location.hash||"").match(/^#(plan|week([1-4]))$/);
 show(hm ? (hm[1]==="plan"?0:+hm[2]) : (S.tab>=0&&S.tab<=4?S.tab:0));
 </script>
