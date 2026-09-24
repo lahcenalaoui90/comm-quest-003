@@ -303,6 +303,17 @@ textarea{width:100%;min-height:170px;font:inherit;font-size:15px;line-height:1.5
 .cloud-st.offline{color:var(--bad)}
 .namegate .pin{flex:0 0 130px;min-width:0;letter-spacing:.3em}
 .ng-note{font-size:13.5px}
+.welcome{position:fixed;inset:0;z-index:200;background:var(--paper);display:grid;place-items:center;padding:24px 16px;padding-top:calc(24px + env(safe-area-inset-top,0px));overflow:auto}
+body.gated{overflow:hidden}
+.w-card{width:100%;max-width:480px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:28px 24px;display:grid;gap:12px}
+.w-card h1{font-size:clamp(28px,7vw,40px);font-weight:800;letter-spacing:-.02em}
+.w-sub{margin:0;font-size:17px;color:var(--muted)}
+.w-form{display:grid;gap:10px;margin-top:6px}
+.w-form input{font:inherit;font-size:17px;border:1px solid var(--line);border-radius:10px;padding:13px 14px;background:var(--card);color:var(--ink)}
+.w-form .btn{padding:13px 16px;font-size:17px}
+.w-msg{margin:0;min-height:1em}
+.w-note{margin:0;font-size:13.5px;color:var(--muted)}
+.report-auto{grid-template-columns:1fr}
 .rp-empty{margin:0;color:var(--muted)}
 table.chk{border-collapse:collapse;width:100%;font-size:14px}
 table.chk th,table.chk td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left}
@@ -1844,26 +1855,26 @@ function parseReports(text){
 }
 function nameGate(p, after){
   const cloud = typeof CLOUD==="function" && CLOUD();
+  const usePin = false;
   const box=h("div",{class:"lockbox namegate"});
   box.appendChild(h("div",{class:"eyebrow"},"Before you start"));
-  box.appendChild(h("h3",{},cloud?"Sign in to the course":"Enter your full name"));
-  box.appendChild(h("p",{},cloud?"Enter your full name and a 4-digit PIN. Your progress is saved in the cloud, so you can continue on any phone or computer with the same name and PIN.":"Your name appears on the progress report you send to your instructor. Use the name registered at the college."));
+  box.appendChild(h("h3",{},"Enter your full name"));
+  box.appendChild(h("p",{},"Use the name registered at the college. Your progress is saved automatically."));
   const f=h("form",{class:"ng-form"});
   const inp=h("input",{id:"stName",type:"text",autocomplete:"name",placeholder:"First and last name",maxlength:"60","aria-label":"Full name"});
   if(S.name) inp.value=S.name;
   const pin=h("input",{id:"stPin",type:"password",inputmode:"numeric",pattern:"[0-9]*",maxlength:"4",autocomplete:"off",placeholder:"4-digit PIN","aria-label":"4-digit PIN",class:"pin"});
   const b=h("button",{class:"btn",type:"submit"},"Start the course");
   const msg=h("span",{class:"msg bad"});
-  f.append(inp); if(cloud) f.append(pin); f.append(b); box.append(f,msg);
-  if(cloud) box.appendChild(h("p",{class:"ng-note"},"New here? Choose any 4 digits and write them down. Already started on another device? Use the same name and PIN."));
+  f.append(inp); if(usePin) f.append(pin); f.append(b); box.append(f,msg);
   f.addEventListener("submit",async e=>{
     e.preventDefault(); msg.textContent="";
     const v=inp.value.trim().replace(/\s+/g," ");
     if(v.split(" ").length<2||v.length<4){ msg.textContent="Please enter your first and last name."; return; }
-    if(cloud && !/^\d{4}$/.test(pin.value)){ msg.textContent="Your PIN must be exactly 4 digits."; return; }
+    if(usePin && !/^\d{4}$/.test(pin.value)){ msg.textContent="Your PIN must be exactly 4 digits."; return; }
     if(cloud){
       b.disabled=true; b.textContent="Checking…";
-      const key=await cloudKey(v,pin.value);
+      const key=await cloudKey(v,usePin?pin.value:"");
       let restored=false;
       try{ const j=await cloudGet(key); if(j.ok&&j.found&&j.data){ importState(JSON.parse(j.data)); restored=true; } }
       catch(err){ /* offline: start locally, cloud save retries later */ }
@@ -1880,7 +1891,7 @@ function nameGate(p, after){
 function renderWho(){
   const w=document.getElementById("who"); if(!w) return;
   w.innerHTML="";
-  if(S.name){ w.appendChild(h("span",{},S.name)); w.appendChild(h("button",{class:"reset",type:"button",onclick:()=>{ document.getElementById("report").scrollIntoView({behavior:"smooth"}); }},"Send progress")); }
+  if(S.name){ w.appendChild(h("span",{},S.name)); }
 }
 function reportPanel(){
   const sec=document.getElementById("report"); if(!sec) return; sec.innerHTML="";
@@ -1888,16 +1899,13 @@ function reportPanel(){
   l.appendChild(h("div",{class:"eyebrow"},"Progress report"));
   l.appendChild(h("h2",{},"Send your progress to your instructor"));
   if(typeof AUTO==="function" && AUTO()){
-    l.appendChild(h("p",{class:"rp-auto"},"Your progress is sent to your instructor <strong>automatically</strong> each time you complete a session. You don’t need to do anything."));
-    const st=h("p",{class:"rp-status",id:"sendStatus"}); l.appendChild(st);
+    sec.classList.add("report-auto");
+    l.innerHTML="";
+    l.appendChild(h("div",{class:"eyebrow"},"Your progress"));
+    l.appendChild(h("h2",{},"Saved automatically"));
+    l.appendChild(h("p",{class:"rp-auto"},"Everything you do is saved <strong>automatically</strong> and shared with your instructor. There is nothing to press. On another phone or computer, enter the same full name to continue where you left off."));
     l.appendChild(h("p",{class:"cloud-st",id:"cloudStatus"}));
-    const sn=h("button",{class:"btn",type:"button",style:"margin-top:10px"},"Send my progress now");
-    sn.addEventListener("click",()=>{ sn.disabled=true; sn.textContent="Sending…"; sendProgress("Sent manually").then(ok=>{ sn.disabled=false; sn.textContent= ok?"Sent":"Not sent: check your connection"; setTimeout(()=>sn.textContent="Send my progress now",3000); }); });
-    if(S.name) l.appendChild(sn);
-    sec.append(l);
-    const r2=h("div",{class:"rp-box"});
-    if(S.name){ const pre=h("pre",{class:"rp-pre",id:"rpPre"}); pre.textContent=buildReport(); r2.appendChild(pre); } else r2.appendChild(h("p",{class:"rp-empty"},"Enter your name in Week 1 first."));
-    sec.append(r2); setTimeout(()=>{ updateSendStatus(); if(typeof setCloudStatus==="function") setCloudStatus(CLOUD_STATE); },0); return;
+    sec.append(l); setTimeout(()=>{ if(typeof setCloudStatus==="function") setCloudStatus(CLOUD_STATE); },0); return;
   }
   l.appendChild(h("ol",{class:"rp-steps"},"<li>Press <strong>Copy my report</strong>.</li><li>Open your college email and write to:<br><strong>"+INSTR_EMAIL+"</strong></li><li>Paste the report in the message and send it. Send a new report at the end of each week.</li>"));
   const r=h("div",{class:"rp-box"});
@@ -1940,6 +1948,40 @@ function checkerPanel(){
 
 /* remove any previously installed service worker */
 if("serviceWorker" in navigator){ navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{}); }
+
+/* ---------- welcome screen (first page after scanning the QR code) ---------- */
+function welcomeGate(){
+  const ov=h("div",{class:"welcome",id:"welcome",role:"dialog","aria-modal":"true","aria-labelledby":"wTitle"});
+  const card=h("div",{class:"w-card"});
+  card.appendChild(h("div",{class:"eyebrow"},"A1 Global College"));
+  card.appendChild(h("h1",{id:"wTitle"},"Module 3 : <span class=\"hl\">Business Communication</span>"));
+  card.appendChild(h("p",{class:"w-sub"},"Welcome! Enter your full name to start the course."));
+  const f=h("form",{class:"w-form"});
+  const inp=h("input",{id:"wName",type:"text",autocomplete:"name",placeholder:"First and last name",maxlength:"60","aria-label":"Full name"});
+  const b=h("button",{class:"btn",type:"submit"},"Start");
+  const msg=h("p",{class:"msg bad w-msg"});
+  f.append(inp,b); card.append(f,msg);
+  card.appendChild(h("p",{class:"w-note"},"Use the name registered at the college. Your progress is saved automatically."));
+  ov.appendChild(card); document.body.appendChild(ov); document.body.classList.add("gated");
+  setTimeout(()=>inp.focus(),80);
+  f.addEventListener("submit",async e=>{
+    e.preventDefault(); msg.textContent="";
+    const v=inp.value.trim().replace(/\s+/g," ");
+    if(v.split(" ").length<2||v.length<4){ msg.textContent="Please enter your first and last name."; return; }
+    b.disabled=true; b.textContent="Opening…";
+    let restored=false;
+    if(typeof CLOUD==="function" && CLOUD()){
+      try{ const key=await cloudKey(v,""); S.key=key; const j=await cloudGet(key); if(j.ok&&j.found&&j.data){ importState(JSON.parse(j.data)); restored=true; } }catch(err){}
+    }
+    if(!restored) S.name=v;
+    save(); renderWho();
+    if(!restored && typeof sendProgress==="function") sendProgress("Started the course");
+    ov.remove(); document.body.classList.remove("gated");
+    let n=1; for(let k=1;k<=16;k++){ if(studentOpen(k)) n=k; }
+    S.sess=n; show(weekOf(n)); window.scrollTo(0,0);
+    if(restored && typeof setCloudStatus==="function") setCloudStatus("loaded");
+  });
+}
 
 /* ---------- automatic progress sending (Google Form) ----------
    Fill FORM.action with the form's "formResponse" URL and FORM.fields with the entry ids.
@@ -2113,7 +2155,7 @@ function viewPlan(p){
 }
 
 function viewWeek(p, w){
-  if((!S.name || (typeof CLOUD==="function" && CLOUD() && !S.key)) && !TEACHER){ nameGate(p,()=>show(w)); return; }
+  if(!S.name && !TEACHER){ nameGate(p,()=>show(w)); return; }
   if(weekOf(S.sess)!==w) S.sess=(w-1)*4+1;
   const n=S.sess, s=SESS[n-1], row=planRow(n);
   sessBar(p,w);
@@ -2233,6 +2275,9 @@ document.getElementById("tForm").addEventListener("submit",e=>{
 (async()=>{ try{ const u = window.claude && window.claude.use ? await window.claude.use("user") : null; if(u && await u.isOwner()){ TEACHER=true; show(S.tab); } }catch(e){} })();
 
 renderWho();
+if(S.name && !S.key && typeof CLOUD==="function" && CLOUD()){ cloudKey(S.name,"").then(k=>{ S.key=k; save(); }).catch(()=>{}); }
+if(!S.name && !TEACHER && location.hash!=="#instructor") setTimeout(welcomeGate,0);
+if(location.hash==="#instructor"){ const f=document.getElementById("tForm"); if(f){ f.hidden=false; setTimeout(()=>f.scrollIntoView(),300); } }
 if(typeof flushPending==="function") setTimeout(flushPending,1500);
 if(typeof cloudSync==="function") setTimeout(cloudSync,800);
 const hm=(location.hash||"").match(/^#(plan|week([1-4]))$/);
