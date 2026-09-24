@@ -2026,7 +2026,7 @@ function exportState(){ return {v:1,name:S.name,best:S.best,done:S.done,ticks:S.
 function importState(d){ ["name","best","done","ticks","drafts","found","sent","sess","savedAt"].forEach(k=>{ if(d[k]!==undefined) S[k]=d[k]; }); }
 let CLOUD_STATE="idle", CLOUD_TIMER=null, CLOUD_LAST="";
 function setCloudStatus(st){ CLOUD_STATE=st; const el=document.getElementById("cloudStatus"); if(!el) return;
-  el.textContent = st==="saving" ? "☁ Saving to the cloud…" : st==="saved" ? "☁ Saved to the cloud · "+CLOUD_LAST : st==="offline" ? "☁ Not saved yet (no connection). It will retry automatically." : st==="loaded" ? "☁ Progress restored from the cloud" : S.key ? "☁ Cloud save is on" : "";
+  el.textContent = st==="saving" ? "Saving…" : st==="saved" ? "Saved · "+CLOUD_LAST : st==="offline" ? "Not saved yet (no connection). Retrying…" : st==="loaded" ? "Progress restored" : S.key ? "Saved" : "";
   el.className="cloud-st "+st; }
 function cloudGet(key){ return fetch(CLOUD_URL+"?key="+encodeURIComponent(key),{method:"GET"}).then(r=>r.json()); }
 function cloudPut(){
