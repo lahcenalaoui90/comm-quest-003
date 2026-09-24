@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>html{-webkit-text-size-adjust:100%}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16213A">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Comm Quest">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Comm Quest 003</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -375,6 +383,88 @@ table.chk td.ok{color:var(--good);font-weight:700} table.chk td.no{color:var(--b
 .topic[aria-expanded="true"] .td{display:block}
 .linkbtn{border:none;background:none;padding:0;color:var(--muted);text-decoration:underline;cursor:pointer;font-family:var(--mono);font-size:12px}
 .act-h .pts.done{color:var(--good)}
+
+/* ===== phone layout ===== */
+.m-only{display:none}
+.tab small .m-only-in{display:none}
+@media (max-width:640px){
+  body{font-size:15.5px}
+  .top-in{padding:8px 16px;gap:10px;flex-wrap:nowrap}
+  .logo{font-size:16px}
+  .who{display:none}
+  .xp{margin-left:auto;gap:8px;font-size:12px}
+  .bar{width:56px}
+  #resetBtn{display:none}
+  .wrap{padding-inline:16px;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+  .memo{margin-top:14px;padding:16px;gap:14px}
+  body:not([data-tab="0"]) .memo{display:none}
+  .memo-head{display:none}
+  .memo h1{font-size:30px}
+  .memo p{margin-top:8px;font-size:14.5px}
+  .how{font-size:14px;gap:6px}
+  .how h2{display:none}
+  /* bottom navigation */
+  .tabs-scroll{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30;overflow:visible;border:none;border-top:1px solid var(--line);background:var(--card);box-shadow:0 -4px 16px rgba(22,33,58,.08);padding-bottom:env(safe-area-inset-bottom,0px)}
+  .tabs{min-width:0;gap:0}
+  .tab{flex:1;min-width:0;border:none;border-radius:0;background:transparent;padding:9px 2px 7px;text-align:center;border-top:3px solid transparent}
+  .tab small{font-size:12px;letter-spacing:.05em;font-weight:700}
+  .tab .nm{display:none}
+  .tab .badge{display:none}
+  .tab .nrow{justify-content:center;gap:3px}
+  .tab .lk{font-size:11px}
+  .tab em{height:3px;margin:5px 8px 0}
+  .tab.side{min-width:0;background:transparent}
+  .tab[aria-selected="true"],.tab.side[aria-selected="true"]{background:var(--sunk);color:var(--brand);border-top-color:var(--brand)}
+  .tab[aria-selected="true"] small,.tab.side[aria-selected="true"] small{color:var(--brand)}
+  .tab.wlocked{background:transparent}
+  /* sessions as a swipeable row */
+  .sessbar{display:flex;overflow-x:auto;gap:8px;margin:14px 0 0;padding:2px 2px 6px;scroll-snap-type:x mandatory;scrollbar-width:none}
+  .sessbar::-webkit-scrollbar{display:none}
+  .schip{flex:0 0 72%;scroll-snap-align:start;padding:10px 12px}
+  .lesson-head.stack{padding-block:16px 0;gap:12px}
+  .lesson-head h2{font-size:28px}
+  .ovw{padding:14px 16px}
+  .ovd{font-size:15.5px}
+  .section-label{margin:22px 0 10px}
+  .chapter{padding:16px}
+  .chapter h3{font-size:22px}
+  .notebook{padding:12px}
+  .act-h{padding:14px 14px 0}
+  .act-h{gap:6px 10px}
+  .act-h h3{font-size:18px;min-width:0;flex:1 1 100%}
+  .intro{padding:4px 14px 0;font-size:14.5px}
+  .act-how{margin:8px 14px 0;font-size:13.5px}
+  .act-b{padding:12px 14px 14px}
+  .ch{padding:8px 14px;font-size:14px}
+  .choices{gap:8px}
+  .mv button{width:40px;height:40px;font-size:16px}
+  .order li{grid-template-columns:22px minmax(0,1fr) auto;padding:8px}
+  .opts{grid-template-columns:1fr}
+  .opt,.mcard{padding:12px 14px}
+  .row .btn{flex:1 1 auto;padding:12px 16px}
+  .flips{grid-template-columns:1fr 1fr;gap:8px}
+  .flip,.flip .in{min-height:132px}
+  .flip .f strong{font-size:16px}
+  .flip .b{font-size:13px;padding:10px}
+  .fill select{max-width:100%}
+  textarea{font-size:16px}
+  /* session progress sits above the bottom nav */
+  .prog{bottom:calc(62px + env(safe-area-inset-bottom,0px));padding:10px 12px;gap:8px;margin-top:18px}
+  .prog .ptxt{font-size:11.5px;flex:1 1 100%}
+  .prog .pb{min-width:0}
+  .prog .btn{padding:9px 12px;font-size:14px}
+  .contact{padding:16px;gap:14px}
+  .contact h2,.report h2{font-size:19px}
+  .rp-pre{font-size:11px}
+  .lockbox{padding:22px 16px}
+  .teacher{font-size:13px}
+  .m-only{display:block}
+  .tab small .m-only-in:not([hidden]){display:inline}
+  .tab .nrow .lk{display:none}
+}
+.install{margin-top:14px}
+.install ul{margin:6px 0 0;padding-left:18px;font-size:14.5px;color:var(--muted)}
+.install ul strong{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -1827,6 +1917,21 @@ function checkerPanel(){
   return pn;
 }
 
+/* ---------- phone app install ---------- */
+let INSTALL_EVT=null;
+window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); INSTALL_EVT=e; const b=document.getElementById("instBtn"); if(b) b.hidden=false; });
+function installPanel(){
+  const pn=h("div",{class:"panel install"});
+  pn.appendChild(h("h3",{},"Use it like an app on your phone"));
+  pn.appendChild(h("ul",{},"<li><strong>iPhone (Safari):</strong> tap Share, then <strong>Add to Home Screen</strong>.</li><li><strong>Android (Chrome):</strong> tap ⋮, then <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li><li>Always open the course from the same phone and browser: your progress is saved there.</li>"));
+  const b=h("button",{class:"btn",type:"button",id:"instBtn",style:"margin-top:10px"},"Install the app");
+  b.hidden=!INSTALL_EVT;
+  b.addEventListener("click",async()=>{ if(!INSTALL_EVT) return; INSTALL_EVT.prompt(); try{ await INSTALL_EVT.userChoice; }catch(e){} INSTALL_EVT=null; b.hidden=true; });
+  pn.appendChild(b);
+  return pn;
+}
+if("serviceWorker" in navigator && location.protocol==="https:" && !/claude\.ai|claudeusercontent/.test(location.hostname)){ window.addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
+
 /* ---------- automatic progress sending (Google Form) ----------
    Fill FORM.action with the form's "formResponse" URL and FORM.fields with the entry ids.
    When FORM.action is empty, the page falls back to the copy-and-email report. */
@@ -1940,6 +2045,7 @@ function viewPlan(p){
   const g=h("ul",{class:"goals"}); ["Session 1 is open from the start","Finish every activity of a session","Reach at least 60% of its points","The next session unlocks right away"].forEach(x=>g.appendChild(h("li",{},x))); gw.appendChild(g);
   head.append(hl,gw); p.appendChild(head);
   if(TEACHER){ p.appendChild(teacherBar()); p.appendChild(checkerPanel()); }
+  p.appendChild(installPanel());
   p.appendChild(label("Calendar · four sessions per week"));
   const ws=h("div",{class:"weeks"});
   PLAN.forEach(w=>{
@@ -2040,10 +2146,10 @@ function refreshSession(){
 }
 
 function openSession(n){ S.sess=n; save(); go(weekOf(n)); }
-function go(i){ show(i); document.querySelector(".tabs-scroll").scrollIntoView({behavior:"smooth",block:"start"}); }
+function go(i){ show(i); const phone=window.matchMedia("(max-width:640px)").matches; const t=phone?document.getElementById("view"):document.querySelector(".tabs-scroll"); if(phone) window.scrollTo({top:Math.max(0,t.getBoundingClientRect().top+window.scrollY-56),behavior:"smooth"}); else t.scrollIntoView({behavior:"smooth",block:"start"}); }
 function show(i){
   if(typeof stopNarration==="function") stopNarration();
-  S.tab=i; save();
+  S.tab=i; save(); document.body.dataset.tab=i;
   document.querySelectorAll(".tab").forEach((t,k)=>t.setAttribute("aria-selected",k===i));
   const p=document.getElementById("view"); p.innerHTML=""; p.setAttribute("aria-labelledby","tab"+i);
   if(i===0) viewPlan(p); else viewWeek(p,i);
@@ -2056,13 +2162,13 @@ function refreshTabs(){
     let done=0; for(let n=(w-1)*4+1;n<=w*4;n++) if(sessInfo(n).complete) done++;
     t.querySelector("em i").style.width=(done/4*100)+"%";
     t.querySelector(".badge").hidden = done<4;
-    const lockedW = !studentOpen((w-1)*4+1); t.querySelector(".lk").hidden = !lockedW; t.classList.toggle("wlocked", lockedW); t.setAttribute("aria-label", VIEWS[w].k+" "+VIEWS[w].s+(lockedW?" (locked)":""));
+    const lockedW = !studentOpen((w-1)*4+1); t.querySelectorAll(".lk").forEach(x=>x.hidden=!lockedW); t.classList.toggle("wlocked", lockedW); t.setAttribute("aria-label", VIEWS[w].k+" "+VIEWS[w].s+(lockedW?" (locked)":""));
   }
 }
 const tabs=document.getElementById("tabs");
 VIEWS.forEach((v,i)=>{
   const t=h("button",{class:"tab"+(i===0?" side":""),type:"button",role:"tab",id:"tab"+i,"aria-selected":"false",onclick:()=>go(i)});
-  t.innerHTML='<small>'+v.k+'<span class="badge" hidden>DONE</span></small><span class="nrow"><span class="nm"></span><span class="lk" aria-hidden="true" hidden>🔒</span></span>'+(i===0?'':'<em><i></i></em>');
+  t.innerHTML='<small>'+v.k+'<span class="lk m-only-in" aria-hidden="true" hidden> 🔒</span><span class="badge" hidden>DONE</span></small><span class="nrow"><span class="nm"></span><span class="lk" aria-hidden="true" hidden>🔒</span></span>'+(i===0?'':'<em><i></i></em>');
   t.querySelector(".nm").textContent=v.s;
   tabs.appendChild(t);
 });
