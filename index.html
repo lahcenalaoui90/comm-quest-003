@@ -2065,6 +2065,7 @@ function checkerPanel(){
 if("serviceWorker" in navigator){ navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{}); }
 
 /* ---------- welcome screen (first page after scanning the QR code) ---------- */
+let SIGNED_IN=false;
 function welcomeGate(){
   const ov=h("div",{class:"welcome",id:"welcome",role:"dialog","aria-modal":"true","aria-labelledby":"wTitle"});
   const card=h("div",{class:"w-card"});
@@ -2090,13 +2091,17 @@ function welcomeGate(){
     const id=sid.value.trim().replace(/\s+/g,"").toUpperCase();
     if(!/^[A-Z0-9-]{3,20}$/.test(id)){ msg.textContent="Please enter your Student ID (letters and numbers only)."; return; }
     b.disabled=true; b.textContent="Opening…";
-    let restored=false;
+    let restored=false, isNew=true;
+    const key = (typeof cloudKey==="function") ? await cloudKey(v,id) : (v+"|"+id);
+    if(S.key!==key){ // another student on this device: start from a clean slate, keep instructor flag only
+      S.best={}; S.done={}; S.ticks={}; S.drafts={}; S.found={}; S.sent={}; S.xpLog={}; S.sess=1; S.tab=1; S.savedAt=0; S.lastSent=""; S.pending=[];
+    } else isNew=false;
+    S.key=key;
     if(typeof CLOUD==="function" && CLOUD()){
-      try{ const key=await cloudKey(v,id); S.key=key; const j=await cloudGet(key); if(j.ok&&j.found&&j.data){ importState(JSON.parse(j.data)); restored=true; } }catch(err){}
+      try{ const j=await cloudGet(key); if(j.ok&&j.found&&j.data){ const d=JSON.parse(j.data); if((d.savedAt||0)>=(S.savedAt||0)) importState(d); restored=true; isNew=false; } }catch(err){}
     }
-    if(!restored) S.name=v;
-    S.sid=id; save(); renderWho();
-    if(!restored && typeof sendProgress==="function") sendProgress("Started the course");
+    S.name=v; S.sid=id; SIGNED_IN=true; save(); renderWho();
+    if(typeof sendProgress==="function") sendProgress(isNew?"Started the course":"Signed in");
     ov.remove(); document.body.classList.remove("gated");
     let n=1; for(let k=1;k<=16;k++){ if(studentOpen(k)) n=k; }
     S.sess=n; show(weekOf(n)); window.scrollTo(0,0);
@@ -2376,7 +2381,7 @@ function viewPlan(p){
 }
 
 function viewWeek(p, w){
-  if((!S.name || !S.sid) && !TEACHER){ p.appendChild(h("div",{class:"lockbox"},"<h3>Sign in to continue</h3>")); setTimeout(()=>{ if(!document.getElementById("welcome")) welcomeGate(); },0); return; }
+  if(!SIGNED_IN && !TEACHER){ p.appendChild(h("div",{class:"lockbox"},"<h3>Sign in to continue</h3>")); setTimeout(()=>{ if(!document.getElementById("welcome")) welcomeGate(); },0); return; }
   if(weekOf(S.sess)!==w) S.sess=(w-1)*4+1;
   const n=S.sess, s=SESS[n-1], row=planRow(n);
   sessBar(p,w);
@@ -2498,10 +2503,10 @@ document.getElementById("tForm").addEventListener("submit",e=>{
 (async()=>{ try{ const u = window.claude && window.claude.use ? await window.claude.use("user") : null; if(u && await u.isOwner()){ TEACHER=true; show(S.tab); } }catch(e){} })();
 
 renderWho();
-if((!S.name || !S.sid) && !TEACHER && location.hash!=="#instructor") setTimeout(welcomeGate,0);
+if(!TEACHER && location.hash!=="#instructor") setTimeout(welcomeGate,0);
 if(location.hash==="#instructor"){ const f=document.getElementById("tForm"); if(f){ f.hidden=false; setTimeout(()=>f.scrollIntoView(),300); } }
 if(typeof flushPending==="function") setTimeout(flushPending,1500);
-if(typeof cloudSync==="function") setTimeout(cloudSync,800);
+
 const hm=(location.hash||"").match(/^#(plan|week([1-4]))$/);
 show(hm ? (hm[1]==="plan"?0:+hm[2]) : (S.tab>=0&&S.tab<=4?S.tab:0));
 </script>
