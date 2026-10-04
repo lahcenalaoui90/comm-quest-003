@@ -1955,7 +1955,7 @@ function buildReport(){
     rows.push("S"+String(n).padStart(2,"0")+"  "+(i.complete?"DONE   ":i.fin?"STARTED":"—      ")+"  "+String(pct).padStart(3," ")+"%  ("+i.fin+"/"+i.total+" activities)"); }
   const all=L.flatMap(actsOf).concat(FINAL_ACTS); const xp=scoreOf(all)*10, mx=maxList(all)*10;
   const code=sign(progressCore(name,stamp,pcts,xp));
-  return ["COMM QUEST 003 · PROGRESS REPORT","Student: "+name,"Student ID: "+(S.sid||""),"Date: "+stamp,"Sessions complete: "+done+" / 16","XP: "+xp+" / "+mx,"Scores: "+pcts.join(","),"-----",...rows,"-----","Code: "+code].join("\n");
+  return ["COMM QUEST 003 · PROGRESS REPORT","Student: "+name,"Date: "+stamp,"Sessions complete: "+done+" / 16","XP: "+xp+" / "+mx,"Scores: "+pcts.join(","),"-----",...rows,"-----","Code: "+code].join("\n");
 }
 function parseReports(text){
   const out=[]; const blocks=text.split(/COMM QUEST 003 · PROGRESS REPORT/).slice(1);
@@ -2071,25 +2071,22 @@ function welcomeGate(){
   const card=h("div",{class:"w-card"});
   card.appendChild(h("div",{class:"eyebrow"},"A1 Global College"));
   card.appendChild(h("h1",{id:"wTitle"},"Module 3 : <span class=\"hl\">Business Communication</span>"));
-  card.appendChild(h("p",{class:"w-sub"},"Welcome! Enter your full name and your Student ID to start the course."));
+  card.appendChild(h("p",{class:"w-sub"},"Welcome! Enter your full name to start the course."));
   const f=h("form",{class:"w-form"});
   const lab1=h("label",{for:"wName",class:"w-lab"},"Full name");
   const inp=h("input",{id:"wName",type:"text",autocomplete:"name",placeholder:"First and last name",maxlength:"60"});
   if(S.name) inp.value=S.name;
-  const lab2=h("label",{for:"wSid",class:"w-lab"},"Student ID");
-  const sid=h("input",{id:"wSid",type:"text",autocomplete:"off",autocapitalize:"characters",placeholder:"Your college Student ID",maxlength:"20"});
   const b=h("button",{class:"btn",type:"submit"},"Start");
   const msg=h("p",{class:"msg bad w-msg"});
-  f.append(lab1,inp,lab2,sid,b); card.append(f,msg);
-  card.appendChild(h("p",{class:"w-note"},"Use the name and Student ID registered at the college. Your progress is saved automatically. On another phone or computer, enter the same name and ID to continue."));
+  f.append(lab1,inp,b); card.append(f,msg);
+  card.appendChild(h("p",{class:"w-note"},"Use your full name as registered at the college. Your progress is saved automatically. On another phone or computer, enter the same full name to continue."));
   ov.appendChild(card); document.body.appendChild(ov); document.body.classList.add("gated");
   setTimeout(()=>inp.focus(),80);
   f.addEventListener("submit",async e=>{
     e.preventDefault(); msg.textContent="";
     const v=inp.value.trim().replace(/\s+/g," ");
     if(v.split(" ").length<2||v.length<4){ msg.textContent="Please enter your first and last name."; return; }
-    const id=sid.value.trim().replace(/\s+/g,"").toUpperCase();
-    if(!/^[A-Z0-9-]{3,20}$/.test(id)){ msg.textContent="Please enter your Student ID (letters and numbers only)."; return; }
+    const id="";
     b.disabled=true; b.textContent="Opening…";
     let restored=false, isNew=true;
     const key = (typeof cloudKey==="function") ? await cloudKey(v,id) : (v+"|"+id);
