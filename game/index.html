@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Memo Run</title>
+<title>Mail Rush</title>
 <meta name="theme-color" content="#14152b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,7 +32,7 @@ h1{font-family:var(--px);font-size:clamp(15px,3.4vw,22px);margin:0;color:var(--s
 .btn:focus-visible,.opt:focus-visible,.pad button:focus-visible,.floor:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 .btn.go{background:var(--sun);color:var(--ink)}
 .btn.red{background:var(--coral);color:#fff}
-.screen{position:relative;border:4px solid #000;box-shadow:0 0 0 4px var(--line),0 10px 0 4px #000;background:#000;line-height:0}
+.screen{position:relative;width:100%;max-width:min(640px,calc((100dvh - 380px) * 1.667));min-width:min(100%,300px);margin-inline:auto;border:4px solid #000;box-shadow:0 0 0 4px var(--line),0 10px 0 4px #000;background:#000;line-height:0}
 #game{width:100%;height:auto;display:block;aspect-ratio:320/192;image-rendering:pixelated;image-rendering:crisp-edges}
 .say{min-height:70px;background:var(--panel);border:3px solid #000;box-shadow:0 0 0 3px var(--line);padding:10px 12px;display:flex;gap:12px;align-items:center;font-size:15px}
 .say canvas{width:36px;height:48px;image-rendering:pixelated;flex:none}
@@ -46,6 +46,26 @@ kbd{font-family:var(--px);font-size:9px;background:var(--panel);border:2px solid
 .pad button.jump{width:116px;background:var(--coral);font-size:12px}
 .pad button.on{transform:translateY(4px);box-shadow:0 1px 0 #000}
 @media (pointer:coarse){.pad{display:flex}.keys{display:none}}
+.msg{background:var(--sun);color:var(--ink);border:4px solid #000;box-shadow:6px 6px 0 #000;padding:12px 14px;min-height:110px;cursor:default}
+.msg .mtag{font-family:var(--px);font-size:9px;letter-spacing:1px;margin-bottom:8px;opacity:.75}
+.msg p{margin:0;font-size:clamp(17px,2.6vw,21px);font-weight:500;line-height:1.35;text-wrap:balance}
+#msgFb{font-size:15px;margin-top:8px}
+#msgFb:empty{display:none}
+#msgFb b{display:block;font-size:16px;margin-bottom:2px}
+#msgFb .tap{display:block;font-size:12px;opacity:.7;margin-top:6px}
+.msg.ok{background:#c9f2d6}.msg.no{background:#f7c7c2;cursor:pointer}
+.lanes{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:10px}
+@media (max-width:560px){.lanes{gap:7px}.lanes.n5{grid-template-columns:repeat(3,minmax(0,1fr))}.lane{font-size:12.5px;min-height:78px;padding:8px 3px 10px}.lane .ic{font-size:20px}.lane .lb{font-size:11.5px;letter-spacing:-.2px;overflow-wrap:anywhere}.msg{min-height:96px}.msg p{font-size:17px}}
+.lane{font:500 15px var(--body);background:#fff;color:var(--ink);border:3px solid #000;border-top:10px solid var(--c);box-shadow:0 5px 0 #000;padding:10px 6px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:92px;border-radius:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent;position:relative}
+.lane:active{transform:translateY(4px);box-shadow:0 1px 0 #000}
+.lane:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.lane i{font-style:normal;font-family:var(--px);font-size:9px;position:absolute;top:4px;left:5px;opacity:.6}
+.lane .ic{font-size:24px;line-height:1.1}
+.lane .lb{font-weight:700;text-align:center;line-height:1.2;hyphens:auto}
+.review{margin-top:12px;display:grid;gap:8px}
+.review>b{font-size:15px}
+.rv{border:2px solid #000;background:#fff;padding:8px 10px;font-size:14px}
+.rt{font-weight:500;margin-bottom:3px}.ra{color:#a3271f}.rw{color:#3b3f5c;margin-top:2px}
 /* modals */
 .modal{position:fixed;inset:0;background:rgba(9,10,24,.84);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
 .card{background:var(--paper);color:var(--ink);border:4px solid #000;box-shadow:8px 8px 0 #000;max-width:600px;width:100%;max-height:calc(100dvh - 32px);overflow:auto;padding:22px 20px}
@@ -99,7 +119,7 @@ input.name:focus{outline:3px solid var(--teal);outline-offset:1px}
 <div class="wrap">
   <header>
     <div class="brand">
-      <h1>MEMO RUN</h1>
+      <h1>MAIL RUSH</h1>
       <div class="sub">Module 3 : Business Communication · Lesson 1 · <span id="who"></span></div>
     </div>
     <div class="tools">
@@ -107,141 +127,131 @@ input.name:focus{outline:3px solid var(--teal);outline-offset:1px}
       <button class="btn" id="sndBtn" type="button" aria-pressed="false">SOUND: OFF</button>
     </div>
   </header>
-  <div class="screen"><canvas id="game" width="320" height="192" aria-label="Memo Run game screen"></canvas></div>
+  <div class="screen"><canvas id="game" width="320" height="192" aria-label="Mail Rush game screen"></canvas></div>
+  
+  <div class="msg" id="msg" aria-live="polite"><div class="mtag" id="msgTag">INCOMING</div><p id="msgText">Your shift starts soon.</p><div id="msgFb"></div></div>
+  <div class="lanes" id="lanes"></div>
   <div class="say" id="say" aria-live="polite"><canvas id="face" width="12" height="16"></canvas><div class="txt"><b id="sayName">MAYA</b><span id="sayText">Ready when you are.</span></div></div>
-  <div class="keys"><span><kbd>←</kbd> <kbd>→</kbd> move</span><span><kbd>SPACE</kbd> or <kbd>↑</kbd> jump (hold to jump higher)</span><span><kbd>1</kbd>–<kbd>4</kbd> answer</span></div>
-  <div class="pad" id="pad">
-    <div class="grp"><button type="button" data-k="left" aria-label="Move left">◀</button><button type="button" data-k="right" aria-label="Move right">▶</button></div>
-    <button type="button" class="jump" data-k="jump" aria-label="Jump">JUMP</button>
-  </div>
+  <div class="keys"><span>Tap a bin, or press <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>… on the keyboard</span><span><kbd>SPACE</kbd> skip the explanation</span></div>
   <div class="foot">Questions? Email your instructor: <b>mdarhri.lahcen@a1gcollege.ca</b></div>
 </div>
 
 <div class="modal" id="modal"><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
 <script>
 /* ================= CONFIG ================= */
-const UNLOCK = { 1:"2026-10-13", 2:"2026-10-14", 3:"2026-10-15", 4:"2026-10-15" };   // floor -> opening day (local time, midnight)
+const UNLOCK = { 1:"2026-10-13", 2:"2026-10-14", 3:"2026-10-15", 4:"2026-10-15" };
+const DAY_OF = {1:"Tuesday",2:"Wednesday",3:"Thursday",4:"Thursday"};
 const FORM = {
   action: "https://docs.google.com/forms/d/e/1FAIpQLScn7993TFDvzk7TY9Q3HHvW3Y_6BI1v8H3pEb45xNOvFE-TYQ/formResponse",
   fields: { name:"entry.441402498", event:"entry.1776007161", sessions:"entry.28314834", xp:"entry.383135505", report:"entry.88272251" }
 };
 const INSTRUCTOR = location.hash === "#instructor";
-
-/* ================= QUESTIONS ================= */
-const Q = {
-1: [
-  {ctx:"The CEO emails all staff about the new vacation policy.", q:"Which way is this message moving?", o:["Downward","Upward","Lateral"], a:0, why:"It goes from the top of the company down to the employees."},
-  {ctx:"A cashier suggests a faster restocking method to the store manager.", q:"Which way is this message moving?", o:["Downward","Upward","Lateral"], a:1, why:"It goes from a lower level up to a manager."},
-  {ctx:"Two project coordinators compare schedules to avoid a clash.", q:"Which way is this message moving?", o:["Downward","Upward","Lateral"], a:2, why:"Same level, so it is lateral communication."},
-  {ctx:"An employee sends her monthly progress report to the director.", q:"Which way is this message moving?", o:["Downward","Upward","Lateral"], a:1, why:"Reports to a director travel upward."},
-  {q:"Workplace communication has three jobs. Which list is right?", o:["Inform, persuade, build relationships","Sell, hire, fire","Email, call, meet","Plan, build, inspect"], a:0, why:"It informs, persuades and builds relationships."},
-  {q:"What is the main risk of UPWARD communication?", o:["Details get lost through many levels","People tell the boss what the boss wants to hear","Rivalry between teams","Too many meetings"], a:1, why:"Staff may filter bad news before it reaches the top."}
-],
-2: [
-  {q:"The sender turns a thought into words or images. This is called…", o:["Encoding","Decoding","Feedback","Noise"], a:0, why:"Encoding = turning a thought into a message."},
-  {q:"The receiver gives meaning to the message. This is called…", o:["Decoding","Encoding","Transmitting","Channel"], a:0, why:"Decoding = giving meaning to what you receive."},
-  {q:"Email, phone and face-to-face are examples of a…", o:["Channel","Barrier","Feedback","Code"], a:0, why:"The channel is the way the message travels."},
-  {q:"A loud room, a vague word, a bad connection. These are all…", o:["Noise","Feedback","Channels","Encoding"], a:0, why:"Noise is anything that disrupts the loop."},
-  {q:"Which message is encoded clearly?", o:["“Please send the Q3 Ottawa sales totals by Thursday at noon.”","“Please send the numbers ASAP.”","“You know what I need.”","“Numbers. Soon.”"], a:0, why:"It says exactly what, who and when. No guessing."},
-  {q:"Why does feedback matter?", o:["It shows whether the message was understood","It makes the email longer","It replaces the channel","It removes the sender"], a:0, why:"Feedback closes the loop and confirms understanding."}
-],
-3: [
-  {ctx:"Jackhammer noise outside the meeting room.", q:"Which barrier is this?", o:["Distractions","Timing","Stress","Closed-mindedness"], a:0, why:"Fix: move to a quiet room and silence notifications."},
-  {ctx:"Asking your manager for a raise five minutes before her big presentation.", q:"Which barrier is this?", o:["Timing","Distractions","Personality differences","Differences in backgrounds"], a:0, why:"Fix: ask “Is now a good time?” and book a slot if not."},
-  {ctx:"“I already know what he’ll say, so why listen?”", q:"Which barrier is this?", o:["Closed-mindedness","Stress","Timing","Distractions"], a:0, why:"Fix: listen to the end before judging."},
-  {ctx:"The sender uses jargon the new hire has never heard.", q:"Which barrier is this?", o:["Differences in assumptions","Personality differences","Timing","Stress"], a:0, why:"Fix: find out what the receiver already knows."},
-  {ctx:"Deadline panic makes a supervisor snap at the team.", q:"Which barrier is this?", o:["Stress","Closed-mindedness","Distractions","Differences in backgrounds"], a:0, why:"Fix: plan ahead and set clear priorities."},
-  {ctx:"A joke that works in one country offends in another.", q:"Which barrier is this?", o:["Differences in backgrounds","Timing","Stress","Distractions"], a:0, why:"Fix: use plain words, give context, check understanding."},
-  {ctx:"A very direct speaker upsets a quiet, reserved listener.", q:"Which barrier is this?", o:["Personality differences","Timing","Distractions","Differences in assumptions"], a:0, why:"Fix: adapt your style to the receiver."}
-],
-4: [
-  {q:"Hearing vs listening. Which is true?", o:["Hearing is physical. Listening is a decision.","They are exactly the same","Listening is physical. Hearing is a decision.","Only managers need to listen"], a:0, why:"You hear without trying. Listening means choosing to take part."},
-  {q:"What is the FIRST stage of listening?", o:["Focusing","Interpreting","Evaluating","Responding"], a:0, why:"Focusing → Interpreting → Evaluating → Responding."},
-  {q:"Which behaviour shows active listening?", o:["“So you’re saying the client wants the report by Friday?”","Nodding while scrolling your phone","Planning your reply while they talk","Tuning out because it is boring"], a:0, why:"Paraphrasing proves you understood."},
-  {q:"When words and face disagree, how much meaning comes from the face?", o:["55%","7%","38%","93%"], a:0, why:"7% words · 38% voice · 55% face."},
-  {q:"“Paralanguage” is…", o:["How words are said: tone, pace, volume","The dictionary meaning of words","Written punctuation","Your job title"], a:0, why:"Paralanguage is the way something is said."}
-],
-boss: [
-  {q:"Which of these is an OBSTACLE to listening?", o:["Taking too many notes","Creating a quiet space first","Paraphrasing the speaker","Asking a clarifying question"], a:0, why:"Too many notes pull your attention away from the speaker."},
-  {q:"A new colleague from another culture avoids direct eye contact. You should…", o:["Withhold judgment and get to know the person","Assume they are hiding something","Tell them to look at you","Stop inviting them to meetings"], a:0, why:"Bridge cultures: withhold judgment, treat each person as an individual."},
-  {q:"“I’m interested,” said with arms crossed while reading email, is a…", o:["Mixed signal","Clear message","Lateral message","Feedback loop"], a:0, why:"The words say one thing, the body says another."}
-]};
-
-/* ================= FLOORS ================= */
-const LOOP = ["THOUGHT","ENCODE","SEND","DECODE","REPLY","FEEDBACK"];
-const BARRIER_FIX = {
-  "DISTRACTIONS":"Move to a quiet place and silence notifications.",
-  "TIMING":"Ask “Is now a good time?” and book a slot if not.",
-  "STRESS":"Plan ahead, organize and set priorities.",
-  "CLOSED MIND":"Listen to the end before judging.",
-  "ASSUMPTIONS":"Find out what the receiver already knows first.",
-  "BACKGROUNDS":"Use plain words, give context, check understanding.",
-  "PERSONALITY":"Adapt your style to the receiver."
-};
 const NPCPAL = {
   sam:  {Y:"#2b2b2b",y:"#1a1a1a",H:"#2b2b2b",S:"#8d5a3b",T:"#3a5bd9",W:"#ffffff",P:"#2a2a40",B:"#222"},
   lina: {Y:"#b5452d",y:"#8a2f1c",H:"#b5452d",S:"#f0c7a0",T:"#9b59b6",W:"#ffffff",P:"#333355",B:"#3a2a1a"},
   omar: {Y:"#1d1d1d",y:"#111",H:"#1d1d1d",S:"#b9835a",T:"#e67e22",W:"#ffffff",P:"#34495e",B:"#222"},
   grace:{Y:"#f1d36b",y:"#c9a83a",H:"#f1d36b",S:"#f3d2b3",T:"#27ae60",W:"#ffffff",P:"#2c3e50",B:"#4a2f1a"},
   priya:{Y:"#151515",y:"#0c0c0c",H:"#151515",S:"#a86b45",T:"#d63a6a",W:"#ffffff",P:"#2a2a40",B:"#222"},
-  ken:  {Y:"#6b6b6b",y:"#4d4d4d",H:"#6b6b6b",S:"#e8bf98",T:"#5b6c7d",W:"#ffffff",P:"#1f2a36",B:"#111"},
-  chen: {Y:"#262626",y:"#111",H:"#262626",S:"#edc9a3",T:"#c0392b",W:"#ffffff",P:"#1b1b2f",B:"#111"}
+  ken:  {Y:"#6b6b6b",y:"#4d4d4d",H:"#6b6b6b",S:"#e8bf98",T:"#5b6c7d",W:"#ffffff",P:"#1f2a36",B:"#111"}
 };
+
+/* ================= LANES (bins) ================= */
+const LANE = {
+  down:{label:"Downward",px:"DOWN",icon:"⬇",col:"#4a7bd9",why:"Downward: from a higher level to lower levels."},
+  up:{label:"Upward",px:"UP",icon:"⬆",col:"#e2483d",why:"Upward: from a lower level to higher levels."},
+  lat:{label:"Lateral",px:"LATERAL",icon:"➡",col:"#2bb3a3",why:"Lateral: between people at the same level."},
+  enc:{label:"Encode",px:"ENCODE",icon:"✎",col:"#4a7bd9",why:"Encode: the sender turns a thought into words, images or actions."},
+  chan:{label:"Channel",px:"CHANNEL",icon:"✉",col:"#9b59b6",why:"Channel: the way the message travels (email, phone, meeting…)."},
+  dec:{label:"Decode",px:"DECODE",icon:"👁",col:"#2bb3a3",why:"Decode: the receiver gives meaning to the message."},
+  fb:{label:"Feedback",px:"FEEDBACK",icon:"↩",col:"#ff9f1c",why:"Feedback: the receiver’s response, which shows if the message was understood."},
+  noise:{label:"Noise · shred",px:"SHRED",icon:"✂",col:"#6b7086",why:"Noise: anything that disrupts the loop. Shred it!"},
+  dis:{label:"Distrac\u00ADtions",px:"DISTRACT",icon:"📱",col:"#7a5cff",why:"Distractions. Fix: move to a quiet place and silence notifications."},
+  tim:{label:"Timing",px:"TIMING",icon:"⏰",col:"#ff9f1c",why:"Timing. Fix: ask “Is now a good time?” and book a slot if not."},
+  str:{label:"Stress",px:"STRESS",icon:"💢",col:"#e2483d",why:"Stress. Fix: plan ahead, organize, set priorities."},
+  clo:{label:"Closed mind",px:"CLOSED",icon:"🔒",col:"#5d6d7e",why:"Closed-mindedness. Fix: listen to the end before judging."},
+  ass:{label:"Assumptions",px:"ASSUME",icon:"❓",col:"#16a085",why:"Different assumptions. Fix: find out what the receiver already knows."},
+  bac:{label:"Backgrounds",px:"BACKGRND",icon:"🌍",col:"#d35400",why:"Different backgrounds. Fix: plain words, context, check understanding."},
+  per:{label:"Personality",px:"PERSON.",icon:"🎭",col:"#e84393",why:"Personality differences. Fix: adapt your style to the receiver."},
+  act:{label:"Active listen\u00ADing",px:"ACTIVE",icon:"👂",col:"#3fbf6a",why:"Active listening: you listen accurately and show you are paying attention."},
+  not:{label:"Not listening",px:"NOT",icon:"🙉",col:"#e2483d",why:"Not listening: attention is somewhere else."},
+  wor:{label:"Words · 7%",px:"WORDS 7",icon:"Aa",col:"#4a7bd9",why:"Words carry only 7% of meaning when words and face disagree."},
+  voi:{label:"Voice · 38%",px:"VOICE 38",icon:"🔊",col:"#ff9f1c",why:"Voice (tone, pace, volume) carries 38%. This is paralanguage."},
+  fac:{label:"Face · 55%",px:"FACE 55",icon:"🙂",col:"#e84393",why:"The face carries 55% of meaning."},
+  foc:{label:"1 · Focusing",px:"FOCUS",icon:"🎯",col:"#4a7bd9",why:"Focusing: decide to listen and create the right atmosphere."},
+  int:{label:"2 · Interpre\u00ADting",px:"INTERPRET",icon:"💭",col:"#9b59b6",why:"Interpreting: hold back judgment and work out the meaning."},
+  eva:{label:"3 · Evalua\u00ADting",px:"EVALUATE",icon:"⚖",col:"#ff9f1c",why:"Evaluating: gather more information and decide if it is genuine."},
+  res:{label:"4 · Respon\u00ADding",px:"RESPOND",icon:"💬",col:"#3fbf6a",why:"Responding: decide what to do and reply."}
+};
+
+/* ================= FLOORS ================= */
 const FLOORS = {
-1:{ name:"WHICH WAY?", short:"Directions of communication", w:122,
-  wall:"#d5deef", trim:"#a9b7d6", sky:["#7cc7ff","#d9f1ff"],
+1:{ name:"WHICH WAY?", short:"Directions of communication", boss:"sam",
   brief:[["Workplace communication","Every exchange of information inside a company and with its clients. Three jobs: inform, persuade, build relationships."],
          ["Downward ⬇","From higher levels to lower levels. Example: a supervisor posts next week’s schedule."],
          ["Upward ⬆","From lower levels to higher levels. Example: a progress report to the director."],
          ["Lateral ➡","Between people at the same level. Example: sales and marketing plan a campaign together."]],
-  mission:"Hit the 6 yellow memo blocks from below and answer each one. Stomp the PING phones: they are distractions. Reach the elevator.",
-  build(b){ b.npc(4,"sam","SAM · SUPERVISOR","Welcome to Northline Build, Maya! Messages move 3 ways here: DOWN from managers, UP from staff, and SIDEWAYS between teams.");
-    b.coin(8,8,3); b.blk(12,6); b.en(17,"PING"); b.plat(20,7,4); b.coin(20,6,4); b.pit(26,2); b.cab(31,1); b.cab(32,2);
-    b.blk(36,6); b.en(40,"PING"); b.coin(38,8,3); b.pit(45,3); b.coin(45,7,3);
-    b.npc(50,"lina","LINA · COORDINATOR","Tip: yellow memo blocks hide questions. Jump under them! Sideways messages between teams are called LATERAL.");
-    b.blk(54,6); b.plat(58,7,3); b.blk(59,3); b.en(63,"PING"); b.en(67,"PING"); b.pit(70,2);
-    b.cab(74,1); b.cab(75,2); b.cab(76,3); b.pit(77,3); b.coin(77,5,3); b.cab(80,3); b.cab(81,2); b.cab(82,1);
-    b.blk(87,6); b.en(91,"PING"); b.plat(95,7,3); b.life(96,6); b.blk(101,6); b.en(105,"PING"); b.coin(107,8,4); b.door(116); }},
-2:{ name:"THE LOOP", short:"The sender–receiver model", w:112,
-  wall:"#dbe9e1", trim:"#a8c6b6", sky:["#5fb2ff","#c6e6ff"],
-  brief:[["The loop","Communication is a loop, not a one-way broadcast."],
-         ["The 6 steps","Thought → Encode → Send (through a channel) → Decode → Reply → Feedback."],
-         ["Encode / Decode","Encode: turn a thought into words. Decode: give meaning to what you receive."],
-         ["Noise","Anything that breaks the loop: a loud room, a vague word, a bad connection."]],
-  mission:"Collect the 6 LOOP cards in the right order. A card that is not next will not let you take it. The elevator opens when the loop is complete.",
-  loop:true,
-  build(b){ b.npc(4,"omar","OMAR · IT","Communication is a LOOP. Grab the cards in order: it always starts with a THOUGHT.");
-    b.card(10,9,"THOUGHT"); b.blk(14,6); b.en(18,"NOISE"); b.plat(21,7,4); b.card(23,6,"SEND"); b.pit(28,2);
-    b.blk(32,6); b.card(37,9,"ENCODE"); b.en(41,"NOISE"); b.cab(45,2); b.pit(47,2); b.coin(47,6,2);
-    b.npc(52,"grace","GRACE · RECEPTION","After the message is SENT, the receiver DECODES it, then REPLIES. FEEDBACK closes the loop.");
-    b.plat(55,7,3); b.card(56,6,"FEEDBACK"); b.en(60,"NOISE"); b.blk(64,6); b.card(69,9,"DECODE"); b.pit(73,3); b.coin(73,7,3);
-    b.en(78,"NOISE"); b.blk(82,6); b.card(86,9,"REPLY"); b.en(90,"NOISE"); b.plat(93,7,3); b.life(94,6); b.blk(97,6); b.coin(99,8,3); b.door(106); }},
-3:{ name:"BARRIER BUSTERS", short:"The 7 barriers and their fixes", w:126,
-  wall:"#efe1d6", trim:"#d3b9a6", sky:["#ffb36b","#ffe2b8"],
-  brief:[["Barriers","Anything that blocks a message from being understood."],
-         ["The 7 barriers","Distractions · Backgrounds · Timing · Personality · Closed mind · Assumptions · Stress."],
-         ["Every barrier has a fix","Quiet room, plain words, good timing, adapt your style, listen to the end, check what they know, plan ahead."]],
-  mission:"7 barriers walk this floor. Stomp each one to learn its fix. Answer the 7 memo blocks.",
-  build(b){ b.npc(4,"priya","PRIYA · HR","Seven barriers are loose on this floor! Jump on each one to learn how to fix it.");
-    b.blk(10,6); b.en(15,"DISTRACTIONS"); b.plat(19,7,4); b.blk(20,3); b.en(26,"TIMING"); b.pit(30,2);
-    b.blk(35,6); b.cab(39,2); b.en(43,"STRESS"); b.blk(48,6); b.pit(52,3); b.coin(52,7,3); b.plat(56,7,4); b.coin(56,6,4);
-    b.en(62,"CLOSED MIND"); b.blk(66,6); b.cab(70,1); b.cab(71,2); b.pit(72,2); b.en(77,"ASSUMPTIONS"); b.blk(81,6);
-    b.plat(85,7,3); b.life(86,6); b.en(91,"BACKGROUNDS"); b.pit(96,2); b.blk(100,6); b.en(105,"PERSONALITY"); b.coin(108,8,4); b.door(119); }},
-4:{ name:"LISTEN UP!", short:"Listening, nonverbal and culture + final boss", w:132,
-  wall:"#e3dcf0", trim:"#bdb0d8", sky:["#ff7e7e","#ffd0a6"],
+  mission:"Messages roll down the belt. Send each one to the right bin before it falls into LOST MAIL.",
+  waves:[{title:"Morning mail",lanes:["down","up","lat"],items:[
+    ["The CEO emails all staff about the new vacation policy.","down"],["A supervisor posts next week’s shift schedule.","down"],
+    ["The site manager tells the crew about the new safety rules.","down"],["HR sends every employee the updated dress code.","down"],
+    ["A director gives her team feedback after the audit.","down"],
+    ["A cashier suggests a faster restocking method to the store manager.","up"],["An employee sends her monthly progress report to the director.","up"],
+    ["A carpenter tells the foreman that a delivery is missing.","up"],["Staff fill in a survey for the CEO about morale.","up"],
+    ["A coordinator asks her manager a question about the budget.","up"],
+    ["Two project coordinators compare schedules to avoid a clash.","lat"],["Marketing and sales meet to plan a campaign.","lat"],
+    ["The electrician and the plumber agree on who works first.","lat"],["Two cashiers swap shifts.","lat"],
+    ["Accounting asks purchasing for last month’s invoices.","lat"]]}]},
+2:{ name:"THE LOOP", short:"The sender–receiver model", boss:"omar",
+  brief:[["The loop","Communication is a loop, not a one-way broadcast: Thought → Encode → Channel → Decode → Feedback."],
+         ["Encode / Decode","Encode: the sender turns a thought into words. Decode: the receiver gives it meaning."],
+         ["Channel","The way the message travels: email, phone, video call, memo board, face-to-face."],
+         ["Noise","Anything that breaks the loop: a loud room, a vague word, a frozen call. Shred it!"]],
+  mission:"Each card is one moment of the loop. Send it to the right bin. Noise goes to the shredder.",
+  waves:[{title:"The loop",lanes:["enc","chan","dec","fb","noise"],items:[
+    ["Maya turns her idea into a short, clear email.","enc"],["Sam chooses simple words to explain the change.","enc"],
+    ["The manager draws a quick sketch to show the new layout.","enc"],["Lina writes: “Send the Q3 Ottawa totals by Thursday noon.”","enc"],
+    ["The message travels by email.","chan"],["Omar calls the client on the phone.","chan"],["The team meets on a video call.","chan"],
+    ["A memo is pinned on the staff board.","chan"],
+    ["The client reads the email and understands the deadline.","dec"],["Sam works out what “ASAP” means for him.","dec"],
+    ["The new hire studies the sketch and understands the layout.","dec"],
+    ["“Got it, Thursday noon,” Sam replies.","fb"],["The client repeats the plan back to Maya.","fb"],
+    ["Grace asks: “Do you mean the north lot or the south lot?”","fb"],
+    ["A jackhammer starts outside the meeting room.","noise"],["The video call keeps freezing.","noise"],["A vague message: “Send the stuff soon.”","noise"]]}]},
+3:{ name:"BARRIER BUSTERS", short:"The 7 barriers and their fixes", boss:"priya",
+  brief:[["Barriers","Anything that stops a message from being understood."],
+         ["The 7 barriers","Distractions · Timing · Stress · Closed mind · Assumptions · Backgrounds · Personality."],
+         ["Every barrier has a fix","Quiet place, good timing, plan ahead, listen to the end, check what they know, plain words, adapt your style."]],
+  mission:"Each card describes a problem. Send it to the barrier that causes it. You will see the fix after each answer.",
+  waves:[{title:"Wave 1",lanes:["dis","tim","str","clo"],items:[
+    ["Phones keep buzzing during the safety briefing.","dis"],["The meeting room is freezing cold and noisy.","dis"],
+    ["Asking for a raise five minutes before her big presentation.","tim"],["Explaining a new procedure at 4:59 on a Friday.","tim"],
+    ["Deadline panic makes the supervisor snap at the team.","str"],["Ken is too overwhelmed to read the long email.","str"],
+    ["“I already know what he’ll say, so why listen?”","clo"],["Priya ignores the idea because it came from an intern.","clo"]]},
+   {title:"Wave 2",lanes:["ass","bac","per"],items:[
+    ["The sender uses jargon the new hire has never heard.","ass"],["Sam thinks everyone knows where the storage room is.","ass"],
+    ["A joke that works in one country offends in another.","bac"],["A thumbs-up means OK to one worker and is rude to another.","bac"],
+    ["A very direct speaker upsets a quiet, reserved listener.","per"],["An outgoing manager overwhelms a shy new employee.","per"]]}]},
+4:{ name:"LISTEN UP!", short:"Listening and nonverbal communication", boss:"ken",
   brief:[["Hearing vs listening","Hearing is physical. Listening is a decision to take part."],
-         ["4 stages","Focusing → Interpreting → Evaluating → Responding."],
          ["Active listening","Paraphrase, ask questions, summarize: “So the deadline is now Friday?”"],
-         ["7 · 38 · 55","When words and face disagree: 7% words, 38% voice, 55% face."]],
-  mission:"Answer the 5 memo blocks, then beat THE BIG NOISE in the boardroom. Stomp it, then answer correctly to make each hit count.",
-  boss:true, arena:100,
-  build(b){ b.npc(4,"ken","KEN · MANAGER","Hearing is physical. LISTENING is a decision: Focus, Interpret, Evaluate, Respond.");
-    b.blk(10,6); b.en(14,"NOISE"); b.plat(18,7,3); b.blk(19,3); b.pit(24,2); b.coin(24,7,2); b.en(30,"NOISE"); b.blk(35,6);
-    b.cab(40,2); b.cab(41,3); b.pit(42,3); b.coin(42,5,3); b.cab(45,3); b.cab(46,2); b.blk(50,6); b.en(54,"NOISE"); b.en(58,"NOISE");
-    b.plat(62,7,4); b.life(63,6); b.blk(70,6); b.pit(75,2); b.coin(79,8,4);
-    b.npc(90,"chen","MS. CHEN · DIRECTOR","THE BIG NOISE is in the boardroom! Stomp it, then answer my question to make the hit count. Good luck, Maya!"); }}
+         ["7 · 38 · 55","When words and face disagree: 7% words, 38% voice, 55% face."],
+         ["4 stages","Focusing → Interpreting → Evaluating → Responding."]],
+  mission:"Three waves: listening or not, where the meaning comes from, then the 4 stages. The belt gets faster!",
+  waves:[{title:"Wave 1 · Listening?",lanes:["act","not"],items:[
+    ["“So you’re saying the client wants the report by Friday?”","act"],["Asking: “What do you mean by urgent?”","act"],
+    ["Summarizing the three actions at the end of the meeting.","act"],["Keeping eye contact and an open posture.","act"],
+    ["Nodding while scrolling through your phone.","not"],["Planning your reply while they are still talking.","not"],
+    ["Tuning out because the topic is boring.","not"],["Judging the speaker by their accent.","not"]]},
+   {title:"Wave 2 · 7 · 38 · 55",lanes:["wor","voi","fac"],items:[
+    ["The sentence itself: “The project is fine.”","wor"],["The dictionary meaning of the word “deadline”.","wor"],
+    ["A sharp, rising tone of voice.","voi"],["Speaking very fast and very loud.","voi"],
+    ["A frown while saying “sure”.","fac"],["Rolling her eyes during the update.","fac"]]},
+   {title:"Wave 3 · The 4 stages",lanes:["foc","int","eva","res"],items:[
+    ["Put the phone away and look at the speaker.","foc"],["Find a quiet spot before the call starts.","foc"],
+    ["Work out what the speaker really means.","int"],["Hold back judgment and check the meaning.","int"],
+    ["Gather more facts before deciding.","eva"],["Decide whether the information is genuine.","eva"],
+    ["Decide what action to take, then reply.","res"],["Consider your time and energy, then act.","res"]]}]}
 };
-const DAY_OF = {1:"Tuesday",2:"Wednesday",3:"Thursday",4:"Thursday"};
 /* ================= SPRITES ================= */
 const PAL = {K:"#14152b",Y:"#ffd84a",y:"#e0a91c",H:"#3b2418",S:"#c68a5f",T:"#2bb3a3",W:"#f7f4ec",P:"#2e3a6e",B:"#6b3f22",R:"#e2483d",C:"#ff6b5a",L:"#4a7bd9",G:"#3fbf6a",D:"#9aa0b5"};
 const TOP = [
@@ -293,20 +303,6 @@ const F3 = {A:"010101111101101",B:"110101110101110",C:"011100100100011",D:"11010
 function text3(ctx,s,x,y,col,shadow){ s=String(s).toUpperCase(); const draw=(ox,oy,c)=>{ ctx.fillStyle=c; let cx=ox; for(const ch of s){ const g=F3[ch]||F3[" "]; for(let i=0;i<15;i++) if(g[i]==="1") ctx.fillRect(cx+i%3,oy+Math.floor(i/3),1,1); cx+=4; } };
   if(shadow) draw(x+1,y+1,shadow); draw(x,y,col); }
 const w3 = s => String(s).length*4-1;
-
-/* tiles */
-const T=16, VH=192, ROWS=12; let VW=320;
-function tileC(fn){ const c=document.createElement("canvas"); c.width=c.height=T; fn(c.getContext("2d")); return c; }
-const TILE = {
- "#":tileC(x=>{ x.fillStyle="#4b5785";x.fillRect(0,0,16,16); x.fillStyle="#9fb0d6";x.fillRect(0,0,16,3); x.fillStyle="#2a3157";x.fillRect(0,3,16,1); x.fillStyle="#3d4874";x.fillRect(0,4,1,12);x.fillRect(8,9,1,7); x.fillStyle="#56639a";x.fillRect(3,7,1,1);x.fillRect(11,12,1,1);}),
- "=":tileC(x=>{ x.fillStyle="#c98a4b";x.fillRect(0,0,16,4); x.fillStyle="#6e4420";x.fillRect(0,4,16,1); x.fillStyle="#9b6233";x.fillRect(0,5,16,11); x.fillStyle="#7d4c25";x.fillRect(3,7,10,6); x.fillStyle="#f2d48a";x.fillRect(7,9,2,1); x.fillStyle="#e3a868";x.fillRect(0,0,16,1);}),
- "F":tileC(x=>{ x.fillStyle="#4c5566";x.fillRect(0,0,16,16); x.fillStyle="#9aa3b1";x.fillRect(1,1,14,14); x.fillStyle="#6f7889";x.fillRect(1,7,14,1); x.fillStyle="#dfe4ea";x.fillRect(6,3,4,1);x.fillRect(6,10,4,1); x.fillStyle="#b9c1cc";x.fillRect(1,1,14,1);}),
- "B":tileC(x=>{ x.fillStyle="#7a5a00";x.fillRect(0,0,16,16); x.fillStyle="#ffd84a";x.fillRect(1,1,14,14); x.fillStyle="#fff1a8";x.fillRect(1,1,14,2); x.fillStyle="#e0b520";x.fillRect(11,11,4,4);x.fillStyle="#7a5a00";x.fillRect(11,11,1,4);x.fillRect(11,11,4,1); x.fillStyle="#3a2a00";x.fillRect(7,3,2,6);x.fillRect(7,11,2,2);}),
- "b":tileC(x=>{ x.fillStyle="#6b6450";x.fillRect(0,0,16,16); x.fillStyle="#b8ad94";x.fillRect(1,1,14,14); x.fillStyle="#9d9379";x.fillRect(3,3,1,1);x.fillRect(12,3,1,1);x.fillRect(3,12,1,1);x.fillRect(12,12,1,1);}),
- "G":tileC(x=>{ for(let i=0;i<16;i++){ x.fillStyle=(Math.floor(i/4)%2)?"#f7f4ec":"#e2483d"; x.fillRect(0,i,16,1);} x.fillStyle="#14152b";x.fillRect(0,0,1,16);x.fillRect(15,0,1,16);})
-};
-const SOLID = new Set(["#","=","F","B","b","G"]);
-
 /* ================= AUDIO ================= */
 let SOUND=false, AC=null;
 function beep(f,d,type,vol,slide){ if(!SOUND) return; try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); const o=AC.createOscillator(), g=AC.createGain(); o.type=type||"square"; o.frequency.value=f; if(slide) o.frequency.linearRampToValueAtTime(slide,AC.currentTime+d); g.gain.value=vol||.05; g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d); o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime+d);}catch(e){} }
@@ -314,205 +310,140 @@ const SFX = { jump:()=>beep(330,.15,"square",.04,660), coin:()=>{beep(988,.06);s
   good:()=>{beep(660,.08);setTimeout(()=>beep(880,.08),80);setTimeout(()=>beep(1175,.15),160);}, bad:()=>beep(150,.3,"sawtooth",.05), block:()=>beep(520,.08,"square",.05,260), win:()=>{[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.15),i*120));} };
 
 /* ================= STATE ================= */
-const cv=document.getElementById("game"), ctx=cv.getContext("2d");
-function fitView(){ const nw = (innerWidth<700 && innerHeight>innerWidth) ? 224 : 320; if(nw!==VW||cv.width!==nw){ VW=nw; cv.width=VW; cv.style.aspectRatio=VW+"/"+VH; } ctx.imageSmoothingEnabled=false; }
-fitView(); addEventListener("resize",fitView);
-const STORE="memorun_l1";
-let P = { name:"", best:{}, cleared:{} };
+/* ================= MAIL ROOM ENGINE ================= */
+const VW=320, VH=192;
+const cv=document.getElementById("game"), ctx=cv.getContext("2d"); ctx.imageSmoothingEnabled=false;
+const STORE="mailrush_l1";
+let P={name:"",best:{},cleared:{}};
 function profKey(n){ return STORE+"|"+n.trim().toLowerCase().replace(/\s+/g," "); }
 function loadProf(n){ try{ const r=localStorage.getItem(profKey(n)); if(r) return Object.assign({name:n,best:{},cleared:{}},JSON.parse(r)); }catch(e){} return {name:n,best:{},cleared:{}}; }
 function saveProf(){ try{ localStorage.setItem(profKey(P.name),JSON.stringify(P)); localStorage.setItem(STORE+"|last",P.name); }catch(e){} }
-let mode="menu", floorN=1, lv=null, pl=null, cam=0, xp=0, hearts=3, stat={ok:0,tot:0,stomps:0,coins:0}, parts=[], tick=0;
-const input={left:false,right:false,jump:false,jp:0};
-
-/* ================= LEVEL BUILD ================= */
-function buildLevel(n){
-  const F=FLOORS[n]; const W=F.w; const g=[]; for(let r=0;r<ROWS;r++){ g.push(new Array(W).fill(r>=10?"#":".")); }
-  const L={n,F,W,g,enemies:[],npcs:[],cards:[],door:null,boss:null,loopIdx:0,blocksLeft:0,qs:shuffle(Q[n].slice()),bossQ:shuffle(Q.boss.slice()),gateClosed:false};
-  const b={ pit:(x,w)=>{for(let i=x;i<x+w;i++){g[10][i]=".";g[11][i]=".";}},
-    plat:(x,y,w)=>{for(let i=x;i<x+w;i++) g[y][i]="=";},
-    cab:(x,h)=>{for(let j=0;j<h;j++) g[9-j][x]="F";},
-    blk:(x,y)=>{g[y][x]="B"; L.blocksLeft++;},
-    coin:(x,y,n)=>{for(let i=0;i<n;i++) if(g[y][x+i]===".") g[y][x+i]="c";},
-    life:(x,y)=>{g[y][x]="K";},
-    en:(x,type)=>L.enemies.push({x:x*T+2,y:9*T-10,w:12,h:12,vx:-.45,vy:0,type,alive:true,squash:0,f:0}),
-    npc:(x,id,who,text)=>L.npcs.push({x:x*T+2,y:10*T-16,id,who,text}),
-    card:(x,y,label)=>L.cards.push({x:x*T+2,y:y*T+4,w:12,h:12,label,got:false,cool:0}),
-    door:(x)=>{L.door={x:x*T,y:10*T-32,w:24,h:32};}
-  };
-  F.build(b);
-  if(F.boss){ const a=F.arena; for(let i=a;i<W;i++){ g[10][i]="#"; g[11][i]="#"; } for(let j=0;j<6;j++) g[9-j][W-1]="F";
-    L.boss={x:(W-8)*T,y:10*T-30,w:28,h:28,vx:0,vy:0,hp:3,inv:0,active:false,dead:false,jumpT:90,flash:0}; }
-  return L;
-}
 function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
-function tileAt(tx,ty){ if(tx<0||tx>=lv.W) return "F"; if(ty<0||ty>=ROWS) return "."; return lv.g[ty][tx]; }
-function solidAt(tx,ty){ return SOLID.has(tileAt(tx,ty)); }
-function hitSolid(x,y,w,h){ for(let ty=Math.floor(y/T);ty<=Math.floor((y+h-.01)/T);ty++) for(let tx=Math.floor(x/T);tx<=Math.floor((x+w-.01)/T);tx++) if(solidAt(tx,ty)) return {tx,ty}; return null; }
 
-function startFloor(n){
-  floorN=n; lv=buildLevel(n); pl={x:2*T,y:10*T-15,w:10,h:15,vx:0,vy:0,face:1,ground:false,coy:0,jb:0,inv:0,anim:0,safe:{x:2*T,y:10*T-15}};
-  cam=0; xp=0; hearts=3; stat={ok:0,tot:0,stomps:0,coins:0}; parts=[]; mode="play";
-  setSay("maya","MAYA",FLOORS[n].mission);
+const PARCEL=spr(["KKKKKKKKKKKKKK","KWWWWWWWWWWWWK","KWKWWWWWWWWKWK","KWWKWWWWWWKWWK","KWWWKWWWWKWWWK","KWWWWKRRKWWWWK","KWWWWWRRWWWWWK","KWWWWWWWWWWWWK","KWWWWWWWWWWWWK","KKKKKKKKKKKKKK"]);
+
+let mode="menu", floorN=1, G=null, tick=0, parts=[];
+const BELT_Y=60, BELT_END=262, ITEM_START=-24;
+
+function newGame(n){
+  const F=FLOORS[n];
+  return {n,F,wi:0,lanes:[],queue:[],cur:null,phase:"banner",bT:110,banner:"SHIFT START",
+    lives:3,score:0,combo:0,maxCombo:0,ok:0,tot:0,mistakes:[],flyers:[],flash:{},speedLvl:0,fbT:0,fbOk:true,bossMood:0,
+    totalItems:F.waves.reduce((s,w)=>s+w.items.length,0),done:0};
 }
+function setupWave(i){ const w=G.F.waves[i]; G.wi=i; G.lanes=w.lanes.map(k=>Object.assign({key:k},LANE[k]));
+  G.queue=shuffle(w.items.map(([t,a])=>({t,a}))); G.phase="banner"; G.bT=i?130:110; G.banner=i?w.title.toUpperCase():"SHIFT START · "+w.title.toUpperCase();
+  buildLaneButtons(); showMsg("", "Get ready…", ""); }
+function durFor(){ const base = G.n===1?10.5 : G.n===2?11 : 10.5; return Math.max(5, base - G.speedLvl*.4); }
+function nextItem(){
+  if(!G.queue.length){ if(G.wi+1<G.F.waves.length){ setupWave(G.wi+1); return; } finishShift(); return; }
+  const it=G.queue.shift(); G.cur={it,x:ITEM_START,v:(BELT_END-ITEM_START)/(durFor()*60)}; G.phase="run";
+  showMsg("INCOMING · "+(G.done+1)+"/"+G.totalItems, it.t, "");
+}
+function startFloor(n){ floorN=n; G=newGame(n); parts=[]; mode="play"; setupWave(0); setSay(G.F.boss, bossName(), G.F.mission); }
+function bossName(){ return {sam:"SAM · SUPERVISOR",omar:"OMAR · IT",priya:"PRIYA · HR",ken:"KEN · MANAGER"}[G.F.boss]||"BOSS"; }
 
-/* ================= UPDATE ================= */
-function moveBody(o,onWall){ o.x+=o.vx; let h=hitSolid(o.x,o.y,o.w,o.h); if(h){ if(o.vx>0) o.x=h.tx*T-o.w; else if(o.vx<0) o.x=(h.tx+1)*T; if(onWall) onWall(); else o.vx=0; }
-  o.vy=Math.min(o.vy+.4,6); o.y+=o.vy; o.ground=false; h=hitSolid(o.x,o.y,o.w,o.h);
-  if(h){ if(o.vy>0){ o.y=h.ty*T-o.h; o.ground=true; o.vy=0; } else if(o.vy<0){ o.y=(h.ty+1)*T; o.vy=0; } } }
-function overlap(a,b){ return a.x<b.x+b.w && a.x+a.w>b.x && a.y<b.y+b.h && a.y+a.h>b.y; }
-function burst(x,y,col,n){ for(let i=0;i<(n||8);i++) parts.push({x,y,vx:(Math.random()-.5)*3,vy:-Math.random()*3-1,life:30+Math.random()*15,col}); }
-function float(x,y,txt,col){ parts.push({x,y,vx:0,vy:-.5,life:50,txt,col:col||"#ffd84a"}); }
+function binRect(i){ const n=G.lanes.length, gap=6, left=8, right=VW-8; const w=Math.min(58,Math.floor((right-left-gap*(n-1))/n)); const total=w*n+gap*(n-1); const x0=Math.round((VW-total)/2);
+  return {x:x0+i*(w+gap), y:124, w, h:46}; }
+
+function choose(i){
+  if(mode!=="play"||!G||G.phase!=="run"||!G.cur||i>=G.lanes.length) return;
+  const it=G.cur.it, lane=G.lanes[i], ok=lane.key===it.a, prog=(G.cur.x-ITEM_START)/(BELT_END-ITEM_START);
+  const r=binRect(i); G.flyers.push({x:G.cur.x,y:BELT_Y-14,sx:G.cur.x,sy:BELT_Y-14,tx:r.x+r.w/2-7,ty:r.y+4,t:0,dur:22});
+  G.flash[i]={t:30,ok}; G.done++; G.tot++; MAYA_THROW=14;
+  if(ok){ G.combo++; G.maxCombo=Math.max(G.maxCombo,G.combo); G.ok++; G.speedLvl++; const mult=Math.min(4,1+Math.floor(G.combo/3)); const pts=100*mult+Math.round(50*(1-prog));
+    G.score+=pts; SFX.coin(); if(G.combo%3===0) SFX.good(); float(r.x+r.w/2-10,r.y-14,"+"+pts,"#ffd84a"); G.bossMood=40;
+    feedback(true,"✓ Correct! +"+pts+(mult>1?" · combo x"+mult:""), LANE[it.a].why, 75); }
+  else { G.combo=0; G.lives--; SFX.bad(); G.bossMood=-60; G.mistakes.push({t:it.t,your:lane.label,right:LANE[it.a].label,why:LANE[it.a].why});
+    feedback(false,"✗ Not "+lane.label+". It goes to "+LANE[it.a].label.toUpperCase()+".", LANE[it.a].why, 170); }
+  G.cur=null;
+}
+function miss(){ const it=G.cur.it; G.cur=null; G.done++; G.tot++; G.combo=0; G.lives--; SFX.hurt(); G.bossMood=-60;
+  G.mistakes.push({t:it.t,your:"(too late)",right:LANE[it.a].label,why:LANE[it.a].why});
+  parts.push({x:BELT_END+20,y:BELT_Y,vx:0,vy:1.5,life:30,col:"#ffffff"});
+  feedback(false,"⏰ Too late! It was "+LANE[it.a].label.toUpperCase()+".", LANE[it.a].why, 170); }
+function feedback(ok,head,why,frames){ G.phase="fb"; G.fbT=frames; G.fbMin=frames-30; G.fbOk=ok; showMsg(null,null,`<b>${esc(head)}</b> ${esc(why)}<span class="tap">${ok?"":"Tap here or press Space to continue"}</span>`, ok?"ok":"no"); }
+function skipFb(){ if(G&&G.phase==="fb"&&G.fbT<G.fbMin) G.fbT=0; }
+function float(x,y,txt,col){ parts.push({x,y,vx:0,vy:-.6,life:50,txt,col}); }
+let MAYA_THROW=0;
 
 function update(){
-  tick++;
-  const p=pl;
-  // input
-  const acc=p.ground?.32:.22;
-  if(input.left){ p.vx-=acc; p.face=-1; } if(input.right){ p.vx+=acc; p.face=1; }
-  if(!input.left&&!input.right) p.vx*=p.ground?.72:.94;
-  p.vx=Math.max(-2.2,Math.min(2.2,p.vx)); if(Math.abs(p.vx)<.05) p.vx=0;
-  if(input.jp){ p.jb=7; input.jp=0; } else if(p.jb>0) p.jb--;
-  p.coy = p.ground?6:Math.max(0,p.coy-1);
-  if(p.jb>0 && p.coy>0){ p.vy=-5.5; p.coy=0; p.jb=0; p.ground=false; SFX.jump(); }
-  // x
-  p.x+=p.vx; let h=hitSolid(p.x,p.y,p.w,p.h); if(h){ if(p.vx>0) p.x=h.tx*T-p.w; else if(p.vx<0) p.x=(h.tx+1)*T; p.vx=0; }
-  if(p.x<0) p.x=0;
-  // y
-  p.vy+= (input.jump&&p.vy<0)?.2:.4; p.vy=Math.min(p.vy,6); p.y+=p.vy; p.ground=false; h=hitSolid(p.x,p.y,p.w,p.h);
-  if(h){ if(p.vy>0){ p.y=h.ty*T-p.h; p.ground=true; p.vy=0; }
-    else if(p.vy<0){ p.y=(h.ty+1)*T; p.vy=.5; const cx=Math.floor((p.x+p.w/2)/T); const tx = tileAt(cx,h.ty)==="B"?cx:h.tx; if(tileAt(tx,h.ty)==="B") hitBlock(tx,h.ty); else SFX.block(); } }
-  if(p.ground && solidAt(Math.floor((p.x+1)/T),Math.floor((p.y+p.h+2)/T)) && solidAt(Math.floor((p.x+p.w-1)/T),Math.floor((p.y+p.h+2)/T))) p.safe={x:p.x,y:p.y};
-  if(p.inv>0) p.inv--;
-  p.anim += Math.abs(p.vx)*.12;
-  if(p.y>VH+24){ hurt(true); }
-  // pickups
-  for(let ty=Math.floor(p.y/T);ty<=Math.floor((p.y+p.h)/T);ty++) for(let tx=Math.floor(p.x/T);tx<=Math.floor((p.x+p.w)/T);tx++){
-    const c=tileAt(tx,ty); if(c==="c"){ lv.g[ty][tx]="."; xp+=10; stat.coins++; SFX.coin(); float(tx*T+4,ty*T,"+10"); }
-    if(c==="K"){ lv.g[ty][tx]="."; if(hearts<5) hearts++; xp+=10; SFX.good(); float(tx*T,ty*T,"+1 COFFEE","#ff6b5a"); } }
-  // enemies
-  for(const e of lv.enemies){
-    if(!e.alive){ if(e.squash>0) e.squash--; continue; }
-    if(Math.abs(e.x-p.x)>VW) continue;
-    moveBody(e,()=>{ e.vx=-e.vx; });
-    if(e.ground){ const ahead = e.vx>0 ? Math.floor((e.x+e.w+1)/T) : Math.floor((e.x-1)/T); if(!solidAt(ahead,Math.floor((e.y+e.h+2)/T))) e.vx=-e.vx; }
-    e.f = Math.floor(tick/10)%2;
-    if(overlap(p,e)){
-      if(p.vy>0 && p.y+p.h-e.y<9){ e.alive=false; e.squash=40; p.vy=input.jump?-6:-4.2; xp+=20; stat.stomps++; SFX.stomp(); burst(e.x+6,e.y+6,(ENEMY_COL[e.type]||ENEMY_COL.NOISE)[0]); float(e.x,e.y-6,"+20");
-        if(BARRIER_FIX[e.type]) setSay("maya", e.type+" BEATEN!", "Fix: "+BARRIER_FIX[e.type], 5000);
-        else if(e.type==="PING") setSay("maya","DISTRACTION BLOCKED","A buzzing phone is a distraction. Silence notifications before an important conversation.",3500);
-        else setSay("maya","NOISE CLEARED","Noise is anything that disrupts the communication loop.",3000); }
-      else hurt(false, e.x>p.x?-1:1);
-    } }
-  // cards
-  for(const c of lv.cards){ if(c.got) continue; if(c.cool>0) c.cool--; if(overlap(p,c)){ const need=LOOP[lv.loopIdx];
-      if(c.label===need){ c.got=true; lv.loopIdx++; xp+=30; SFX.good(); burst(c.x+6,c.y+6,"#4a7bd9",12); float(c.x-6,c.y-8,"+30");
-        setSay("maya","LOOP "+lv.loopIdx+"/6 · "+c.label, lv.loopIdx<6 ? "Next step: what comes after "+c.label+"?" : "Loop complete! The elevator is open.", 4000); }
-      else if(c.cool===0){ c.cool=120; SFX.bad(); const before=LOOP[LOOP.indexOf(c.label)-1];
-        setSay("maya","NOT YET!", c.label+" is not next. You still need the step"+(lv.loopIdx? " after "+LOOP[lv.loopIdx-1] : ": every loop starts with a THOUGHT")+".", 4000); } } }
-  // npcs
-  if(sayUntil<performance.now()){ let near=null; for(const n of lv.npcs) if(Math.abs((n.x+6)-(p.x+5))<44) near=n; if(near){ if(curSay!==near.who) setSay(near.id,near.who,near.text); } }
-  // boss
-  const B=lv.boss; if(B&&!B.dead){
-    if(!B.active && p.x>lv.F.arena*T+8){ B.active=true; for(let j=4;j<10;j++) lv.g[j][lv.F.arena-1]="G"; setSay("chen","THE BIG NOISE","It’s here! Jump on its head, then answer to make the hit count.",4000); SFX.bad(); }
-    if(B.active){ if(B.inv>0&&B.inv<900) B.inv--; if(B.flash>0) B.flash--;
-      if(B.inv<900){ B.vx = (p.x<B.x? -1:1)*(0.6+ (3-B.hp)*.25); B.jumpT--; if(B.jumpT<=0&&B.ground){ B.vy=-6.5; B.jumpT=100+Math.random()*60; } }
-      else B.vx=0;
-      moveBody(B,()=>{ B.vx=0; });
-      if(overlap(p,B)){
-        if(p.vy>0 && p.y+p.h-B.y<12 && B.inv===0){ p.vy=-6; p.vx = p.x<B.x?-2.5:2.5; B.inv=999; B.flash=20; SFX.stomp(); burst(B.x+14,B.y+4,"#ffd84a",14);
-          const q=lv.bossQ[3-B.hp]; openQuiz(q,"BOSS · HIT "+(4-B.hp)+" OF 3", ok=>{ if(ok){ B.hp--; xp+=50; B.flash=40; burst(B.x+14,B.y+10,"#e2483d",20);
-              if(B.hp<=0){ B.dead=true; xp+=200; SFX.win(); burst(B.x+14,B.y+14,"#ffd84a",40); float(B.x,B.y,"+200"); lv.door={x:(lv.W-4)*T,y:10*T-32,w:24,h:32}; setSay("chen","YOU DID IT!","The Big Noise is gone. Take the elevator to finish Lesson 1!",6000); }
-              else setSay("chen","GOOD HIT!",B.hp+" more to go.",3000); }
-            else setSay("chen","THE NOISE RECOVERS","Wrong answer, so the hit did not count. Stomp it again!",3500);
-            B.inv=60; }); }
-        else if(B.inv<900) hurt(false, B.x>p.x?-1:1); } } }
-  // door
-  const D=lv.door; if(D && overlap(p,D)){ const locked = (lv.F.loop && lv.loopIdx<6);
-    if(locked){ if(sayUntil<performance.now()) setSay("maya","ELEVATOR LOCKED","Complete the loop first ("+lv.loopIdx+"/6 cards).",2500); }
-    else if(lv.blocksLeft>0 && !D.warned){ D.warned=true; setSay("maya","MEMO BLOCKS LEFT", lv.blocksLeft+" memo block"+(lv.blocksLeft>1?"s":"")+" not opened. Go back for more points, or walk in again to finish.",4000); D.cool=120; }
-    else if(!D.cool) floorClear(); }
-  if(D&&D.cool>0&&!overlap(p,D)) D.cool=0;
-  // particles
-  parts=parts.filter(q=>{ q.x+=q.vx; q.y+=q.vy; if(!q.txt) q.vy+=.15; return --q.life>0; });
-  // camera
-  const target=p.x-VW/2+20; cam+= (target-cam)*.15; cam=Math.max(0,Math.min(lv.W*T-VW,cam));
+  tick++; if(MAYA_THROW>0) MAYA_THROW--; if(G.bossMood>0) G.bossMood--; else if(G.bossMood<0) G.bossMood++;
+  if(G.phase==="run"&&G.cur){ G.cur.x+=G.cur.v; if(G.cur.x>=BELT_END) miss(); }
+  else if(G.phase==="fb"){ if(--G.fbT<=0){ if(G.lives<=0){ mode="over"; showOver(); return; } nextItem(); } }
+  else if(G.phase==="banner"){ if(--G.bT<=0) nextItem(); }
+  G.flyers=G.flyers.filter(f=>{ f.t++; const k=f.t/f.dur; f.x=f.sx+(f.tx-f.sx)*k; f.y=f.sy+(f.ty-f.sy)*k-Math.sin(k*Math.PI)*30; return f.t<f.dur; });
+  for(const k in G.flash){ if(--G.flash[k].t<=0) delete G.flash[k]; }
+  parts=parts.filter(q=>{ q.x+=q.vx; q.y+=q.vy; if(!q.txt) q.vy+=.12; return --q.life>0; });
 }
-function hurt(fell,dir){
-  if(!fell && pl.inv>0) return;
-  hearts--; SFX.hurt();
-  if(hearts<=0){ mode="over"; showOver(); return; }
-  if(fell){ pl.x=pl.safe.x-4; pl.y=pl.safe.y-8; pl.vx=0; pl.vy=0; setSay("maya","OOPS!","You fell. One coffee lost.",2000); }
-  else { pl.vy=-3.5; pl.vx=(dir||-pl.face)*2.2; setSay("maya","OUCH!","Barriers hurt from the side. Jump on top of them!",2500); }
-  pl.inv=100;
-}
-function hitBlock(tx,ty){ lv.g[ty][tx]="b"; lv.blocksLeft--; SFX.block(); burst(tx*T+8,ty*T,"#ffd84a",8);
-  const q=lv.qs.shift(); if(!q){ xp+=10; return; }
-  openQuiz(q,"MEMO "+(stat.tot+1), ok=>{ if(ok){ xp+=50; float(tx*T,ty*T-8,"+50"); } }); }
 
-/* ================= RENDER ================= */
+/* ================= DRAW ================= */
 function draw(){
-  const F=lv.F, c=ctx; c.imageSmoothingEnabled=false;
-  const cx=Math.round(cam);
+  const c=ctx; c.imageSmoothingEnabled=false;
   // wall
-  c.fillStyle=F.wall; c.fillRect(0,0,VW,VH);
-  // windows (parallax)
-  const par=cx*.45, sp=128;
-  for(let k=Math.floor(par/sp)-1;k<Math.floor((par+VW)/sp)+2;k++){ const x=Math.round(k*sp-par)+30, y=30;
-    c.fillStyle="#5b6b8f"; c.fillRect(x-3,y-3,62,56);
-    const gr=c.createLinearGradient(0,y,0,y+50); gr.addColorStop(0,F.sky[0]); gr.addColorStop(1,F.sky[1]); c.fillStyle=gr; c.fillRect(x,y,56,50);
-    c.fillStyle="rgba(40,50,90,.55)"; const seed=Math.abs(k*7919)%97; for(let i=0;i<5;i++){ const bh=14+((seed*(i+3))%22); c.fillRect(x+i*12,y+50-bh,10,bh); }
-    c.fillStyle="rgba(255,240,170,.8)"; for(let i=0;i<5;i++) for(let j=0;j<3;j++) if(((seed+i*3+j)%4)===0) c.fillRect(x+i*12+3,y+50-8-j*5,2,2);
-    c.fillStyle="#5b6b8f"; c.fillRect(x+27,y,2,50); c.fillRect(x,y+24,56,2); }
-  c.fillStyle=F.trim; c.fillRect(0,134,VW,26); c.fillStyle="rgba(0,0,0,.12)"; c.fillRect(0,134,VW,2);
-  // decor on floor
-  for(let tx=Math.floor(cx/T)-2;tx<Math.floor((cx+VW)/T)+2;tx++){ if(tx<3||tx%9!==0) continue; if(tileAt(tx,10)!=="#"||tileAt(tx,9)!==".") continue;
-    const x=tx*T-cx, k=(tx/9)%4;
-    if(k===0){ c.fillStyle="#8a4b2a"; c.fillRect(x+3,148,10,12); c.fillStyle="#2f8f4e"; c.fillRect(x+1,134,14,14); c.fillRect(x+5,128,6,8); c.fillStyle="#3fbf6a"; c.fillRect(x+3,136,4,4); }
-    if(k===1){ c.fillStyle="#cfd6e3"; c.fillRect(x+2,138,12,22); c.fillStyle="#7fc8ff"; c.fillRect(x+3,124,10,14); c.fillStyle="#5b6b8f"; c.fillRect(x+2,138,12,2); c.fillRect(x+6,146,4,2); }
-    if(k===2){ c.fillStyle="#fff"; c.fillRect(x-4,100,26,18); c.fillStyle="#5b6b8f"; c.fillRect(x-4,100,26,1);c.fillRect(x-4,117,26,1); c.fillStyle="#e2483d"; c.fillRect(x-1,104,12,1); c.fillStyle="#4a7bd9"; c.fillRect(x-1,108,16,1); c.fillRect(x-1,112,9,1); }
-    if(k===3){ c.fillStyle="#14152b"; c.fillRect(x+2,96,12,12); c.fillStyle="#fff"; c.fillRect(x+3,97,10,10); c.fillStyle="#14152b"; c.fillRect(x+7,99,1,4); c.fillRect(x+8,102,3,1); } }
-  // tiles
-  for(let ty=0;ty<ROWS;ty++) for(let tx=Math.floor(cx/T);tx<=Math.floor((cx+VW)/T);tx++){ const ch=tileAt(tx,ty); const x=tx*T-cx, y=ty*T;
-    if(TILE[ch]){ c.drawImage(TILE[ch],x,y); if(ch==="B"&&tick%60<8){ c.fillStyle="rgba(255,255,255,.5)"; c.fillRect(x+2,y+2,3,12);} }
-    else if(ch==="c"){ c.drawImage(SENV,x+3,y+4+Math.round(Math.sin((tick+tx*9)/12)*1.5)); }
-    else if(ch==="K"){ c.drawImage(SCUP,x+3,y+4+Math.round(Math.sin(tick/10))); } }
-  // door
-  const D=lv.door; if(D){ const x=D.x-cx, y=D.y, locked=lv.F.loop&&lv.loopIdx<6;
-    c.fillStyle="#59627a"; c.fillRect(x-3,y-8,D.w+6,D.h+8); c.fillStyle="#c3cad6"; c.fillRect(x,y,D.w,D.h); c.fillStyle="#8d96a8"; c.fillRect(x+D.w/2-1,y,2,D.h);
-    c.fillStyle=locked?"#e2483d":"#3fbf6a"; c.fillRect(x+D.w/2-3,y-6,6,4); text3(c,"EXIT",x+D.w/2-7,y-15,"#14152b"); }
-  // cards
-  for(const k of lv.cards){ if(k.got) continue; const x=Math.round(k.x-cx), y=k.y+Math.round(Math.sin((tick+k.x)/14)*1.5);
-    c.drawImage(SCARD,x,y); const s=k.label; text3(c,s,x+6-Math.floor(w3(s)/2),y-8,"#ffffff","#14152b"); }
-  // npcs
-  for(const n of lv.npcs){ const x=Math.round(n.x-cx); c.drawImage(NPCS[n.id],x,n.y); if(Math.abs((n.x+6)-(pl.x+5))<44){ c.fillStyle="#fff"; c.fillRect(x+3,n.y-11,7,8); c.fillStyle="#14152b"; c.fillRect(x+5,n.y-9,3,1); c.fillRect(x+5,n.y-7,3,1); c.fillRect(x+5,n.y-5,2,1); } else text3(c,"...",x+1,n.y-7,"#14152b"); }
-  // enemies
-  for(const e of lv.enemies){ const x=Math.round(e.x-cx); if(x<-30||x>VW+30) continue;
-    if(!e.alive){ if(e.squash>0){ c.globalAlpha=e.squash/40; c.drawImage(enemySpr(e.type,0),x,e.y+8,12,4); c.globalAlpha=1; } continue; }
-    const s=enemySpr(e.type,e.f); c.save(); if(e.vx>0){ c.translate(x+12,0); c.scale(-1,1); c.drawImage(s,0,e.y); } else c.drawImage(s,x,e.y); c.restore();
-    if(e.type==="PING"){ c.fillStyle="#fff"; if(tick%20<10){ c.fillRect(x-3,e.y+1,2,1); c.fillRect(x+13,e.y+1,2,1);} }
-    const lab=e.type; text3(c,lab,x+6-Math.floor(w3(lab)/2),e.y-8,"#ffffff","#14152b"); }
-  // boss
-  const B=lv.boss; if(B&&!B.dead){ const x=Math.round(B.x-cx); if(B.flash%4<2){ c.drawImage(BOSSY,x-1,B.y-2,30,30); }
-    text3(c,"THE BIG NOISE",x+14-Math.floor(w3("THE BIG NOISE")/2),B.y-12,"#ffffff","#14152b");
-    for(let i=0;i<3;i++){ c.fillStyle=i<B.hp?"#e2483d":"#555"; c.fillRect(x+4+i*8,B.y-5,6,3); } }
-  // player
-  if(!(pl.inv>0 && tick%6<3)){ const fr = !pl.ground ? MAYA.jump : Math.abs(pl.vx)>.3 ? (Math.floor(pl.anim)%2?MAYA.run1:MAYA.run2) : MAYA.idle;
-    const x=Math.round(pl.x-cx)-1, y=Math.round(pl.y)-1; c.save(); if(pl.face<0){ c.translate(x+12,0); c.scale(-1,1); c.drawImage(fr,0,y); } else c.drawImage(fr,x,y); c.restore(); }
-  // particles
-  for(const q of parts){ const x=Math.round(q.x-cx), y=Math.round(q.y); if(q.txt){ text3(c,q.txt,x,y,q.col,"#14152b"); } else { c.fillStyle=q.col; c.fillRect(x,y,2,2); } }
+  c.fillStyle="#d9dfe9"; c.fillRect(0,0,VW,VH);
+  c.fillStyle="#c6cede"; for(let x=0;x<VW;x+=32) c.fillRect(x,0,1,118);
+  // pigeonhole shelf
+  c.fillStyle="#8a5a2b"; c.fillRect(8,18,120,30); c.fillStyle="#6e4420";
+  for(let i=0;i<6;i++) for(let j=0;j<2;j++){ c.fillRect(10+i*20,20+j*14,18,12); }
+  c.fillStyle="#f7f4ec"; for(let i=0;i<6;i++) for(let j=0;j<2;j++){ if((i*3+j*5+floorN)%4) c.fillRect(12+i*20,26+j*14,12,5); }
+  text3(c,"NORTHLINE BUILD · MAIL ROOM",10,10,"#5b6b8f");
+  // clock = shift progress
+  const prog=G?G.done/G.totalItems:0; const cx=168,cy=30; c.fillStyle="#14152b"; c.fillRect(cx-12,cy-12,24,24); c.fillStyle="#fff"; c.fillRect(cx-10,cy-10,20,20);
+  c.fillStyle="#14152b"; for(let a=0;a<12;a++){ const an=a/12*Math.PI*2; c.fillRect(Math.round(cx+Math.sin(an)*8),Math.round(cy-Math.cos(an)*8),1,1); }
+  const an=prog*Math.PI*2; for(let r=0;r<7;r++) c.fillRect(Math.round(cx+Math.sin(an)*r),Math.round(cy-Math.cos(an)*r),1,1); c.fillRect(cx,cy-5,1,5);
+  text3(c,"SHIFT",cx-9,cy+15,"#5b6b8f");
+  // poster
+  c.fillStyle="#ffd84a"; c.fillRect(196,14,46,30); c.fillStyle="#14152b"; c.fillRect(196,14,46,1); c.fillRect(196,43,46,1);
+  text3(c,"RIGHT BIN",199,19,"#14152b"); text3(c,"RIGHT",199,27,"#14152b"); text3(c,"TIME!",199,35,"#e2483d");
+  // belt
+  c.fillStyle="#3b3f5c"; c.fillRect(0,BELT_Y,BELT_END+8,10); c.fillStyle="#22243a"; c.fillRect(0,BELT_Y+10,BELT_END+8,3);
+  const off=Math.floor(tick*(G&&G.cur?G.cur.v:0.4))%8; c.fillStyle="#5b6085"; for(let x=-8+off;x<BELT_END+8;x+=8) c.fillRect(x,BELT_Y+2,4,2);
+  c.fillStyle="#22243a"; for(let x=10;x<BELT_END;x+=40) c.fillRect(x,BELT_Y+13,4,40);
+  // danger zone + lost mail
+  c.fillStyle="rgba(226,72,61,.25)"; c.fillRect(BELT_END-50,BELT_Y-2,58,2);
+  c.fillStyle="#14152b"; c.fillRect(BELT_END+10,BELT_Y-4,46,46); c.fillStyle="#e2483d"; c.fillRect(BELT_END+12,BELT_Y-2,42,42);
+  c.fillStyle="#7a1f18"; c.fillRect(BELT_END+16,BELT_Y+6,34,30);
+  text3(c,"LOST",BELT_END+26,BELT_Y+12,"#ffffff"); text3(c,"MAIL",BELT_END+26,BELT_Y+20,"#ffffff");
+  // supervisor
+  if(G){ const npc=NPCS[G.F.boss]; c.drawImage(npc,VW-30,104); if(G.bossMood>0){ text3(c,"NICE!",VW-38,96,"#3fbf6a","#14152b"); } else if(G.bossMood<0){ text3(c,"HMM..",VW-38,96,"#e2483d","#14152b"); } }
+  // floor
+  c.fillStyle="#9aa3b1"; c.fillRect(0,120,VW,72); c.fillStyle="#7f8899"; for(let x=0;x<VW;x+=24) c.fillRect(x,120,1,72); c.fillRect(0,176,VW,1);
+  // Maya
+  const fr = MAYA_THROW>0 ? MAYA.jump : (Math.floor(tick/30)%2?MAYA.idle:MAYA.idle);
+  c.drawImage(fr,22,BELT_Y+16-(MAYA_THROW>0?2:0)); c.fillStyle="#6e4420"; c.fillRect(14,BELT_Y+34,30,4); c.fillRect(16,BELT_Y+38,3,10); c.fillRect(39,BELT_Y+38,3,10);
+  // bins
+  if(G){ G.lanes.forEach((L,i)=>{ const r=binRect(i), fl=G.flash[i];
+    c.fillStyle="#14152b"; c.fillRect(r.x-1,r.y-1,r.w+2,r.h+2); c.fillStyle=L.col; c.fillRect(r.x,r.y,r.w,8);
+    c.fillStyle= fl ? (fl.ok?"#c9f2d6":"#f7c7c2") : "#f7f4ec"; c.fillRect(r.x,r.y+8,r.w,r.h-8);
+    c.fillStyle="#14152b"; c.fillRect(r.x+3,r.y+12,r.w-6,2);
+    const lab=L.px; text3(c,lab,r.x+Math.round(r.w/2-w3(lab)/2),r.y+20,"#14152b");
+    c.fillStyle=L.col; c.fillRect(r.x+r.w/2-6,r.y+30,12,11); text3(c,String(i+1),r.x+Math.round(r.w/2)-1,r.y+33,"#ffffff");
+    if(fl&&!fl.ok&&fl.t%8<4){ c.fillStyle="#e2483d"; c.fillRect(r.x,r.y-4,r.w,2); } }); }
+  // item on belt
+  if(G&&G.cur){ const x=Math.round(G.cur.x), p=(G.cur.x-ITEM_START)/(BELT_END-ITEM_START);
+    if(p>.72&&tick%10<5){ c.fillStyle="#e2483d"; c.fillRect(x-2,BELT_Y-17,32,22); }
+    c.drawImage(PARCEL,x,BELT_Y-20,28,20); text3(c,"?",x+12,BELT_Y-27,"#14152b"); }
+  // flyers
+  if(G) for(const f of G.flyers) c.drawImage(PARCEL,Math.round(f.x),Math.round(f.y),14,10);
+  for(const q of parts){ if(q.txt) text3(c,q.txt,Math.round(q.x),Math.round(q.y),q.col,"#14152b"); else { c.fillStyle=q.col; c.fillRect(q.x,q.y,2,2); } }
   // HUD
-  c.fillStyle="rgba(20,21,43,.78)"; c.fillRect(0,0,VW,14);
-  for(let i=0;i<hearts;i++) c.drawImage(SHEART,4+i*9,4);
-  c.font="8px 'Press Start 2P', monospace"; c.textBaseline="top"; c.fillStyle="#ffd84a"; const xs="XP "+xp; c.fillText(xs,VW-4-c.measureText(xs).width,3);
-  const label="FLOOR "+floorN+" · "+F.name; text3(c,label,Math.round(VW/2-w3(label)/2),5,"#ffffff");
-  if(F.loop){ for(let i=0;i<6;i++){ c.fillStyle=i<lv.loopIdx?"#4a7bd9":"#3a3f6a"; c.fillRect(4+i*7,17,5,6); } }
+  c.fillStyle="rgba(20,21,43,.85)"; c.fillRect(0,0,VW,0);
+  c.fillStyle="#14152b"; c.fillRect(0,178,VW,14);
+  if(G){ for(let i=0;i<3;i++){ c.globalAlpha=i<G.lives?1:.25; c.drawImage(SCUP,4+i*13,180); } c.globalAlpha=1;
+    c.font="8px 'Press Start 2P', monospace"; c.textBaseline="top"; c.fillStyle="#ffd84a"; const s=String(G.score); c.fillText(s,VW-4-c.measureText(s).width,182);
+    const mult=Math.min(4,1+Math.floor(G.combo/3)); const lab="FLOOR "+G.n+" · "+G.F.name+(mult>1?"  COMBO X"+mult:""); text3(c,lab,Math.round(VW/2-w3(lab)/2),183,mult>1?"#ffd84a":"#ffffff");
+    // progress bar
+    c.fillStyle="#3a3f6a"; c.fillRect(46,188,VW-100,2); c.fillStyle="#3fbf6a"; c.fillRect(46,188,Math.round((VW-100)*prog),2);
+    if(G.phase==="banner"){ c.fillStyle="rgba(20,21,43,.88)"; c.fillRect(0,78,VW,30); c.fillStyle="#ffd84a"; c.fillRect(0,78,VW,2); c.fillRect(0,106,VW,2);
+      c.font="8px 'Press Start 2P', monospace"; c.fillStyle="#ffffff"; const b=G.banner; c.fillText(b,Math.round(VW/2-c.measureText(b).width/2),84);
+      text3(c,"NEW BINS BELOW · READ THEM FIRST",Math.round(VW/2-w3("NEW BINS BELOW · READ THEM FIRST")/2),97,"#ffd84a"); } }
 }
 
 /* ================= LOOP ================= */
 let last=0, accT=0;
-function frame(t){ requestAnimationFrame(frame); if(!lv) return; const dt=Math.min(100,t-(last||t)); last=t;
-  if(mode==="play"){ accT+=dt; while(accT>=1000/60){ update(); accT-=1000/60; if(mode!=="play"){ accT=0; break; } } } else accT=0;
+function frame(t){ requestAnimationFrame(frame); const dt=Math.min(100,t-(last||t)); last=t;
+  if(mode==="play"&&G){ accT+=dt; while(accT>=1000/60){ update(); accT-=1000/60; if(mode!=="play"){ accT=0; break; } } } else accT=0;
   draw(); }
 /* ================= DIALOG STRIP ================= */
 let sayUntil=0, curSay="";
@@ -527,32 +458,17 @@ function closeModal(){ modal.hidden=true; card.innerHTML=""; }
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function iconImg(c,scale){ const x=document.createElement("canvas"); x.width=c.width*scale; x.height=c.height*scale; const g=x.getContext("2d"); g.imageSmoothingEnabled=false; g.drawImage(c,0,0,x.width,x.height); return x.toDataURL(); }
 
-/* quiz */
-let quizCb=null, quizAnswered=false;
-function openQuiz(q,tag,cb){
-  mode="quiz"; quizCb=cb; quizAnswered=false; stat.tot++;
-  const order=shuffle(q.o.map((t,i)=>({t,i})));
-  openModal(`<div class="tag">${esc(tag)}</div>${q.ctx?`<div class="ctx">${esc(q.ctx)}</div>`:""}<div class="q">${esc(q.q)}</div>
-   <div class="opts">${order.map((o,k)=>`<button class="opt" type="button" data-i="${o.i}"><i>${k+1}</i><span>${esc(o.t)}</span></button>`).join("")}</div><div id="whyBox"></div>`);
-  card.querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(+b.dataset.i,q));
-}
-function answer(i,q){ if(quizAnswered) return; quizAnswered=true; const ok=i===q.a; if(ok){ stat.ok++; SFX.good(); } else SFX.bad();
-  card.querySelectorAll(".opt").forEach(b=>{ b.disabled=true; const j=+b.dataset.i; if(j===q.a) b.classList.add("right"); else if(j===i) b.classList.add("wrong"); });
-  document.getElementById("whyBox").innerHTML=`<div class="why ${ok?"ok":"no"}"><b>${ok?"Correct! +50 XP":"Not quite."}</b> ${esc(q.why)}</div><div class="row"><button class="btn go" type="button" id="qGo">CONTINUE ▶</button></div>`;
-  const go=document.getElementById("qGo"); go.focus(); go.onclick=()=>{ closeModal(); mode="play"; const cb=quizCb; quizCb=null; if(cb) cb(ok); }; }
-
-/* name gate: asked on every visit */
 function nameGate(){
   mode="menu"; let last=""; try{ last=localStorage.getItem(STORE+"|last")||""; }catch(e){}
-  openModal(`<div class="tag">MODULE 3 · LESSON 1</div><h2>Welcome to Memo Run</h2>
-   <p>You play <b>Maya</b>, the new site coordinator at Northline Build. Run through the office, beat the barriers and answer the memos.</p>
+  openModal(`<div class="tag">MODULE 3 · LESSON 1</div><h2>Welcome to Mail Rush</h2>
+   <p>You play <b>Maya</b> in the Northline Build mail room. Read each message and send it to the right bin before it gets lost.</p>
    <label for="nm" class="small">Your first and last name</label>
    <input class="name" id="nm" autocomplete="name" value="${esc(last)}" placeholder="e.g. Sarah Babiker">
    <div class="err" id="nmErr"></div>
    <div class="row"><button class="btn go" id="nmGo" type="button">ENTER THE OFFICE ▶</button></div>`);
   const inp=document.getElementById("nm"); inp.focus(); inp.select();
   const go=()=>{ const v=inp.value.trim().replace(/\s+/g," "); if(v.length<3||!/\s/.test(v)){ document.getElementById("nmErr").textContent="Please type your first and last name."; inp.focus(); return; }
-    P=loadProf(v); P.name=v; saveProf(); document.getElementById("who").textContent=v; send("Game · Signed in",""); showFloors(); };
+    P=loadProf(v); P.name=v; saveProf(); document.getElementById("who").textContent=v; send("Game · Signed in",null,""); showFloors(); };
   document.getElementById("nmGo").onclick=go; inp.onkeydown=e=>{ if(e.key==="Enter") go(); };
 }
 
@@ -565,67 +481,84 @@ function niceDate(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,
 function showFloors(){
   mode="menu"; const tot=[1,2,3,4].reduce((s,n)=>s+(P.best[n]||0),0);
   const rows=[1,2,3,4].map(n=>{ const F=FLOORS[n], open=floorOpen(n), done=!!P.cleared[n];
-    const st = done ? "✓ BEST "+P.best[n]+" XP" : open ? "PLAY ▶" : (!dateOpen(n) ? "🔒 "+DAY_OF[n].toUpperCase() : "🔒 FINISH "+(n-1));
+    const st = done ? "✓ BEST "+P.best[n] : open ? "PLAY ▶" : (!dateOpen(n) ? "🔒 "+DAY_OF[n].toUpperCase() : "🔒 FINISH "+(n-1));
     return `<button class="floor ${open?"":"locked"} ${done?"done":""}" type="button" data-n="${n}" ${open?"":"aria-disabled=\"true\""}>
       <span class="n">${n}</span><span class="t"><b>${F.name}</b><span>${F.short}${!dateOpen(n)?" · opens "+niceDate(UNLOCK[n]):""}</span></span><span class="st">${st}</span></button>`; }).join("");
   openModal(`<div class="tag">BUILDING DIRECTORY${INSTRUCTOR?" · INSTRUCTOR MODE":""}</div><h2>Choose a floor</h2>
     <p class="small">A new part opens each day: Tuesday, Wednesday, then Thursday. Finish a floor to unlock the next one.</p>
     <div class="floors">${rows}</div>
-    <div class="stats"><div class="stat"><b>${tot}</b><span>total best XP</span></div><div class="stat"><b>${Object.keys(P.cleared).length}/4</b><span>floors cleared</span></div><div class="stat"><b>${rankOf(tot)}</b><span>your rank</span></div></div>
+    <div class="stats"><div class="stat"><b>${tot}</b><span>total best points</span></div><div class="stat"><b>${Object.keys(P.cleared).length}/4</b><span>floors cleared</span></div><div class="stat"><b>${rankOf(tot)}</b><span>your rank</span></div></div>
     <div class="row"><button class="btn" type="button" id="howBtn">HOW TO PLAY</button><button class="btn" type="button" id="swBtn">NOT ${esc(P.name.split(" ")[0].toUpperCase())}?</button></div>`);
   card.querySelectorAll(".floor").forEach(b=>b.onclick=()=>{ const n=+b.dataset.n; if(!floorOpen(n)){ b.querySelector(".st").textContent = !dateOpen(n)?"OPENS "+DAY_OF[n].toUpperCase():"FINISH FLOOR "+(n-1)+" FIRST"; return; } showBrief(n); });
   document.getElementById("howBtn").onclick=()=>showHow(showFloors);
   document.getElementById("swBtn").onclick=nameGate;
 }
-function rankOf(x){ return x>=1500?"DIRECTOR":x>=1000?"MANAGER":x>=500?"COORD.":"INTERN"; }
+function rankOf(x){ return x>=12000?"DIRECTOR":x>=8000?"MANAGER":x>=4000?"COORD.":"INTERN"; }
+
+/* message card + lane buttons */
+const msgEl=document.getElementById("msg");
+function showMsg(tag,text,fb,cls){
+  if(tag!==null) document.getElementById("msgTag").textContent=tag;
+  if(text!==null) document.getElementById("msgText").textContent=text;
+  document.getElementById("msgFb").innerHTML=fb||"";
+  msgEl.className="msg"+(cls?" "+cls:"");
+}
+function buildLaneButtons(){
+  const box=document.getElementById("lanes"); box.innerHTML="";
+  box.style.setProperty("--n",G.lanes.length); box.className="lanes n"+G.lanes.length;
+  G.lanes.forEach((L,i)=>{ const b=document.createElement("button"); b.type="button"; b.className="lane"; b.style.setProperty("--c",L.col);
+    b.innerHTML=`<i>${i+1}</i><span class="ic" aria-hidden="true">${L.icon}</span><span class="lb">${esc(L.label)}</span>`;
+    b.addEventListener("pointerdown",e=>{ e.preventDefault(); choose(i); }); b.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); choose(i);} });
+    box.appendChild(b); });
+}
+msgEl.addEventListener("click",()=>skipFb());
 
 function showHow(back){
   const ic=c=>`<img class="ic" alt="" src="${iconImg(c,3)}">`;
-  openModal(`<div class="tag">HOW TO PLAY</div><h2>Office survival guide</h2>
+  openModal(`<div class="tag">HOW TO PLAY</div><h2>Mail room survival guide</h2>
    <div class="how">
-    ${ic(MAYA.idle)}<span><b>Move</b> with ◀ ▶ (or arrow keys). <b>Jump</b> with JUMP (or Space). Hold to jump higher.</span>
-    ${ic(TILE.B)}<span><b>Memo block.</b> Jump under it to open a question. Right answer = <b>+50 XP</b>.</span>
-    ${ic(enemySpr("STRESS",0))}<span><b>Barrier.</b> Jump on its head to beat it (+20). Touching its side costs a coffee.</span>
-    ${ic(SENV)}<span><b>Envelope</b> = +10 XP.</span>
-    ${ic(SCUP)}<span><b>Coffee</b> = 1 extra life. You start with 3.</span>
-    ${ic(SCARD)}<span><b>Loop card</b> (floor 2). Collect them in the right order.</span>
+    ${ic(PARCEL)}<span>A message rolls along the belt. <b>Read it</b> in the yellow card under the game.</span>
+    ${ic(MAYA.jump)}<span><b>Tap the right bin</b> (or press 1, 2, 3…) before the parcel reaches <b>LOST MAIL</b>.</span>
+    ${ic(SCUP)}<span>You have <b>3 coffees</b>. A wrong bin or a lost parcel costs one.</span>
+    ${ic(SENV)}<span>3 right answers in a row = <b>combo</b>: points ×2, ×3, ×4. Faster answers = bonus points.</span>
    </div>
-   <p class="small">Your best score on each floor is sent to your instructor automatically.</p>
+   <p class="small">The belt speeds up as you get better. Your best score on each floor is sent to your instructor automatically.</p>
    <div class="row"><button class="btn go" type="button" id="hb">GOT IT ▶</button></div>`);
   document.getElementById("hb").onclick=back;
 }
-
 function showBrief(n){
-  const F=FLOORS[n]; lv=buildLevel(n); floorN=n; cam=0; pl={x:2*T,y:10*T-15,w:10,h:15,vx:0,vy:0,face:1,ground:true,inv:0,anim:0,safe:{x:2*T,y:10*T-15}};
+  const F=FLOORS[n]; floorN=n; G=newGame(n); G.lanes=G.F.waves[0].lanes.map(k=>Object.assign({key:k},LANE[k])); G.phase="idle"; mode="menu";
+  buildLaneButtons(); showMsg("FLOOR "+n, "Your shift starts when you press START.", "");
   openModal(`<div class="tag">FLOOR ${n} · ${DAY_OF[n].toUpperCase()}</div><h2>${F.name}</h2>
    <div class="defs">${F.brief.map(([t,d])=>`<div class="def"><b>${esc(t)}</b><span>${esc(d)}</span></div>`).join("")}</div>
    <p><b>Mission:</b> ${esc(F.mission)}</p>
-   <div class="row"><button class="btn go" type="button" id="bGo">START FLOOR ${n} ▶</button><button class="btn" type="button" id="bBack">FLOORS</button></div>`);
+   <div class="row"><button class="btn go" type="button" id="bGo">START SHIFT ▶</button><button class="btn" type="button" id="bBack">FLOORS</button></div>`);
   document.getElementById("bGo").onclick=()=>{ closeModal(); startFloor(n); };
   document.getElementById("bBack").onclick=showFloors;
 }
-
 function showOver(){
   openModal(`<div class="tag">FLOOR ${floorN}</div><div class="big">OUT OF COFFEE</div>
-   <p>The barriers got you this time. Take a breath and try the floor again.</p>
+   <p>Too much mail went to the wrong place. Look at the review below, then try the shift again.</p>
+   ${reviewHtml()}
    <div class="row"><button class="btn go" type="button" id="oGo">TRY AGAIN ▶</button><button class="btn" type="button" id="oBack">FLOORS</button></div>`);
   document.getElementById("oGo").onclick=()=>{ closeModal(); startFloor(floorN); };
   document.getElementById("oBack").onclick=showFloors;
 }
-
-function floorClear(){
+function reviewHtml(){ if(!G.mistakes.length) return `<p class="small">No mistakes. Perfect sorting!</p>`;
+  return `<div class="review"><b>Review your mistakes</b>${G.mistakes.map(m=>`<div class="rv"><div class="rt">${esc(m.t)}</div><div class="ra">You: ${esc(m.your)} → Right bin: <b>${esc(m.right)}</b></div><div class="rw">${esc(m.why)}</div></div>`).join("")}</div>`; }
+function finishShift(){
   mode="clear"; SFX.win();
-  const n=floorN, prev=P.best[n]||0, isBest=xp>prev, first=!P.cleared[n];
-  P.cleared[n]=true; if(isBest) P.best[n]=xp; saveProf();
-  if(isBest||first) send("Game · Floor "+n+" cleared"+(isBest&&!first?" (new best)":""), "Floor "+n+": "+stat.ok+"/"+stat.tot+" correct");
-  const total=[1,2,3,4].reduce((s,k)=>s+(P.best[k]||0),0);
-  const last = n===4;
-  const nextOpen = !last && floorOpen(n+1);
-  openModal(`<div class="tag">FLOOR ${n} CLEARED</div><div class="big">${last?"LESSON 1 COMPLETE!":"WELL DONE!"}</div>
-   <div class="stats"><div class="stat"><b>${xp}</b><span>XP this run</span></div><div class="stat"><b>${stat.ok}/${stat.tot}</b><span>correct answers</span></div><div class="stat"><b>${P.best[n]}</b><span>best on floor ${n}</span></div></div>
-   <p>${isBest?"New best score! It has been sent to your instructor.":"Your best score is still "+prev+" XP."}</p>
-   ${last?`<p>Total best: <b>${total} XP</b> · Rank: <b>${rankOf(total)}</b></p>`:""}
+  const n=floorN, score=G.score, prev=P.best[n]||0, isBest=score>prev, first=!P.cleared[n];
+  P.cleared[n]=true; if(isBest) P.best[n]=score; saveProf();
+  if(isBest||first) send("Game · Floor "+n+" cleared"+(isBest&&!first?" (new best)":""), score, "Floor "+n+": "+G.ok+"/"+G.tot+" correct, best combo "+G.maxCombo);
+  const total=[1,2,3,4].reduce((s,k)=>s+(P.best[k]||0),0), last=n===4, nextOpen=!last&&floorOpen(n+1);
+  const acc=Math.round(G.ok/Math.max(1,G.tot)*100);
+  openModal(`<div class="tag">FLOOR ${n} · SHIFT OVER</div><div class="big">${last?"LESSON 1 COMPLETE!":acc>=80?"GREAT SHIFT!":"SHIFT DONE"}</div>
+   <div class="stats"><div class="stat"><b>${score}</b><span>points</span></div><div class="stat"><b>${acc}%</b><span>accuracy</span></div><div class="stat"><b>x${Math.min(4,1+Math.floor(G.maxCombo/3))}</b><span>best combo</span></div></div>
+   <p>${isBest?"New best score! It has been sent to your instructor.":"Your best on this floor is still "+prev+" points."}</p>
+   ${last?`<p>Total best: <b>${total}</b> · Rank: <b>${rankOf(total)}</b></p>`:""}
    ${!last&&!nextOpen?`<p class="small">Floor ${n+1} opens on ${niceDate(UNLOCK[n+1])}. Come back then!</p>`:""}
+   ${reviewHtml()}
    <div class="row">${nextOpen?`<button class="btn go" type="button" id="cNext">FLOOR ${n+1} ▶</button>`:""}<button class="btn ${nextOpen?"":"go"}" type="button" id="cFl">FLOORS</button><button class="btn" type="button" id="cAg">REPLAY</button></div>`);
   if(nextOpen) document.getElementById("cNext").onclick=()=>showBrief(n+1);
   document.getElementById("cFl").onclick=showFloors;
@@ -633,37 +566,31 @@ function floorClear(){
 }
 
 /* ================= SEND TO INSTRUCTOR ================= */
-function send(event,detail){
+function send(event,score,detail){
   if(!FORM.action||typeof fetch!=="function"||INSTRUCTOR) return;
   const total=[1,2,3,4].reduce((s,n)=>s+(P.best[n]||0),0);
   const body=new URLSearchParams();
   body.append(FORM.fields.name,P.name); body.append(FORM.fields.event,event);
-  body.append(FORM.fields.sessions,"Memo Run · "+Object.keys(P.cleared).length+"/4 floors");
-  body.append(FORM.fields.xp,String(event.includes("Floor")?xp:total));
+  body.append(FORM.fields.sessions,"Mail Rush · "+Object.keys(P.cleared).length+"/4 floors");
+  body.append(FORM.fields.xp,String(score==null?total:score));
   body.append(FORM.fields.report,(detail?detail+" · ":"")+"Best per floor: "+[1,2,3,4].map(n=>"F"+n+"="+(P.best[n]||0)).join(", ")+" · Total "+total);
   fetch(FORM.action,{method:"POST",mode:"no-cors",body}).catch(()=>{});
 }
 
 /* ================= CONTROLS ================= */
-const KEYMAP={ArrowLeft:"left",KeyA:"left",ArrowRight:"right",KeyD:"right",Space:"jump",ArrowUp:"jump",KeyW:"jump"};
 addEventListener("keydown",e=>{
-  if(mode==="quiz"&&!quizAnswered&&/^Digit[1-4]$/.test(e.code)){ const b=card.querySelectorAll(".opt")[+e.code.slice(5)-1]; if(b) b.click(); return; }
-  const k=KEYMAP[e.code]; if(!k||mode!=="play") return; e.preventDefault(); if(k==="jump"&&!input.jump) input.jp=1; input[k]=true; });
-addEventListener("keyup",e=>{ const k=KEYMAP[e.code]; if(k) input[k]=false; });
-addEventListener("blur",()=>{ input.left=input.right=input.jump=false; });
-document.querySelectorAll("#pad button").forEach(b=>{ const k=b.dataset.k;
-  const on=e=>{ e.preventDefault(); if(k==="jump"&&!input.jump) input.jp=1; input[k]=true; b.classList.add("on"); try{b.setPointerCapture(e.pointerId);}catch(_){}};
-  const off=e=>{ input[k]=false; b.classList.remove("on"); };
-  b.addEventListener("pointerdown",on); b.addEventListener("pointerup",off); b.addEventListener("pointercancel",off); b.addEventListener("lostpointercapture",off);
-  b.addEventListener("contextmenu",e=>e.preventDefault()); });
+  if(mode!=="play") return;
+  if(/^Digit[1-5]$/.test(e.code)||/^Numpad[1-5]$/.test(e.code)){ e.preventDefault(); choose(+e.code.slice(-1)-1); }
+  else if(e.code==="Space"||e.code==="Enter"){ e.preventDefault(); skipFb(); } });
 document.getElementById("sndBtn").onclick=e=>{ SOUND=!SOUND; e.currentTarget.textContent="SOUND: "+(SOUND?"ON":"OFF"); e.currentTarget.setAttribute("aria-pressed",String(SOUND)); if(SOUND) SFX.coin(); };
-document.getElementById("mapBtn").onclick=()=>{ if(!P.name) return nameGate(); if(mode==="quiz") return; showFloors(); };
+document.getElementById("mapBtn").onclick=()=>{ if(!P.name) return nameGate(); showFloors(); };
+document.addEventListener("visibilitychange",()=>{ if(document.hidden&&mode==="play"){ mode="paused"; openModal(`<div class="tag">PAUSED</div><h2>Coffee break</h2><p>The belt stopped while you were away.</p><div class="row"><button class="btn go" type="button" id="rs">BACK TO WORK ▶</button></div>`); document.getElementById("rs").onclick=()=>{ closeModal(); mode="play"; }; } });
 
 /* ================= BOOT ================= */
 (async function boot(){
   try{ await Promise.race([document.fonts.load("8px 'Press Start 2P'"),new Promise(r=>setTimeout(r,1500))]); }catch(e){}
-  lv=buildLevel(1); pl={x:5*T,y:10*T-15,w:10,h:15,vx:0,vy:0,face:1,ground:true,inv:0,anim:0,safe:{x:2*T,y:10*T-15}}; cam=0;
-  setSay("maya","MAYA","Hi! I’m Maya, the new site coordinator. Help me get through my first week at Northline Build.");
+  G=newGame(1); G.lanes=G.F.waves[0].lanes.map(k=>Object.assign({key:k},LANE[k])); G.phase="idle"; buildLaneButtons();
+  setSay("maya","MAYA","Hi! I’m Maya. This week I run the Northline Build mail room. Help me send every message to the right place!");
   requestAnimationFrame(frame);
   nameGate();
 })();
