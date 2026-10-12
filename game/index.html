@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Memo Run</title>
+<meta name="theme-color" content="#14152b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: one arcade-cabinet column. Game screen on top, dialog strip under it, touch pad at the bottom. */
+:root{
+  --ink:#14152b; --panel:#22264d; --line:#3d4383; --paper:#f7f4ec; --sun:#ffd84a; --teal:#2bb3a3; --coral:#ff6b5a; --muted:#aeb2df; --good:#3fbf6a; --bad:#e2483d;
+  --px:"Press Start 2P", ui-monospace, monospace; --body:"Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--ink);color:var(--paper)}
+body{font-family:var(--body);font-size:16px;line-height:1.45;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:16px 16px}
+.wrap{max-width:900px;margin:0 auto;padding-block:14px 24px;padding-inline:16px;display:flex;flex-direction:column;gap:12px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;gap:6px;min-width:0}
+h1{font-family:var(--px);font-size:clamp(15px,3.4vw,22px);margin:0;color:var(--sun);letter-spacing:1px;text-shadow:3px 3px 0 #000}
+.sub{font-size:13px;color:var(--muted)}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.btn{font-family:var(--px);font-size:10px;line-height:1.3;background:var(--panel);color:var(--paper);border:2px solid #000;padding:10px 12px;cursor:pointer;box-shadow:0 3px 0 #000;border-radius:0}
+.btn:hover{filter:brightness(1.15)}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #000}
+.btn:focus-visible,.opt:focus-visible,.pad button:focus-visible,.floor:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.btn.go{background:var(--sun);color:var(--ink)}
+.btn.red{background:var(--coral);color:#fff}
+.screen{position:relative;border:4px solid #000;box-shadow:0 0 0 4px var(--line),0 10px 0 4px #000;background:#000;line-height:0}
+#game{width:100%;height:auto;display:block;aspect-ratio:320/192;image-rendering:pixelated;image-rendering:crisp-edges}
+.say{min-height:70px;background:var(--panel);border:3px solid #000;box-shadow:0 0 0 3px var(--line);padding:10px 12px;display:flex;gap:12px;align-items:center;font-size:15px}
+.say canvas{width:36px;height:48px;image-rendering:pixelated;flex:none}
+.say .txt{min-width:0}
+.say b{font-family:var(--px);font-size:9px;color:var(--sun);display:block;margin-bottom:5px;letter-spacing:.5px}
+.keys{font-size:13px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap}
+kbd{font-family:var(--px);font-size:9px;background:var(--panel);border:2px solid #000;padding:3px 5px;color:var(--paper)}
+.pad{display:none;justify-content:space-between;align-items:center;gap:12px;user-select:none;-webkit-user-select:none;touch-action:none}
+.pad .grp{display:flex;gap:12px}
+.pad button{font-family:var(--px);width:78px;height:66px;font-size:20px;background:var(--panel);color:var(--paper);border:3px solid #000;box-shadow:0 5px 0 #000;touch-action:none;border-radius:0;-webkit-tap-highlight-color:transparent}
+.pad button.jump{width:116px;background:var(--coral);font-size:12px}
+.pad button.on{transform:translateY(4px);box-shadow:0 1px 0 #000}
+@media (pointer:coarse){.pad{display:flex}.keys{display:none}}
+/* modals */
+.modal{position:fixed;inset:0;background:rgba(9,10,24,.84);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.card{background:var(--paper);color:var(--ink);border:4px solid #000;box-shadow:8px 8px 0 #000;max-width:600px;width:100%;max-height:calc(100dvh - 32px);overflow:auto;padding:22px 20px}
+.card h2{font-family:var(--px);font-size:clamp(13px,3vw,17px);line-height:1.5;margin:0 0 10px;text-wrap:balance}
+.card p{margin:0 0 12px}
+.tag{font-family:var(--px);font-size:9px;letter-spacing:1px;color:#6a5a00;background:var(--sun);display:inline-block;padding:5px 7px;border:2px solid #000;margin-bottom:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.defs{display:grid;gap:8px;margin:12px 0}
+.def{border:2px solid #000;background:#fff;padding:9px 11px}
+.def b{display:block;font-size:14px;margin-bottom:2px}
+.def span{font-size:14px;color:#3b3f5c}
+.how{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;margin:12px 0;font-size:15px}
+.how .ic{width:34px;height:34px;image-rendering:pixelated}
+input.name{font:500 18px var(--body);width:100%;padding:12px;border:3px solid #000;background:#fff;color:var(--ink);border-radius:0}
+input.name:focus{outline:3px solid var(--teal);outline-offset:1px}
+.err{color:var(--bad);font-size:14px;min-height:20px;margin-top:6px}
+.q{font-size:17px;font-weight:500;margin-bottom:12px}
+.ctx{font-size:15px;background:#fff;border:2px dashed #000;padding:10px;margin-bottom:12px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;font:500 15px var(--body);background:#fff;color:var(--ink);border:3px solid #000;padding:11px 12px;cursor:pointer;box-shadow:0 3px 0 #000;display:flex;gap:10px;align-items:flex-start;border-radius:0}
+.opt i{font-style:normal;font-family:var(--px);font-size:10px;background:var(--ink);color:#fff;padding:4px 6px;flex:none;margin-top:1px}
+.opt:hover{background:#fff6cf}
+.opt.right{background:#d9f5e1;border-color:var(--good)}
+.opt.wrong{background:#fbdcd8;border-color:var(--bad)}
+.opt[disabled]{cursor:default}
+.why{margin-top:12px;padding:10px 12px;border:3px solid #000;font-size:15px}
+.why.ok{background:#d9f5e1}.why.no{background:#fbdcd8}
+.floors{display:grid;gap:10px;margin-top:8px}
+.floor{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;text-align:left;width:100%;background:#fff;color:var(--ink);border:3px solid #000;box-shadow:0 4px 0 #000;padding:10px 12px;cursor:pointer;font:15px var(--body);border-radius:0}
+.floor .n{font-family:var(--px);font-size:14px;background:var(--ink);color:var(--sun);width:40px;height:40px;display:grid;place-items:center}
+.floor .t{min-width:0}
+.floor .t b{display:block;font-size:15px}
+.floor .t span{font-size:13px;color:#4a4f70}
+.floor .st{font-family:var(--px);font-size:9px;text-align:right;white-space:nowrap}
+.floor.locked{background:#e5e2d8;cursor:not-allowed;box-shadow:none;opacity:.85}
+.floor.locked .n{background:#777;color:#ddd}
+.floor.done .st{color:#1d7a3e}
+.big{font-family:var(--px);font-size:clamp(20px,6vw,30px);color:var(--coral);text-shadow:3px 3px 0 #000;margin:6px 0 10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.stat{border:3px solid #000;background:#fff;padding:10px 8px;text-align:center}
+.stat b{font-family:var(--px);font-size:14px;display:block;margin-bottom:6px;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:#4a4f70}
+.small{font-size:13px;color:#4a4f70}
+.foot{font-size:13px;color:var(--muted);text-align:center}
+.foot b{color:var(--paper);font-weight:500;user-select:all}
+@media (max-width:420px){.card{padding:18px 14px}.pad button{width:68px}.pad button.jump{width:100px}.stats{grid-template-columns:1fr 1fr 1fr}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>MEMO RUN</h1>
+      <div class="sub">Module 3 : Business Communication · Lesson 1 · <span id="who"></span></div>
+    </div>
+    <div class="tools">
+      <button class="btn" id="mapBtn" type="button">FLOORS</button>
+      <button class="btn" id="sndBtn" type="button" aria-pressed="false">SOUND: OFF</button>
+    </div>
+  </header>
+  <div class="screen"><canvas id="game" width="320" height="192" aria-label="Memo Run game screen"></canvas></div>
+  <div class="say" id="say" aria-live="polite"><canvas id="face" width="12" height="16"></canvas><div class="txt"><b id="sayName">MAYA</b><span id="sayText">Ready when you are.</span></div></div>
+  <div class="keys"><span><kbd>←</kbd> <kbd>→</kbd> move</span><span><kbd>SPACE</kbd> or <kbd>↑</kbd> jump (hold to jump higher)</span><span><kbd>1</kbd>–<kbd>4</kbd> answer</span></div>
+  <div class="pad" id="pad">
+    <div class="grp"><button type="button" data-k="left" aria-label="Move left">◀</button><button type="button" data-k="right" aria-label="Move right">▶</button></div>
+    <button type="button" class="jump" data-k="jump" aria-label="Jump">JUMP</button>
+  </div>
+  <div class="foot">Questions? Email your instructor: <b>mdarhri.lahcen@a1gcollege.ca</b></div>
+</div>
+
+<div class="modal" id="modal"><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
+<script>
+/* ================= CONFIG ================= */
+const UNLOCK = { 1:"2026-10-13", 2:"2026-10-14", 3:"2026-10-15", 4:"2026-10-15" };   // floor -> opening day (local time, midnight)
+const FORM = {
+  action: "https://docs.google.com/forms/d/e/1FAIpQLScn7993TFDvzk7TY9Q3HHvW3Y_6BI1v8H3pEb45xNOvFE-TYQ/formResponse",
+  fields: { name:"entry.441402498", event:"entry.1776007161", sessions:"entry.28314834", xp:"entry.383135505", report:"entry.88272251" }
+};
+const INSTRUCTOR = location.hash === "#instructor";
+
+/* ================= QUESTIONS ================= */
+const Q = {
+1: [
+  {ctx:"The CEO emails all staff about the new vacation policy.", q:"Which way is this message moving?", o:["Downward","Upward","Lateral"], a:0, why:"It goes from the top of the company down to the employees."},
+  {ctx:"A cashier suggests a faster restocking method to the store manager.", q:"Which way is this message moving?", o:["Downward","Upward","Lateral"], a:1, why:"It goes from a lower level up to a manager."},
+  {ctx:"Two project coordinators compare schedules to avoid a clash.", q:"Which way is this message moving?", o:["Downward","Upward","Lateral"], a:2, why:"Same level, so it is lateral communication."},
+  {ctx:"An employee sends her monthly progress report to the director.", q:"Which way is this message moving?", o:["Downward","Upward","Lateral"], a:1, why:"Reports to a director travel upward."},
+  {q:"Workplace communication has three jobs. Which list is right?", o:["Inform, persuade, build relationships","Sell, hire, fire","Email, call, meet","Plan, build, inspect"], a:0, why:"It informs, persuades and builds relationships."},
+  {q:"What is the main risk of UPWARD communication?", o:["Details get lost through many levels","People tell the boss what the boss wants to hear","Rivalry between teams","Too many meetings"], a:1, why:"Staff may filter bad news before it reaches the top."}
+],
+2: [
+  {q:"The sender turns a thought into words or images. This is called…", o:["Encoding","Decoding","Feedback","Noise"], a:0, why:"Encoding = turning a thought into a message."},
+  {q:"The receiver gives meaning to the message. This is called…", o:["Decoding","Encoding","Transmitting","Channel"], a:0, why:"Decoding = giving meaning to what you receive."},
+  {q:"Email, phone and face-to-face are examples of a…", o:["Channel","Barrier","Feedback","Code"], a:0, why:"The channel is the way the message travels."},
+  {q:"A loud room, a vague word, a bad connection. These are all…", o:["Noise","Feedback","Channels","Encoding"], a:0, why:"Noise is anything that disrupts the loop."},
+  {q:"Which message is encoded clearly?", o:["“Please send the Q3 Ottawa sales totals by Thursday at noon.”","“Please send the numbers ASAP.”","“You know what I need.”","“Numbers. Soon.”"], a:0, why:"It says exactly what, who and when. No guessing."},
+  {q:"Why does feedback matter?", o:["It shows whether the message was understood","It makes the email longer","It replaces the channel","It removes the sender"], a:0, why:"Feedback closes the loop and confirms understanding."}
+],
+3: [
+  {ctx:"Jackhammer noise outside the meeting room.", q:"Which barrier is this?", o:["Distractions","Timing","Stress","Closed-mindedness"], a:0, why:"Fix: move to a quiet room and silence notifications."},
+  {ctx:"Asking your manager for a raise five minutes before her big presentation.", q:"Which barrier is this?", o:["Timing","Distractions","Personality differences","Differences in backgrounds"], a:0, why:"Fix: ask “Is now a good time?” and book a slot if not."},
+  {ctx:"“I already know what he’ll say, so why listen?”", q:"Which barrier is this?", o:["Closed-mindedness","Stress","Timing","Distractions"], a:0, why:"Fix: listen to the end before judging."},
+  {ctx:"The sender uses jargon the new hire has never heard.", q:"Which barrier is this?", o:["Differences in assumptions","Personality differences","Timing","Stress"], a:0, why:"Fix: find out what the receiver already knows."},
+  {ctx:"Deadline panic makes a supervisor snap at the team.", q:"Which barrier is this?", o:["Stress","Closed-mindedness","Distractions","Differences in backgrounds"], a:0, why:"Fix: plan ahead and set clear priorities."},
+  {ctx:"A joke that works in one country offends in another.", q:"Which barrier is this?", o:["Differences in backgrounds","Timing","Stress","Distractions"], a:0, why:"Fix: use plain words, give context, check understanding."},
+  {ctx:"A very direct speaker upsets a quiet, reserved listener.", q:"Which barrier is this?", o:["Personality differences","Timing","Distractions","Differences in assumptions"], a:0, why:"Fix: adapt your style to the receiver."}
+],
+4: [
+  {q:"Hearing vs listening. Which is true?", o:["Hearing is physical. Listening is a decision.","They are exactly the same","Listening is physical. Hearing is a decision.","Only managers need to listen"], a:0, why:"You hear without trying. Listening means choosing to take part."},
+  {q:"What is the FIRST stage of listening?", o:["Focusing","Interpreting","Evaluating","Responding"], a:0, why:"Focusing → Interpreting → Evaluating → Responding."},
+  {q:"Which behaviour shows active listening?", o:["“So you’re saying the client wants the report by Friday?”","Nodding while scrolling your phone","Planning your reply while they talk","Tuning out because it is boring"], a:0, why:"Paraphrasing proves you understood."},
+  {q:"When words and face disagree, how much meaning comes from the face?", o:["55%","7%","38%","93%"], a:0, why:"7% words · 38% voice · 55% face."},
+  {q:"“Paralanguage” is…", o:["How words are said: tone, pace, volume","The dictionary meaning of words","Written punctuation","Your job title"], a:0, why:"Paralanguage is the way something is said."}
+],
+boss: [
+  {q:"Which of these is an OBSTACLE to listening?", o:["Taking too many notes","Creating a quiet space first","Paraphrasing the speaker","Asking a clarifying question"], a:0, why:"Too many notes pull your attention away from the speaker."},
+  {q:"A new colleague from another culture avoids direct eye contact. You should…", o:["Withhold judgment and get to know the person","Assume they are hiding something","Tell them to look at you","Stop inviting them to meetings"], a:0, why:"Bridge cultures: withhold judgment, treat each person as an individual."},
+  {q:"“I’m interested,” said with arms crossed while reading email, is a…", o:["Mixed signal","Clear message","Lateral message","Feedback loop"], a:0, why:"The words say one thing, the body says another."}
+]};
+
+/* ================= FLOORS ================= */
+const LOOP = ["THOUGHT","ENCODE","SEND","DECODE","REPLY","FEEDBACK"];
+const BARRIER_FIX = {
+  "DISTRACTIONS":"Move to a quiet place and silence notifications.",
+  "TIMING":"Ask “Is now a good time?” and book a slot if not.",
+  "STRESS":"Plan ahead, organize and set priorities.",
+  "CLOSED MIND":"Listen to the end before judging.",
+  "ASSUMPTIONS":"Find out what the receiver already knows first.",
+  "BACKGROUNDS":"Use plain words, give context, check understanding.",
+  "PERSONALITY":"Adapt your style to the receiver."
+};
+const NPCPAL = {
+  sam:  {Y:"#2b2b2b",y:"#1a1a1a",H:"#2b2b2b",S:"#8d5a3b",T:"#3a5bd9",W:"#ffffff",P:"#2a2a40",B:"#222"},
+  lina: {Y:"#b5452d",y:"#8a2f1c",H:"#b5452d",S:"#f0c7a0",T:"#9b59b6",W:"#ffffff",P:"#333355",B:"#3a2a1a"},
+  omar: {Y:"#1d1d1d",y:"#111",H:"#1d1d1d",S:"#b9835a",T:"#e67e22",W:"#ffffff",P:"#34495e",B:"#222"},
+  grace:{Y:"#f1d36b",y:"#c9a83a",H:"#f1d36b",S:"#f3d2b3",T:"#27ae60",W:"#ffffff",P:"#2c3e50",B:"#4a2f1a"},
+  priya:{Y:"#151515",y:"#0c0c0c",H:"#151515",S:"#a86b45",T:"#d63a6a",W:"#ffffff",P:"#2a2a40",B:"#222"},
+  ken:  {Y:"#6b6b6b",y:"#4d4d4d",H:"#6b6b6b",S:"#e8bf98",T:"#5b6c7d",W:"#ffffff",P:"#1f2a36",B:"#111"},
+  chen: {Y:"#262626",y:"#111",H:"#262626",S:"#edc9a3",T:"#c0392b",W:"#ffffff",P:"#1b1b2f",B:"#111"}
+};
+const FLOORS = {
+1:{ name:"WHICH WAY?", short:"Directions of communication", w:122,
+  wall:"#d5deef", trim:"#a9b7d6", sky:["#7cc7ff","#d9f1ff"],
+  brief:[["Workplace communication","Every exchange of information inside a company and with its clients. Three jobs: inform, persuade, build relationships."],
+         ["Downward ⬇","From higher levels to lower levels. Example: a supervisor posts next week’s schedule."],
+         ["Upward ⬆","From lower levels to higher levels. Example: a progress report to the director."],
+         ["Lateral ➡","Between people at the same level. Example: sales and marketing plan a campaign together."]],
+  mission:"Hit the 6 yellow memo blocks from below and answer each one. Stomp the PING phones: they are distractions. Reach the elevator.",
+  build(b){ b.npc(4,"sam","SAM · SUPERVISOR","Welcome to Northline Build, Maya! Messages move 3 ways here: DOWN from managers, UP from staff, and SIDEWAYS between teams.");
+    b.coin(8,8,3); b.blk(12,6); b.en(17,"PING"); b.plat(20,7,4); b.coin(20,6,4); b.pit(26,2); b.cab(31,1); b.cab(32,2);
+    b.blk(36,6); b.en(40,"PING"); b.coin(38,8,3); b.pit(45,3); b.coin(45,7,3);
+    b.npc(50,"lina","LINA · COORDINATOR","Tip: yellow memo blocks hide questions. Jump under them! Sideways messages between teams are called LATERAL.");
+    b.blk(54,6); b.plat(58,7,3); b.blk(59,3); b.en(63,"PING"); b.en(67,"PING"); b.pit(70,2);
+    b.cab(74,1); b.cab(75,2); b.cab(76,3); b.pit(77,3); b.coin(77,5,3); b.cab(80,3); b.cab(81,2); b.cab(82,1);
+    b.blk(87,6); b.en(91,"PING"); b.plat(95,7,3); b.life(96,6); b.blk(101,6); b.en(105,"PING"); b.coin(107,8,4); b.door(116); }},
+2:{ name:"THE LOOP", short:"The sender–receiver model", w:112,
+  wall:"#dbe9e1", trim:"#a8c6b6", sky:["#5fb2ff","#c6e6ff"],
+  brief:[["The loop","Communication is a loop, not a one-way broadcast."],
+         ["The 6 steps","Thought → Encode → Send (through a channel) → Decode → Reply → Feedback."],
+         ["Encode / Decode","Encode: turn a thought into words. Decode: give meaning to what you receive."],
+         ["Noise","Anything that breaks the loop: a loud room, a vague word, a bad connection."]],
+  mission:"Collect the 6 LOOP cards in the right order. A card that is not next will not let you take it. The elevator opens when the loop is complete.",
+  loop:true,
+  build(b){ b.npc(4,"omar","OMAR · IT","Communication is a LOOP. Grab the cards in order: it always starts with a THOUGHT.");
+    b.card(10,9,"THOUGHT"); b.blk(14,6); b.en(18,"NOISE"); b.plat(21,7,4); b.card(23,6,"SEND"); b.pit(28,2);
+    b.blk(32,6); b.card(37,9,"ENCODE"); b.en(41,"NOISE"); b.cab(45,2); b.pit(47,2); b.coin(47,6,2);
+    b.npc(52,"grace","GRACE · RECEPTION","After the message is SENT, the receiver DECODES it, then REPLIES. FEEDBACK closes the loop.");
+    b.plat(55,7,3); b.card(56,6,"FEEDBACK"); b.en(60,"NOISE"); b.blk(64,6); b.card(69,9,"DECODE"); b.pit(73,3); b.coin(73,7,3);
+    b.en(78,"NOISE"); b.blk(82,6); b.card(86,9,"REPLY"); b.en(90,"NOISE"); b.plat(93,7,3); b.life(94,6); b.blk(97,6); b.coin(99,8,3); b.door(106); }},
+3:{ name:"BARRIER BUSTERS", short:"The 7 barriers and their fixes", w:126,
+  wall:"#efe1d6", trim:"#d3b9a6", sky:["#ffb36b","#ffe2b8"],
+  brief:[["Barriers","Anything that blocks a message from being understood."],
+         ["The 7 barriers","Distractions · Backgrounds · Timing · Personality · Closed mind · Assumptions · Stress."],
+         ["Every barrier has a fix","Quiet room, plain words, good timing, adapt your style, listen to the end, check what they know, plan ahead."]],
+  mission:"7 barriers walk this floor. Stomp each one to learn its fix. Answer the 7 memo blocks.",
+  build(b){ b.npc(4,"priya","PRIYA · HR","Seven barriers are loose on this floor! Jump on each one to learn how to fix it.");
+    b.blk(10,6); b.en(15,"DISTRACTIONS"); b.plat(19,7,4); b.blk(20,3); b.en(26,"TIMING"); b.pit(30,2);
+    b.blk(35,6); b.cab(39,2); b.en(43,"STRESS"); b.blk(48,6); b.pit(52,3); b.coin(52,7,3); b.plat(56,7,4); b.coin(56,6,4);
+    b.en(62,"CLOSED MIND"); b.blk(66,6); b.cab(70,1); b.cab(71,2); b.pit(72,2); b.en(77,"ASSUMPTIONS"); b.blk(81,6);
+    b.plat(85,7,3); b.life(86,6); b.en(91,"BACKGROUNDS"); b.pit(96,2); b.blk(100,6); b.en(105,"PERSONALITY"); b.coin(108,8,4); b.door(119); }},
+4:{ name:"LISTEN UP!", short:"Listening, nonverbal and culture + final boss", w:132,
+  wall:"#e3dcf0", trim:"#bdb0d8", sky:["#ff7e7e","#ffd0a6"],
+  brief:[["Hearing vs listening","Hearing is physical. Listening is a decision to take part."],
+         ["4 stages","Focusing → Interpreting → Evaluating → Responding."],
+         ["Active listening","Paraphrase, ask questions, summarize: “So the deadline is now Friday?”"],
+         ["7 · 38 · 55","When words and face disagree: 7% words, 38% voice, 55% face."]],
+  mission:"Answer the 5 memo blocks, then beat THE BIG NOISE in the boardroom. Stomp it, then answer correctly to make each hit count.",
+  boss:true, arena:100,
+  build(b){ b.npc(4,"ken","KEN · MANAGER","Hearing is physical. LISTENING is a decision: Focus, Interpret, Evaluate, Respond.");
+    b.blk(10,6); b.en(14,"NOISE"); b.plat(18,7,3); b.blk(19,3); b.pit(24,2); b.coin(24,7,2); b.en(30,"NOISE"); b.blk(35,6);
+    b.cab(40,2); b.cab(41,3); b.pit(42,3); b.coin(42,5,3); b.cab(45,3); b.cab(46,2); b.blk(50,6); b.en(54,"NOISE"); b.en(58,"NOISE");
+    b.plat(62,7,4); b.life(63,6); b.blk(70,6); b.pit(75,2); b.coin(79,8,4);
+    b.npc(90,"chen","MS. CHEN · DIRECTOR","THE BIG NOISE is in the boardroom! Stomp it, then answer my question to make the hit count. Good luck, Maya!"); }}
+};
+const DAY_OF = {1:"Tuesday",2:"Wednesday",3:"Thursday",4:"Thursday"};
+/* ================= SPRITES ================= */
+const PAL = {K:"#14152b",Y:"#ffd84a",y:"#e0a91c",H:"#3b2418",S:"#c68a5f",T:"#2bb3a3",W:"#f7f4ec",P:"#2e3a6e",B:"#6b3f22",R:"#e2483d",C:"#ff6b5a",L:"#4a7bd9",G:"#3fbf6a",D:"#9aa0b5"};
+const TOP = [
+"....KKKK....",
+"..KKYYYYKK..",
+".KYYYYYYYYK.",
+"KyyyyyyyyyyK",
+".KHHSSSSSK..",
+".KHSSSKSSK..",
+".KHSSSSSSK..",
+"..KSSSKKK...",
+"...KKSSK....",
+"..KTWWWTK...",
+".KTTWWWTTK..",
+".KSKTTTKSK.."];
+const LEGS = {
+ idle:["..KPPPPPK...","..KPPKPPK...","..KPK.KPK...","..KBBKKBBK.."],
+ run1:["..KPPPPPK...",".KPPK.KPPK..","KBBK...KPK..","KK.....KBBK."],
+ run2:["..KPPPPPK...","...KPPPK....","...KPPK.....","...KBBBK...."],
+ jump:["..KPPPPPK...",".KPPK.KPPK..",".KBBK.KPK...","......KBBK.."]};
+const GREM = [
+"...KKKKKK...",
+"..KCCCCCCK..",
+".KCCCCCCCCK.",
+"KCCWWCCWWCCK",
+"KCCWKCCWKCCK",
+"KCCCCCCCCCCK",
+"KCCKKKKKKCCK",
+"KCCCWCCWCCCK",
+".KCCCCCCCCK.",
+"..KKCCCCKK.."];
+const GFEET = [[".KDDK..KDDK.",".KKK....KKK."],["..KDDKKDDK..","..KKK..KKK.."]];
+const ENV = ["KKKKKKKKKK","KWKWWWWKWK","KWWKWWKWWK","KWWWRRWWWK","KWWWRRWWWK","KWWWWWWWWK","KKKKKKKKKK"];
+const CUP = ["..W.W.....","...W.W....","KKKKKKKK..","KWWWWWWKKK","KCCCCCCK.K","KCCCCCCK.K","KCCCCCCKKK",".KCCCCK...","..KKKK...."];
+const HEART = [".KK.KK.","KRRKRRK","KRRRRRK",".KRRRK.","..KRK..","...K..."];
+const CARD = ["KKKKK.......","KLLLLKKKKKK.","KLLLLLLLLLLK","KLWWWWWWWWLK","KLWKKKKKKWLK","KLWWWWWWWWLK","KLWKKKKKWWLK","KLWWWWWWWWLK","KLWKKKKKKWLK","KLWWWWWWWWLK","KLLLLLLLLLLK","KKKKKKKKKKKK"];
+function spr(rows, pal){ pal=Object.assign({},PAL,pal||{}); const w=Math.max(...rows.map(r=>r.length));
+  const c=document.createElement("canvas"); c.width=w; c.height=rows.length; const x=c.getContext("2d");
+  rows.forEach((r,j)=>{ for(let i=0;i<r.length;i++){ const ch=r[i]; if(ch!=="."&&pal[ch]){ x.fillStyle=pal[ch]; x.fillRect(i,j,1,1);} } }); return c; }
+const MAYA = {}; for(const k in LEGS) MAYA[k]=spr(TOP.concat(LEGS[k]));
+const NPCS = {}; for(const k in NPCPAL) NPCS[k]=spr(TOP.concat(LEGS.idle), NPCPAL[k]);
+const ENEMY_COL = {PING:["#7a5cff","#4b2fd1"],NOISE:["#8a8fa8","#5e6380"],DISTRACTIONS:["#7a5cff","#4b2fd1"],TIMING:["#ff9f1c","#c46f00"],STRESS:["#e2483d","#a3271f"],"CLOSED MIND":["#5d6d7e","#34495e"],ASSUMPTIONS:["#16a085","#0e6b59"],BACKGROUNDS:["#d35400","#933a00"],PERSONALITY:["#e84393","#a52a68"],BOSS:["#59607e","#363b55"]};
+const ESPR = {}; function enemySpr(type,f){ const k=type+f; if(!ESPR[k]){ const c=ENEMY_COL[type]||ENEMY_COL.NOISE; ESPR[k]=spr(GREM.concat(GFEET[f]),{C:c[0],D:c[1]}); } return ESPR[k]; }
+const SENV=spr(ENV), SCUP=spr(CUP), SHEART=spr(HEART), SCARD=spr(CARD);
+const BOSSY = spr(["KK........KK",".KK......KK."].concat(GREM.slice(2)).concat(GFEET[0]),{C:"#59607e",D:"#363b55"});
+
+/* tiny 3x5 pixel font for in-world labels */
+const F3 = {A:"010101111101101",B:"110101110101110",C:"011100100100011",D:"110101101101110",E:"111100110100111",F:"111100110100100",G:"011100101101011",H:"101101111101101",I:"111010010010111",J:"001001001101010",K:"101101110101101",L:"100100100100111",M:"101111111101101",N:"110101101101101",O:"010101101101010",P:"110101110100100",Q:"010101101110011",R:"110101110101101",S:"011100010001110",T:"111010010010010",U:"101101101101111",V:"101101101101010",W:"101101111111101",X:"101101010101101",Y:"101101010010010",Z:"111001010100111","0":"111101101101111","1":"010110010010111","2":"110001010100111","3":"110001010001110","4":"101101111001001","5":"111100110001110","6":"011100111101111","7":"111001010010010","8":"111101111101111","9":"111101111001110","-":"000000111000000","!":"010010010000010","?":"110001010000010","/":"001001010100100",".":"000000000000010",":":"000010000010000","+":"000010111010000","·":"000000010000000"," ":"000000000000000"};
+function text3(ctx,s,x,y,col,shadow){ s=String(s).toUpperCase(); const draw=(ox,oy,c)=>{ ctx.fillStyle=c; let cx=ox; for(const ch of s){ const g=F3[ch]||F3[" "]; for(let i=0;i<15;i++) if(g[i]==="1") ctx.fillRect(cx+i%3,oy+Math.floor(i/3),1,1); cx+=4; } };
+  if(shadow) draw(x+1,y+1,shadow); draw(x,y,col); }
+const w3 = s => String(s).length*4-1;
+
+/* tiles */
+const T=16, VH=192, ROWS=12; let VW=320;
+function tileC(fn){ const c=document.createElement("canvas"); c.width=c.height=T; fn(c.getContext("2d")); return c; }
+const TILE = {
+ "#":tileC(x=>{ x.fillStyle="#4b5785";x.fillRect(0,0,16,16); x.fillStyle="#9fb0d6";x.fillRect(0,0,16,3); x.fillStyle="#2a3157";x.fillRect(0,3,16,1); x.fillStyle="#3d4874";x.fillRect(0,4,1,12);x.fillRect(8,9,1,7); x.fillStyle="#56639a";x.fillRect(3,7,1,1);x.fillRect(11,12,1,1);}),
+ "=":tileC(x=>{ x.fillStyle="#c98a4b";x.fillRect(0,0,16,4); x.fillStyle="#6e4420";x.fillRect(0,4,16,1); x.fillStyle="#9b6233";x.fillRect(0,5,16,11); x.fillStyle="#7d4c25";x.fillRect(3,7,10,6); x.fillStyle="#f2d48a";x.fillRect(7,9,2,1); x.fillStyle="#e3a868";x.fillRect(0,0,16,1);}),
+ "F":tileC(x=>{ x.fillStyle="#4c5566";x.fillRect(0,0,16,16); x.fillStyle="#9aa3b1";x.fillRect(1,1,14,14); x.fillStyle="#6f7889";x.fillRect(1,7,14,1); x.fillStyle="#dfe4ea";x.fillRect(6,3,4,1);x.fillRect(6,10,4,1); x.fillStyle="#b9c1cc";x.fillRect(1,1,14,1);}),
+ "B":tileC(x=>{ x.fillStyle="#7a5a00";x.fillRect(0,0,16,16); x.fillStyle="#ffd84a";x.fillRect(1,1,14,14); x.fillStyle="#fff1a8";x.fillRect(1,1,14,2); x.fillStyle="#e0b520";x.fillRect(11,11,4,4);x.fillStyle="#7a5a00";x.fillRect(11,11,1,4);x.fillRect(11,11,4,1); x.fillStyle="#3a2a00";x.fillRect(7,3,2,6);x.fillRect(7,11,2,2);}),
+ "b":tileC(x=>{ x.fillStyle="#6b6450";x.fillRect(0,0,16,16); x.fillStyle="#b8ad94";x.fillRect(1,1,14,14); x.fillStyle="#9d9379";x.fillRect(3,3,1,1);x.fillRect(12,3,1,1);x.fillRect(3,12,1,1);x.fillRect(12,12,1,1);}),
+ "G":tileC(x=>{ for(let i=0;i<16;i++){ x.fillStyle=(Math.floor(i/4)%2)?"#f7f4ec":"#e2483d"; x.fillRect(0,i,16,1);} x.fillStyle="#14152b";x.fillRect(0,0,1,16);x.fillRect(15,0,1,16);})
+};
+const SOLID = new Set(["#","=","F","B","b","G"]);
+
+/* ================= AUDIO ================= */
+let SOUND=false, AC=null;
+function beep(f,d,type,vol,slide){ if(!SOUND) return; try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); const o=AC.createOscillator(), g=AC.createGain(); o.type=type||"square"; o.frequency.value=f; if(slide) o.frequency.linearRampToValueAtTime(slide,AC.currentTime+d); g.gain.value=vol||.05; g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d); o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime+d);}catch(e){} }
+const SFX = { jump:()=>beep(330,.15,"square",.04,660), coin:()=>{beep(988,.06);setTimeout(()=>beep(1319,.12),60);}, stomp:()=>beep(220,.12,"square",.06,80), hurt:()=>beep(200,.3,"sawtooth",.05,60),
+  good:()=>{beep(660,.08);setTimeout(()=>beep(880,.08),80);setTimeout(()=>beep(1175,.15),160);}, bad:()=>beep(150,.3,"sawtooth",.05), block:()=>beep(520,.08,"square",.05,260), win:()=>{[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.15),i*120));} };
+
+/* ================= STATE ================= */
+const cv=document.getElementById("game"), ctx=cv.getContext("2d");
+function fitView(){ const nw = (innerWidth<700 && innerHeight>innerWidth) ? 224 : 320; if(nw!==VW||cv.width!==nw){ VW=nw; cv.width=VW; cv.style.aspectRatio=VW+"/"+VH; } ctx.imageSmoothingEnabled=false; }
+fitView(); addEventListener("resize",fitView);
+const STORE="memorun_l1";
+let P = { name:"", best:{}, cleared:{} };
+function profKey(n){ return STORE+"|"+n.trim().toLowerCase().replace(/\s+/g," "); }
+function loadProf(n){ try{ const r=localStorage.getItem(profKey(n)); if(r) return Object.assign({name:n,best:{},cleared:{}},JSON.parse(r)); }catch(e){} return {name:n,best:{},cleared:{}}; }
+function saveProf(){ try{ localStorage.setItem(profKey(P.name),JSON.stringify(P)); localStorage.setItem(STORE+"|last",P.name); }catch(e){} }
+let mode="menu", floorN=1, lv=null, pl=null, cam=0, xp=0, hearts=3, stat={ok:0,tot:0,stomps:0,coins:0}, parts=[], tick=0;
+const input={left:false,right:false,jump:false,jp:0};
+
+/* ================= LEVEL BUILD ================= */
+function buildLevel(n){
+  const F=FLOORS[n]; const W=F.w; const g=[]; for(let r=0;r<ROWS;r++){ g.push(new Array(W).fill(r>=10?"#":".")); }
+  const L={n,F,W,g,enemies:[],npcs:[],cards:[],door:null,boss:null,loopIdx:0,blocksLeft:0,qs:shuffle(Q[n].slice()),bossQ:shuffle(Q.boss.slice()),gateClosed:false};
+  const b={ pit:(x,w)=>{for(let i=x;i<x+w;i++){g[10][i]=".";g[11][i]=".";}},
+    plat:(x,y,w)=>{for(let i=x;i<x+w;i++) g[y][i]="=";},
+    cab:(x,h)=>{for(let j=0;j<h;j++) g[9-j][x]="F";},
+    blk:(x,y)=>{g[y][x]="B"; L.blocksLeft++;},
+    coin:(x,y,n)=>{for(let i=0;i<n;i++) if(g[y][x+i]===".") g[y][x+i]="c";},
+    life:(x,y)=>{g[y][x]="K";},
+    en:(x,type)=>L.enemies.push({x:x*T+2,y:9*T-10,w:12,h:12,vx:-.45,vy:0,type,alive:true,squash:0,f:0}),
+    npc:(x,id,who,text)=>L.npcs.push({x:x*T+2,y:10*T-16,id,who,text}),
+    card:(x,y,label)=>L.cards.push({x:x*T+2,y:y*T+4,w:12,h:12,label,got:false,cool:0}),
+    door:(x)=>{L.door={x:x*T,y:10*T-32,w:24,h:32};}
+  };
+  F.build(b);
+  if(F.boss){ const a=F.arena; for(let i=a;i<W;i++){ g[10][i]="#"; g[11][i]="#"; } for(let j=0;j<6;j++) g[9-j][W-1]="F";
+    L.boss={x:(W-8)*T,y:10*T-30,w:28,h:28,vx:0,vy:0,hp:3,inv:0,active:false,dead:false,jumpT:90,flash:0}; }
+  return L;
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function tileAt(tx,ty){ if(tx<0||tx>=lv.W) return "F"; if(ty<0||ty>=ROWS) return "."; return lv.g[ty][tx]; }
+function solidAt(tx,ty){ return SOLID.has(tileAt(tx,ty)); }
+function hitSolid(x,y,w,h){ for(let ty=Math.floor(y/T);ty<=Math.floor((y+h-.01)/T);ty++) for(let tx=Math.floor(x/T);tx<=Math.floor((x+w-.01)/T);tx++) if(solidAt(tx,ty)) return {tx,ty}; return null; }
+
+function startFloor(n){
+  floorN=n; lv=buildLevel(n); pl={x:2*T,y:10*T-15,w:10,h:15,vx:0,vy:0,face:1,ground:false,coy:0,jb:0,inv:0,anim:0,safe:{x:2*T,y:10*T-15}};
+  cam=0; xp=0; hearts=3; stat={ok:0,tot:0,stomps:0,coins:0}; parts=[]; mode="play";
+  setSay("maya","MAYA",FLOORS[n].mission);
+}
+
+/* ================= UPDATE ================= */
+function moveBody(o,onWall){ o.x+=o.vx; let h=hitSolid(o.x,o.y,o.w,o.h); if(h){ if(o.vx>0) o.x=h.tx*T-o.w; else if(o.vx<0) o.x=(h.tx+1)*T; if(onWall) onWall(); else o.vx=0; }
+  o.vy=Math.min(o.vy+.4,6); o.y+=o.vy; o.ground=false; h=hitSolid(o.x,o.y,o.w,o.h);
+  if(h){ if(o.vy>0){ o.y=h.ty*T-o.h; o.ground=true; o.vy=0; } else if(o.vy<0){ o.y=(h.ty+1)*T; o.vy=0; } } }
+function overlap(a,b){ return a.x<b.x+b.w && a.x+a.w>b.x && a.y<b.y+b.h && a.y+a.h>b.y; }
+function burst(x,y,col,n){ for(let i=0;i<(n||8);i++) parts.push({x,y,vx:(Math.random()-.5)*3,vy:-Math.random()*3-1,life:30+Math.random()*15,col}); }
+function float(x,y,txt,col){ parts.push({x,y,vx:0,vy:-.5,life:50,txt,col:col||"#ffd84a"}); }
+
+function update(){
+  tick++;
+  const p=pl;
+  // input
+  const acc=p.ground?.32:.22;
+  if(input.left){ p.vx-=acc; p.face=-1; } if(input.right){ p.vx+=acc; p.face=1; }
+  if(!input.left&&!input.right) p.vx*=p.ground?.72:.94;
+  p.vx=Math.max(-2.2,Math.min(2.2,p.vx)); if(Math.abs(p.vx)<.05) p.vx=0;
+  if(input.jp){ p.jb=7; input.jp=0; } else if(p.jb>0) p.jb--;
+  p.coy = p.ground?6:Math.max(0,p.coy-1);
+  if(p.jb>0 && p.coy>0){ p.vy=-5.5; p.coy=0; p.jb=0; p.ground=false; SFX.jump(); }
+  // x
+  p.x+=p.vx; let h=hitSolid(p.x,p.y,p.w,p.h); if(h){ if(p.vx>0) p.x=h.tx*T-p.w; else if(p.vx<0) p.x=(h.tx+1)*T; p.vx=0; }
+  if(p.x<0) p.x=0;
+  // y
+  p.vy+= (input.jump&&p.vy<0)?.2:.4; p.vy=Math.min(p.vy,6); p.y+=p.vy; p.ground=false; h=hitSolid(p.x,p.y,p.w,p.h);
+  if(h){ if(p.vy>0){ p.y=h.ty*T-p.h; p.ground=true; p.vy=0; }
+    else if(p.vy<0){ p.y=(h.ty+1)*T; p.vy=.5; const cx=Math.floor((p.x+p.w/2)/T); const tx = tileAt(cx,h.ty)==="B"?cx:h.tx; if(tileAt(tx,h.ty)==="B") hitBlock(tx,h.ty); else SFX.block(); } }
+  if(p.ground && solidAt(Math.floor((p.x+1)/T),Math.floor((p.y+p.h+2)/T)) && solidAt(Math.floor((p.x+p.w-1)/T),Math.floor((p.y+p.h+2)/T))) p.safe={x:p.x,y:p.y};
+  if(p.inv>0) p.inv--;
+  p.anim += Math.abs(p.vx)*.12;
+  if(p.y>VH+24){ hurt(true); }
+  // pickups
+  for(let ty=Math.floor(p.y/T);ty<=Math.floor((p.y+p.h)/T);ty++) for(let tx=Math.floor(p.x/T);tx<=Math.floor((p.x+p.w)/T);tx++){
+    const c=tileAt(tx,ty); if(c==="c"){ lv.g[ty][tx]="."; xp+=10; stat.coins++; SFX.coin(); float(tx*T+4,ty*T,"+10"); }
+    if(c==="K"){ lv.g[ty][tx]="."; if(hearts<5) hearts++; xp+=10; SFX.good(); float(tx*T,ty*T,"+1 COFFEE","#ff6b5a"); } }
+  // enemies
+  for(const e of lv.enemies){
+    if(!e.alive){ if(e.squash>0) e.squash--; continue; }
+    if(Math.abs(e.x-p.x)>VW) continue;
+    moveBody(e,()=>{ e.vx=-e.vx; });
+    if(e.ground){ const ahead = e.vx>0 ? Math.floor((e.x+e.w+1)/T) : Math.floor((e.x-1)/T); if(!solidAt(ahead,Math.floor((e.y+e.h+2)/T))) e.vx=-e.vx; }
+    e.f = Math.floor(tick/10)%2;
+    if(overlap(p,e)){
+      if(p.vy>0 && p.y+p.h-e.y<9){ e.alive=false; e.squash=40; p.vy=input.jump?-6:-4.2; xp+=20; stat.stomps++; SFX.stomp(); burst(e.x+6,e.y+6,(ENEMY_COL[e.type]||ENEMY_COL.NOISE)[0]); float(e.x,e.y-6,"+20");
+        if(BARRIER_FIX[e.type]) setSay("maya", e.type+" BEATEN!", "Fix: "+BARRIER_FIX[e.type], 5000);
+        else if(e.type==="PING") setSay("maya","DISTRACTION BLOCKED","A buzzing phone is a distraction. Silence notifications before an important conversation.",3500);
+        else setSay("maya","NOISE CLEARED","Noise is anything that disrupts the communication loop.",3000); }
+      else hurt(false, e.x>p.x?-1:1);
+    } }
+  // cards
+  for(const c of lv.cards){ if(c.got) continue; if(c.cool>0) c.cool--; if(overlap(p,c)){ const need=LOOP[lv.loopIdx];
+      if(c.label===need){ c.got=true; lv.loopIdx++; xp+=30; SFX.good(); burst(c.x+6,c.y+6,"#4a7bd9",12); float(c.x-6,c.y-8,"+30");
+        setSay("maya","LOOP "+lv.loopIdx+"/6 · "+c.label, lv.loopIdx<6 ? "Next step: what comes after "+c.label+"?" : "Loop complete! The elevator is open.", 4000); }
+      else if(c.cool===0){ c.cool=120; SFX.bad(); const before=LOOP[LOOP.indexOf(c.label)-1];
+        setSay("maya","NOT YET!", c.label+" is not next. You still need the step"+(lv.loopIdx? " after "+LOOP[lv.loopIdx-1] : ": every loop starts with a THOUGHT")+".", 4000); } } }
+  // npcs
+  if(sayUntil<performance.now()){ let near=null; for(const n of lv.npcs) if(Math.abs((n.x+6)-(p.x+5))<44) near=n; if(near){ if(curSay!==near.who) setSay(near.id,near.who,near.text); } }
+  // boss
+  const B=lv.boss; if(B&&!B.dead){
+    if(!B.active && p.x>lv.F.arena*T+8){ B.active=true; for(let j=4;j<10;j++) lv.g[j][lv.F.arena-1]="G"; setSay("chen","THE BIG NOISE","It’s here! Jump on its head, then answer to make the hit count.",4000); SFX.bad(); }
+    if(B.active){ if(B.inv>0&&B.inv<900) B.inv--; if(B.flash>0) B.flash--;
+      if(B.inv<900){ B.vx = (p.x<B.x? -1:1)*(0.6+ (3-B.hp)*.25); B.jumpT--; if(B.jumpT<=0&&B.ground){ B.vy=-6.5; B.jumpT=100+Math.random()*60; } }
+      else B.vx=0;
+      moveBody(B,()=>{ B.vx=0; });
+      if(overlap(p,B)){
+        if(p.vy>0 && p.y+p.h-B.y<12 && B.inv===0){ p.vy=-6; p.vx = p.x<B.x?-2.5:2.5; B.inv=999; B.flash=20; SFX.stomp(); burst(B.x+14,B.y+4,"#ffd84a",14);
+          const q=lv.bossQ[3-B.hp]; openQuiz(q,"BOSS · HIT "+(4-B.hp)+" OF 3", ok=>{ if(ok){ B.hp--; xp+=50; B.flash=40; burst(B.x+14,B.y+10,"#e2483d",20);
+              if(B.hp<=0){ B.dead=true; xp+=200; SFX.win(); burst(B.x+14,B.y+14,"#ffd84a",40); float(B.x,B.y,"+200"); lv.door={x:(lv.W-4)*T,y:10*T-32,w:24,h:32}; setSay("chen","YOU DID IT!","The Big Noise is gone. Take the elevator to finish Lesson 1!",6000); }
+              else setSay("chen","GOOD HIT!",B.hp+" more to go.",3000); }
+            else setSay("chen","THE NOISE RECOVERS","Wrong answer, so the hit did not count. Stomp it again!",3500);
+            B.inv=60; }); }
+        else if(B.inv<900) hurt(false, B.x>p.x?-1:1); } } }
+  // door
+  const D=lv.door; if(D && overlap(p,D)){ const locked = (lv.F.loop && lv.loopIdx<6);
+    if(locked){ if(sayUntil<performance.now()) setSay("maya","ELEVATOR LOCKED","Complete the loop first ("+lv.loopIdx+"/6 cards).",2500); }
+    else if(lv.blocksLeft>0 && !D.warned){ D.warned=true; setSay("maya","MEMO BLOCKS LEFT", lv.blocksLeft+" memo block"+(lv.blocksLeft>1?"s":"")+" not opened. Go back for more points, or walk in again to finish.",4000); D.cool=120; }
+    else if(!D.cool) floorClear(); }
+  if(D&&D.cool>0&&!overlap(p,D)) D.cool=0;
+  // particles
+  parts=parts.filter(q=>{ q.x+=q.vx; q.y+=q.vy; if(!q.txt) q.vy+=.15; return --q.life>0; });
+  // camera
+  const target=p.x-VW/2+20; cam+= (target-cam)*.15; cam=Math.max(0,Math.min(lv.W*T-VW,cam));
+}
+function hurt(fell,dir){
+  if(!fell && pl.inv>0) return;
+  hearts--; SFX.hurt();
+  if(hearts<=0){ mode="over"; showOver(); return; }
+  if(fell){ pl.x=pl.safe.x-4; pl.y=pl.safe.y-8; pl.vx=0; pl.vy=0; setSay("maya","OOPS!","You fell. One coffee lost.",2000); }
+  else { pl.vy=-3.5; pl.vx=(dir||-pl.face)*2.2; setSay("maya","OUCH!","Barriers hurt from the side. Jump on top of them!",2500); }
+  pl.inv=100;
+}
+function hitBlock(tx,ty){ lv.g[ty][tx]="b"; lv.blocksLeft--; SFX.block(); burst(tx*T+8,ty*T,"#ffd84a",8);
+  const q=lv.qs.shift(); if(!q){ xp+=10; return; }
+  openQuiz(q,"MEMO "+(stat.tot+1), ok=>{ if(ok){ xp+=50; float(tx*T,ty*T-8,"+50"); } }); }
+
+/* ================= RENDER ================= */
+function draw(){
+  const F=lv.F, c=ctx; c.imageSmoothingEnabled=false;
+  const cx=Math.round(cam);
+  // wall
+  c.fillStyle=F.wall; c.fillRect(0,0,VW,VH);
+  // windows (parallax)
+  const par=cx*.45, sp=128;
+  for(let k=Math.floor(par/sp)-1;k<Math.floor((par+VW)/sp)+2;k++){ const x=Math.round(k*sp-par)+30, y=30;
+    c.fillStyle="#5b6b8f"; c.fillRect(x-3,y-3,62,56);
+    const gr=c.createLinearGradient(0,y,0,y+50); gr.addColorStop(0,F.sky[0]); gr.addColorStop(1,F.sky[1]); c.fillStyle=gr; c.fillRect(x,y,56,50);
+    c.fillStyle="rgba(40,50,90,.55)"; const seed=Math.abs(k*7919)%97; for(let i=0;i<5;i++){ const bh=14+((seed*(i+3))%22); c.fillRect(x+i*12,y+50-bh,10,bh); }
+    c.fillStyle="rgba(255,240,170,.8)"; for(let i=0;i<5;i++) for(let j=0;j<3;j++) if(((seed+i*3+j)%4)===0) c.fillRect(x+i*12+3,y+50-8-j*5,2,2);
+    c.fillStyle="#5b6b8f"; c.fillRect(x+27,y,2,50); c.fillRect(x,y+24,56,2); }
+  c.fillStyle=F.trim; c.fillRect(0,134,VW,26); c.fillStyle="rgba(0,0,0,.12)"; c.fillRect(0,134,VW,2);
+  // decor on floor
+  for(let tx=Math.floor(cx/T)-2;tx<Math.floor((cx+VW)/T)+2;tx++){ if(tx<3||tx%9!==0) continue; if(tileAt(tx,10)!=="#"||tileAt(tx,9)!==".") continue;
+    const x=tx*T-cx, k=(tx/9)%4;
+    if(k===0){ c.fillStyle="#8a4b2a"; c.fillRect(x+3,148,10,12); c.fillStyle="#2f8f4e"; c.fillRect(x+1,134,14,14); c.fillRect(x+5,128,6,8); c.fillStyle="#3fbf6a"; c.fillRect(x+3,136,4,4); }
+    if(k===1){ c.fillStyle="#cfd6e3"; c.fillRect(x+2,138,12,22); c.fillStyle="#7fc8ff"; c.fillRect(x+3,124,10,14); c.fillStyle="#5b6b8f"; c.fillRect(x+2,138,12,2); c.fillRect(x+6,146,4,2); }
+    if(k===2){ c.fillStyle="#fff"; c.fillRect(x-4,100,26,18); c.fillStyle="#5b6b8f"; c.fillRect(x-4,100,26,1);c.fillRect(x-4,117,26,1); c.fillStyle="#e2483d"; c.fillRect(x-1,104,12,1); c.fillStyle="#4a7bd9"; c.fillRect(x-1,108,16,1); c.fillRect(x-1,112,9,1); }
+    if(k===3){ c.fillStyle="#14152b"; c.fillRect(x+2,96,12,12); c.fillStyle="#fff"; c.fillRect(x+3,97,10,10); c.fillStyle="#14152b"; c.fillRect(x+7,99,1,4); c.fillRect(x+8,102,3,1); } }
+  // tiles
+  for(let ty=0;ty<ROWS;ty++) for(let tx=Math.floor(cx/T);tx<=Math.floor((cx+VW)/T);tx++){ const ch=tileAt(tx,ty); const x=tx*T-cx, y=ty*T;
+    if(TILE[ch]){ c.drawImage(TILE[ch],x,y); if(ch==="B"&&tick%60<8){ c.fillStyle="rgba(255,255,255,.5)"; c.fillRect(x+2,y+2,3,12);} }
+    else if(ch==="c"){ c.drawImage(SENV,x+3,y+4+Math.round(Math.sin((tick+tx*9)/12)*1.5)); }
+    else if(ch==="K"){ c.drawImage(SCUP,x+3,y+4+Math.round(Math.sin(tick/10))); } }
+  // door
+  const D=lv.door; if(D){ const x=D.x-cx, y=D.y, locked=lv.F.loop&&lv.loopIdx<6;
+    c.fillStyle="#59627a"; c.fillRect(x-3,y-8,D.w+6,D.h+8); c.fillStyle="#c3cad6"; c.fillRect(x,y,D.w,D.h); c.fillStyle="#8d96a8"; c.fillRect(x+D.w/2-1,y,2,D.h);
+    c.fillStyle=locked?"#e2483d":"#3fbf6a"; c.fillRect(x+D.w/2-3,y-6,6,4); text3(c,"EXIT",x+D.w/2-7,y-15,"#14152b"); }
+  // cards
+  for(const k of lv.cards){ if(k.got) continue; const x=Math.round(k.x-cx), y=k.y+Math.round(Math.sin((tick+k.x)/14)*1.5);
+    c.drawImage(SCARD,x,y); const s=k.label; text3(c,s,x+6-Math.floor(w3(s)/2),y-8,"#ffffff","#14152b"); }
+  // npcs
+  for(const n of lv.npcs){ const x=Math.round(n.x-cx); c.drawImage(NPCS[n.id],x,n.y); if(Math.abs((n.x+6)-(pl.x+5))<44){ c.fillStyle="#fff"; c.fillRect(x+3,n.y-11,7,8); c.fillStyle="#14152b"; c.fillRect(x+5,n.y-9,3,1); c.fillRect(x+5,n.y-7,3,1); c.fillRect(x+5,n.y-5,2,1); } else text3(c,"...",x+1,n.y-7,"#14152b"); }
+  // enemies
+  for(const e of lv.enemies){ const x=Math.round(e.x-cx); if(x<-30||x>VW+30) continue;
+    if(!e.alive){ if(e.squash>0){ c.globalAlpha=e.squash/40; c.drawImage(enemySpr(e.type,0),x,e.y+8,12,4); c.globalAlpha=1; } continue; }
+    const s=enemySpr(e.type,e.f); c.save(); if(e.vx>0){ c.translate(x+12,0); c.scale(-1,1); c.drawImage(s,0,e.y); } else c.drawImage(s,x,e.y); c.restore();
+    if(e.type==="PING"){ c.fillStyle="#fff"; if(tick%20<10){ c.fillRect(x-3,e.y+1,2,1); c.fillRect(x+13,e.y+1,2,1);} }
+    const lab=e.type; text3(c,lab,x+6-Math.floor(w3(lab)/2),e.y-8,"#ffffff","#14152b"); }
+  // boss
+  const B=lv.boss; if(B&&!B.dead){ const x=Math.round(B.x-cx); if(B.flash%4<2){ c.drawImage(BOSSY,x-1,B.y-2,30,30); }
+    text3(c,"THE BIG NOISE",x+14-Math.floor(w3("THE BIG NOISE")/2),B.y-12,"#ffffff","#14152b");
+    for(let i=0;i<3;i++){ c.fillStyle=i<B.hp?"#e2483d":"#555"; c.fillRect(x+4+i*8,B.y-5,6,3); } }
+  // player
+  if(!(pl.inv>0 && tick%6<3)){ const fr = !pl.ground ? MAYA.jump : Math.abs(pl.vx)>.3 ? (Math.floor(pl.anim)%2?MAYA.run1:MAYA.run2) : MAYA.idle;
+    const x=Math.round(pl.x-cx)-1, y=Math.round(pl.y)-1; c.save(); if(pl.face<0){ c.translate(x+12,0); c.scale(-1,1); c.drawImage(fr,0,y); } else c.drawImage(fr,x,y); c.restore(); }
+  // particles
+  for(const q of parts){ const x=Math.round(q.x-cx), y=Math.round(q.y); if(q.txt){ text3(c,q.txt,x,y,q.col,"#14152b"); } else { c.fillStyle=q.col; c.fillRect(x,y,2,2); } }
+  // HUD
+  c.fillStyle="rgba(20,21,43,.78)"; c.fillRect(0,0,VW,14);
+  for(let i=0;i<hearts;i++) c.drawImage(SHEART,4+i*9,4);
+  c.font="8px 'Press Start 2P', monospace"; c.textBaseline="top"; c.fillStyle="#ffd84a"; const xs="XP "+xp; c.fillText(xs,VW-4-c.measureText(xs).width,3);
+  const label="FLOOR "+floorN+" · "+F.name; text3(c,label,Math.round(VW/2-w3(label)/2),5,"#ffffff");
+  if(F.loop){ for(let i=0;i<6;i++){ c.fillStyle=i<lv.loopIdx?"#4a7bd9":"#3a3f6a"; c.fillRect(4+i*7,17,5,6); } }
+}
+
+/* ================= LOOP ================= */
+let last=0, accT=0;
+function frame(t){ requestAnimationFrame(frame); if(!lv) return; const dt=Math.min(100,t-(last||t)); last=t;
+  if(mode==="play"){ accT+=dt; while(accT>=1000/60){ update(); accT-=1000/60; if(mode!=="play"){ accT=0; break; } } } else accT=0;
+  draw(); }
+/* ================= DIALOG STRIP ================= */
+let sayUntil=0, curSay="";
+const faceC=document.getElementById("face").getContext("2d");
+function setSay(id,who,text,ms){ curSay=who; document.getElementById("sayName").textContent=who; document.getElementById("sayText").textContent=text;
+  faceC.clearRect(0,0,12,16); faceC.drawImage(id==="maya"?MAYA.idle:(NPCS[id]||MAYA.idle),0,0); sayUntil = ms ? performance.now()+ms : 0; }
+
+/* ================= MODALS ================= */
+const modal=document.getElementById("modal"), card=document.getElementById("card");
+function openModal(html){ card.innerHTML=html; modal.hidden=false; const f=card.querySelector("[autofocus],.btn.go,.opt,input"); if(f) setTimeout(()=>f.focus(),30); }
+function closeModal(){ modal.hidden=true; card.innerHTML=""; }
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function iconImg(c,scale){ const x=document.createElement("canvas"); x.width=c.width*scale; x.height=c.height*scale; const g=x.getContext("2d"); g.imageSmoothingEnabled=false; g.drawImage(c,0,0,x.width,x.height); return x.toDataURL(); }
+
+/* quiz */
+let quizCb=null, quizAnswered=false;
+function openQuiz(q,tag,cb){
+  mode="quiz"; quizCb=cb; quizAnswered=false; stat.tot++;
+  const order=shuffle(q.o.map((t,i)=>({t,i})));
+  openModal(`<div class="tag">${esc(tag)}</div>${q.ctx?`<div class="ctx">${esc(q.ctx)}</div>`:""}<div class="q">${esc(q.q)}</div>
+   <div class="opts">${order.map((o,k)=>`<button class="opt" type="button" data-i="${o.i}"><i>${k+1}</i><span>${esc(o.t)}</span></button>`).join("")}</div><div id="whyBox"></div>`);
+  card.querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(+b.dataset.i,q));
+}
+function answer(i,q){ if(quizAnswered) return; quizAnswered=true; const ok=i===q.a; if(ok){ stat.ok++; SFX.good(); } else SFX.bad();
+  card.querySelectorAll(".opt").forEach(b=>{ b.disabled=true; const j=+b.dataset.i; if(j===q.a) b.classList.add("right"); else if(j===i) b.classList.add("wrong"); });
+  document.getElementById("whyBox").innerHTML=`<div class="why ${ok?"ok":"no"}"><b>${ok?"Correct! +50 XP":"Not quite."}</b> ${esc(q.why)}</div><div class="row"><button class="btn go" type="button" id="qGo">CONTINUE ▶</button></div>`;
+  const go=document.getElementById("qGo"); go.focus(); go.onclick=()=>{ closeModal(); mode="play"; const cb=quizCb; quizCb=null; if(cb) cb(ok); }; }
+
+/* name gate: asked on every visit */
+function nameGate(){
+  mode="menu"; let last=""; try{ last=localStorage.getItem(STORE+"|last")||""; }catch(e){}
+  openModal(`<div class="tag">MODULE 3 · LESSON 1</div><h2>Welcome to Memo Run</h2>
+   <p>You play <b>Maya</b>, the new site coordinator at Northline Build. Run through the office, beat the barriers and answer the memos.</p>
+   <label for="nm" class="small">Your first and last name</label>
+   <input class="name" id="nm" autocomplete="name" value="${esc(last)}" placeholder="e.g. Sarah Babiker">
+   <div class="err" id="nmErr"></div>
+   <div class="row"><button class="btn go" id="nmGo" type="button">ENTER THE OFFICE ▶</button></div>`);
+  const inp=document.getElementById("nm"); inp.focus(); inp.select();
+  const go=()=>{ const v=inp.value.trim().replace(/\s+/g," "); if(v.length<3||!/\s/.test(v)){ document.getElementById("nmErr").textContent="Please type your first and last name."; inp.focus(); return; }
+    P=loadProf(v); P.name=v; saveProf(); document.getElementById("who").textContent=v; send("Game · Signed in",""); showFloors(); };
+  document.getElementById("nmGo").onclick=go; inp.onkeydown=e=>{ if(e.key==="Enter") go(); };
+}
+
+/* floor availability */
+function today(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function dateOpen(n){ return INSTRUCTOR || today()>=UNLOCK[n]; }
+function floorOpen(n){ return dateOpen(n) && (n===1 || INSTRUCTOR || P.cleared[n-1]); }
+function niceDate(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("en-CA",{weekday:"long",month:"long",day:"numeric"}); }
+
+function showFloors(){
+  mode="menu"; const tot=[1,2,3,4].reduce((s,n)=>s+(P.best[n]||0),0);
+  const rows=[1,2,3,4].map(n=>{ const F=FLOORS[n], open=floorOpen(n), done=!!P.cleared[n];
+    const st = done ? "✓ BEST "+P.best[n]+" XP" : open ? "PLAY ▶" : (!dateOpen(n) ? "🔒 "+DAY_OF[n].toUpperCase() : "🔒 FINISH "+(n-1));
+    return `<button class="floor ${open?"":"locked"} ${done?"done":""}" type="button" data-n="${n}" ${open?"":"aria-disabled=\"true\""}>
+      <span class="n">${n}</span><span class="t"><b>${F.name}</b><span>${F.short}${!dateOpen(n)?" · opens "+niceDate(UNLOCK[n]):""}</span></span><span class="st">${st}</span></button>`; }).join("");
+  openModal(`<div class="tag">BUILDING DIRECTORY${INSTRUCTOR?" · INSTRUCTOR MODE":""}</div><h2>Choose a floor</h2>
+    <p class="small">A new part opens each day: Tuesday, Wednesday, then Thursday. Finish a floor to unlock the next one.</p>
+    <div class="floors">${rows}</div>
+    <div class="stats"><div class="stat"><b>${tot}</b><span>total best XP</span></div><div class="stat"><b>${Object.keys(P.cleared).length}/4</b><span>floors cleared</span></div><div class="stat"><b>${rankOf(tot)}</b><span>your rank</span></div></div>
+    <div class="row"><button class="btn" type="button" id="howBtn">HOW TO PLAY</button><button class="btn" type="button" id="swBtn">NOT ${esc(P.name.split(" ")[0].toUpperCase())}?</button></div>`);
+  card.querySelectorAll(".floor").forEach(b=>b.onclick=()=>{ const n=+b.dataset.n; if(!floorOpen(n)){ b.querySelector(".st").textContent = !dateOpen(n)?"OPENS "+DAY_OF[n].toUpperCase():"FINISH FLOOR "+(n-1)+" FIRST"; return; } showBrief(n); });
+  document.getElementById("howBtn").onclick=()=>showHow(showFloors);
+  document.getElementById("swBtn").onclick=nameGate;
+}
+function rankOf(x){ return x>=1500?"DIRECTOR":x>=1000?"MANAGER":x>=500?"COORD.":"INTERN"; }
+
+function showHow(back){
+  const ic=c=>`<img class="ic" alt="" src="${iconImg(c,3)}">`;
+  openModal(`<div class="tag">HOW TO PLAY</div><h2>Office survival guide</h2>
+   <div class="how">
+    ${ic(MAYA.idle)}<span><b>Move</b> with ◀ ▶ (or arrow keys). <b>Jump</b> with JUMP (or Space). Hold to jump higher.</span>
+    ${ic(TILE.B)}<span><b>Memo block.</b> Jump under it to open a question. Right answer = <b>+50 XP</b>.</span>
+    ${ic(enemySpr("STRESS",0))}<span><b>Barrier.</b> Jump on its head to beat it (+20). Touching its side costs a coffee.</span>
+    ${ic(SENV)}<span><b>Envelope</b> = +10 XP.</span>
+    ${ic(SCUP)}<span><b>Coffee</b> = 1 extra life. You start with 3.</span>
+    ${ic(SCARD)}<span><b>Loop card</b> (floor 2). Collect them in the right order.</span>
+   </div>
+   <p class="small">Your best score on each floor is sent to your instructor automatically.</p>
+   <div class="row"><button class="btn go" type="button" id="hb">GOT IT ▶</button></div>`);
+  document.getElementById("hb").onclick=back;
+}
+
+function showBrief(n){
+  const F=FLOORS[n]; lv=buildLevel(n); floorN=n; cam=0; pl={x:2*T,y:10*T-15,w:10,h:15,vx:0,vy:0,face:1,ground:true,inv:0,anim:0,safe:{x:2*T,y:10*T-15}};
+  openModal(`<div class="tag">FLOOR ${n} · ${DAY_OF[n].toUpperCase()}</div><h2>${F.name}</h2>
+   <div class="defs">${F.brief.map(([t,d])=>`<div class="def"><b>${esc(t)}</b><span>${esc(d)}</span></div>`).join("")}</div>
+   <p><b>Mission:</b> ${esc(F.mission)}</p>
+   <div class="row"><button class="btn go" type="button" id="bGo">START FLOOR ${n} ▶</button><button class="btn" type="button" id="bBack">FLOORS</button></div>`);
+  document.getElementById("bGo").onclick=()=>{ closeModal(); startFloor(n); };
+  document.getElementById("bBack").onclick=showFloors;
+}
+
+function showOver(){
+  openModal(`<div class="tag">FLOOR ${floorN}</div><div class="big">OUT OF COFFEE</div>
+   <p>The barriers got you this time. Take a breath and try the floor again.</p>
+   <div class="row"><button class="btn go" type="button" id="oGo">TRY AGAIN ▶</button><button class="btn" type="button" id="oBack">FLOORS</button></div>`);
+  document.getElementById("oGo").onclick=()=>{ closeModal(); startFloor(floorN); };
+  document.getElementById("oBack").onclick=showFloors;
+}
+
+function floorClear(){
+  mode="clear"; SFX.win();
+  const n=floorN, prev=P.best[n]||0, isBest=xp>prev, first=!P.cleared[n];
+  P.cleared[n]=true; if(isBest) P.best[n]=xp; saveProf();
+  if(isBest||first) send("Game · Floor "+n+" cleared"+(isBest&&!first?" (new best)":""), "Floor "+n+": "+stat.ok+"/"+stat.tot+" correct");
+  const total=[1,2,3,4].reduce((s,k)=>s+(P.best[k]||0),0);
+  const last = n===4;
+  const nextOpen = !last && floorOpen(n+1);
+  openModal(`<div class="tag">FLOOR ${n} CLEARED</div><div class="big">${last?"LESSON 1 COMPLETE!":"WELL DONE!"}</div>
+   <div class="stats"><div class="stat"><b>${xp}</b><span>XP this run</span></div><div class="stat"><b>${stat.ok}/${stat.tot}</b><span>correct answers</span></div><div class="stat"><b>${P.best[n]}</b><span>best on floor ${n}</span></div></div>
+   <p>${isBest?"New best score! It has been sent to your instructor.":"Your best score is still "+prev+" XP."}</p>
+   ${last?`<p>Total best: <b>${total} XP</b> · Rank: <b>${rankOf(total)}</b></p>`:""}
+   ${!last&&!nextOpen?`<p class="small">Floor ${n+1} opens on ${niceDate(UNLOCK[n+1])}. Come back then!</p>`:""}
+   <div class="row">${nextOpen?`<button class="btn go" type="button" id="cNext">FLOOR ${n+1} ▶</button>`:""}<button class="btn ${nextOpen?"":"go"}" type="button" id="cFl">FLOORS</button><button class="btn" type="button" id="cAg">REPLAY</button></div>`);
+  if(nextOpen) document.getElementById("cNext").onclick=()=>showBrief(n+1);
+  document.getElementById("cFl").onclick=showFloors;
+  document.getElementById("cAg").onclick=()=>showBrief(n);
+}
+
+/* ================= SEND TO INSTRUCTOR ================= */
+function send(event,detail){
+  if(!FORM.action||typeof fetch!=="function"||INSTRUCTOR) return;
+  const total=[1,2,3,4].reduce((s,n)=>s+(P.best[n]||0),0);
+  const body=new URLSearchParams();
+  body.append(FORM.fields.name,P.name); body.append(FORM.fields.event,event);
+  body.append(FORM.fields.sessions,"Memo Run · "+Object.keys(P.cleared).length+"/4 floors");
+  body.append(FORM.fields.xp,String(event.includes("Floor")?xp:total));
+  body.append(FORM.fields.report,(detail?detail+" · ":"")+"Best per floor: "+[1,2,3,4].map(n=>"F"+n+"="+(P.best[n]||0)).join(", ")+" · Total "+total);
+  fetch(FORM.action,{method:"POST",mode:"no-cors",body}).catch(()=>{});
+}
+
+/* ================= CONTROLS ================= */
+const KEYMAP={ArrowLeft:"left",KeyA:"left",ArrowRight:"right",KeyD:"right",Space:"jump",ArrowUp:"jump",KeyW:"jump"};
+addEventListener("keydown",e=>{
+  if(mode==="quiz"&&!quizAnswered&&/^Digit[1-4]$/.test(e.code)){ const b=card.querySelectorAll(".opt")[+e.code.slice(5)-1]; if(b) b.click(); return; }
+  const k=KEYMAP[e.code]; if(!k||mode!=="play") return; e.preventDefault(); if(k==="jump"&&!input.jump) input.jp=1; input[k]=true; });
+addEventListener("keyup",e=>{ const k=KEYMAP[e.code]; if(k) input[k]=false; });
+addEventListener("blur",()=>{ input.left=input.right=input.jump=false; });
+document.querySelectorAll("#pad button").forEach(b=>{ const k=b.dataset.k;
+  const on=e=>{ e.preventDefault(); if(k==="jump"&&!input.jump) input.jp=1; input[k]=true; b.classList.add("on"); try{b.setPointerCapture(e.pointerId);}catch(_){}};
+  const off=e=>{ input[k]=false; b.classList.remove("on"); };
+  b.addEventListener("pointerdown",on); b.addEventListener("pointerup",off); b.addEventListener("pointercancel",off); b.addEventListener("lostpointercapture",off);
+  b.addEventListener("contextmenu",e=>e.preventDefault()); });
+document.getElementById("sndBtn").onclick=e=>{ SOUND=!SOUND; e.currentTarget.textContent="SOUND: "+(SOUND?"ON":"OFF"); e.currentTarget.setAttribute("aria-pressed",String(SOUND)); if(SOUND) SFX.coin(); };
+document.getElementById("mapBtn").onclick=()=>{ if(!P.name) return nameGate(); if(mode==="quiz") return; showFloors(); };
+
+/* ================= BOOT ================= */
+(async function boot(){
+  try{ await Promise.race([document.fonts.load("8px 'Press Start 2P'"),new Promise(r=>setTimeout(r,1500))]); }catch(e){}
+  lv=buildLevel(1); pl={x:5*T,y:10*T-15,w:10,h:15,vx:0,vy:0,face:1,ground:true,inv:0,anim:0,safe:{x:2*T,y:10*T-15}}; cam=0;
+  setSay("maya","MAYA","Hi! I’m Maya, the new site coordinator. Help me get through my first week at Northline Build.");
+  requestAnimationFrame(frame);
+  nameGate();
+})();
+</script>
+</body></html>
