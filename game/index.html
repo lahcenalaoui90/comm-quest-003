@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Mail Rush</title>
+<title>Maya’s First Week</title>
 <meta name="theme-color" content="#14152b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,6 +66,23 @@ kbd{font-family:var(--px);font-size:9px;background:var(--panel);border:2px solid
 .review>b{font-size:15px}
 .rv{border:2px solid #000;background:#fff;padding:8px 10px;font-size:14px}
 .rt{font-weight:500;margin-bottom:3px}.ra{color:#a3271f}.rw{color:#3b3f5c;margin-top:2px}
+.deck{display:flex;flex-direction:column;gap:12px}
+.swzone{position:relative;padding-top:26px}
+.swhint{position:absolute;top:0;left:2px;font-family:var(--px);font-size:10px;opacity:.35;transition:opacity .15s}
+.swhint.r{left:auto;right:2px}
+.swcard{background:var(--sun);color:var(--ink);border:4px solid #000;box-shadow:6px 6px 0 #000;padding:14px 16px 12px;min-height:130px;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab;transition:transform .2s}
+.swcard .mtag{font-family:var(--px);font-size:9px;letter-spacing:1px;margin-bottom:8px;opacity:.75}
+.swcard p{margin:0;font-size:clamp(18px,2.8vw,22px);font-weight:500;line-height:1.35;text-wrap:balance}
+#swFb{font-size:15px;margin-top:8px}#swFb:empty{display:none}#swFb b{display:block;font-size:16px;margin-bottom:2px}#swFb .tap{display:block;font-size:12px;opacity:.7;margin-top:6px}
+.swcard.ok{background:#c9f2d6}.swcard.no{background:#f7c7c2;cursor:pointer}
+.swtimer{height:6px;background:rgba(0,0,0,.15);margin-top:12px}.swtimer i{display:block;height:100%;width:100%;background:var(--ink)}
+.swcard.done .swtimer{visibility:hidden}
+.swbtns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.swb{font:700 16px var(--body);background:#fff;color:var(--ink);border:3px solid #000;border-bottom:10px solid var(--c,#888);box-shadow:0 5px 0 #000;padding:16px 8px;cursor:pointer;border-radius:0;touch-action:manipulation}
+.swb:active{transform:translateY(4px);box-shadow:0 1px 0 #000}
+.swb:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.rwbox{display:grid;gap:8px}.rwbox:empty{display:none}
+.rwq{font-family:var(--px);font-size:10px;color:var(--sun);line-height:1.6}.rwq span{color:var(--teal)}
 /* modals */
 .modal{position:fixed;inset:0;background:rgba(9,10,24,.84);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
 .card{background:var(--paper);color:var(--ink);border:4px solid #000;box-shadow:8px 8px 0 #000;max-width:600px;width:100%;max-height:calc(100dvh - 32px);overflow:auto;padding:22px 20px}
@@ -102,6 +119,10 @@ input.name:focus{outline:3px solid var(--teal);outline-offset:1px}
 .floor .st{font-family:var(--px);font-size:9px;text-align:right;white-space:nowrap}
 .floor.locked{background:#e5e2d8;cursor:not-allowed;box-shadow:none;opacity:.85}
 .floor.locked .n{background:#777;color:#ddd}
+.floor .n{font-family:var(--body);font-size:20px}
+.floor.today{background:#fff6cf;box-shadow:0 4px 0 #000,0 0 0 3px var(--sun)}
+.floor.today .st{color:#1d7a3e}
+@media (max-width:480px){.floor{grid-template-columns:auto 1fr}.floor .st{grid-column:2;text-align:left}}
 .floor.done .st{color:#1d7a3e}
 .big{font-family:var(--px);font-size:clamp(20px,6vw,30px);color:var(--coral);text-shadow:3px 3px 0 #000;margin:6px 0 10px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
@@ -119,7 +140,7 @@ input.name:focus{outline:3px solid var(--teal);outline-offset:1px}
 <div class="wrap">
   <header>
     <div class="brand">
-      <h1>MAIL RUSH</h1>
+      <h1>MAYA’S FIRST WEEK</h1>
       <div class="sub">Module 3 : Business Communication · Lesson 1 · <span id="who"></span></div>
     </div>
     <div class="tools">
@@ -127,20 +148,27 @@ input.name:focus{outline:3px solid var(--teal);outline-offset:1px}
       <button class="btn" id="sndBtn" type="button" aria-pressed="false">SOUND: OFF</button>
     </div>
   </header>
-  <div class="screen"><canvas id="game" width="320" height="192" aria-label="Mail Rush game screen"></canvas></div>
+  <div class="screen"><canvas id="game" width="320" height="192" aria-label="Game screen"></canvas></div>
   
-  <div class="msg" id="msg" aria-live="polite"><div class="mtag" id="msgTag">INCOMING</div><p id="msgText">Your shift starts soon.</p><div id="msgFb"></div></div>
-  <div class="lanes" id="lanes"></div>
+  <div id="sortDeck" class="deck"><div class="msg" id="msg" aria-live="polite"><div class="mtag" id="msgTag">INCOMING</div><p id="msgText">Your shift starts soon.</p><div id="msgFb"></div></div>
+  <div class="lanes" id="lanes"></div></div>
+  <div id="swipeDeck" class="deck" hidden>
+    <div class="swzone"><div class="swhint" id="hintL">◀ VAGUE</div><div class="swhint r" id="hintR">CLEAR ▶</div>
+      <div class="swcard" id="swCard"><div class="mtag" id="swTag">CARD</div><p id="swText">Get ready…</p><div id="swFb"></div><div class="swtimer"><i id="swBar"></i></div></div></div>
+    <div class="rwbox" id="rwBox"></div>
+    <div class="swbtns"><button type="button" class="swb" id="btnL">◀ VAGUE</button><button type="button" class="swb" id="btnR">CLEAR ▶</button></div>
+  </div>
   <div class="say" id="say" aria-live="polite"><canvas id="face" width="12" height="16"></canvas><div class="txt"><b id="sayName">MAYA</b><span id="sayText">Ready when you are.</span></div></div>
-  <div class="keys"><span>Tap a bin, or press <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>… on the keyboard</span><span><kbd>SPACE</kbd> skip the explanation</span></div>
+  <div class="keys"><span>Tap a bin, or press <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>… · Swipe days: <kbd>←</kbd> <kbd>→</kbd></span><span><kbd>SPACE</kbd> skip the explanation</span></div>
   <div class="foot">Questions? Email your instructor: <b>mdarhri.lahcen@a1gcollege.ca</b></div>
 </div>
 
 <div class="modal" id="modal"><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
 <script>
 /* ================= CONFIG ================= */
-const UNLOCK = { 1:"2026-10-13", 2:"2026-10-14", 3:"2026-10-15", 4:"2026-10-15" };
-const DAY_OF = {1:"Tuesday",2:"Wednesday",3:"Thursday",4:"Thursday"};
+const UNLOCK = { 1:"2026-10-13", 2:"2026-10-14", 3:"2026-10-15" };
+const DAYS=[1,2,3];
+const DAY_OF = {1:"Tuesday",2:"Wednesday",3:"Thursday"};
 const FORM = {
   action: "https://docs.google.com/forms/d/e/1FAIpQLScn7993TFDvzk7TY9Q3HHvW3Y_6BI1v8H3pEb45xNOvFE-TYQ/formResponse",
   fields: { name:"entry.441402498", event:"entry.1776007161", sessions:"entry.28314834", xp:"entry.383135505", report:"entry.88272251" }
@@ -157,6 +185,10 @@ const NPCPAL = {
 
 /* ================= LANES (bins) ================= */
 const LANE = {
+  mix:{label:"Mixed signal",px:"MIXED",icon:"⚠",col:"#e2483d",why:"Mixed signal: the words say one thing, the body or voice says another."},
+  con:{label:"Consistent",px:"MATCH",icon:"✔",col:"#3fbf6a",why:"Consistent: words, voice and body all say the same thing."},
+  brg:{label:"Builds a bridge",px:"BRIDGE",icon:"🤝",col:"#2bb3a3",why:"Bridging cultures: withhold judgment, empathize, tolerate ambiguity, find common ground, treat each person as an individual."},
+  blk:{label:"Builds a wall",px:"WALL",icon:"🧱",col:"#d35400",why:"This creates an intercultural barrier. Withhold judgment and treat each person as an individual."},
   down:{label:"Downward",px:"DOWN",icon:"⬇",col:"#4a7bd9",why:"Downward: from a higher level to lower levels."},
   up:{label:"Upward",px:"UP",icon:"⬆",col:"#e2483d",why:"Upward: from a lower level to higher levels."},
   lat:{label:"Lateral",px:"LATERAL",icon:"➡",col:"#2bb3a3",why:"Lateral: between people at the same level."},
@@ -183,15 +215,16 @@ const LANE = {
   res:{label:"4 · Respon\u00ADding",px:"RESPOND",icon:"💬",col:"#3fbf6a",why:"Responding: decide what to do and reply."}
 };
 
-/* ================= FLOORS ================= */
+/* ================= DAYS ================= */
 const FLOORS = {
-1:{ name:"WHICH WAY?", short:"Directions of communication", boss:"sam",
-  brief:[["Workplace communication","Every exchange of information inside a company and with its clients. Three jobs: inform, persuade, build relationships."],
-         ["Downward ⬇","From higher levels to lower levels. Example: a supervisor posts next week’s schedule."],
-         ["Upward ⬆","From lower levels to higher levels. Example: a progress report to the director."],
-         ["Lateral ➡","Between people at the same level. Example: sales and marketing plan a campaign together."]],
-  mission:"Messages roll down the belt. Send each one to the right bin before it falls into LOST MAIL.",
-  waves:[{title:"Morning mail",lanes:["down","up","lat"],items:[
+1:{ type:"sort", name:"MAIL RUSH", short:"Session 1 · Directions, the loop, barriers", boss:"sam",
+  brief:[["Directions ⬇ ⬆ ➡","Downward: from managers to staff. Upward: from staff to managers. Lateral: between people at the same level."],
+         ["The loop","Sender has a thought → Encode → Channel → Decode → Feedback. Communication is a loop, not a broadcast."],
+         ["Noise","Anything that breaks the loop: a loud room, a vague word, a frozen call."],
+         ["7 barriers","Distractions · Timing · Stress · Closed mind · Assumptions · Backgrounds · Personality. Each one has a fix."]],
+  mission:"Messages roll down the belt. Send each one to the right bin before it falls into LOST MAIL. 4 waves, new bins each time.",
+  waves:[
+   {title:"Wave 1 · Which way?",pick:8,lanes:["down","up","lat"],items:[
     ["The CEO emails all staff about the new vacation policy.","down"],["A supervisor posts next week’s shift schedule.","down"],
     ["The site manager tells the crew about the new safety rules.","down"],["HR sends every employee the updated dress code.","down"],
     ["A director gives her team feedback after the audit.","down"],
@@ -200,57 +233,86 @@ const FLOORS = {
     ["A coordinator asks her manager a question about the budget.","up"],
     ["Two project coordinators compare schedules to avoid a clash.","lat"],["Marketing and sales meet to plan a campaign.","lat"],
     ["The electrician and the plumber agree on who works first.","lat"],["Two cashiers swap shifts.","lat"],
-    ["Accounting asks purchasing for last month’s invoices.","lat"]]}]},
-2:{ name:"THE LOOP", short:"The sender–receiver model", boss:"omar",
-  brief:[["The loop","Communication is a loop, not a one-way broadcast: Thought → Encode → Channel → Decode → Feedback."],
-         ["Encode / Decode","Encode: the sender turns a thought into words. Decode: the receiver gives it meaning."],
-         ["Channel","The way the message travels: email, phone, video call, memo board, face-to-face."],
-         ["Noise","Anything that breaks the loop: a loud room, a vague word, a frozen call. Shred it!"]],
-  mission:"Each card is one moment of the loop. Send it to the right bin. Noise goes to the shredder.",
-  waves:[{title:"The loop",lanes:["enc","chan","dec","fb","noise"],items:[
+    ["Accounting asks purchasing for last month’s invoices.","lat"]]},
+   {title:"Wave 2 · The loop",pick:10,lanes:["enc","chan","dec","fb","noise"],items:[
     ["Maya turns her idea into a short, clear email.","enc"],["Sam chooses simple words to explain the change.","enc"],
-    ["The manager draws a quick sketch to show the new layout.","enc"],["Lina writes: “Send the Q3 Ottawa totals by Thursday noon.”","enc"],
+    ["The manager draws a quick sketch to show the new layout.","enc"],
     ["The message travels by email.","chan"],["Omar calls the client on the phone.","chan"],["The team meets on a video call.","chan"],
-    ["A memo is pinned on the staff board.","chan"],
     ["The client reads the email and understands the deadline.","dec"],["Sam works out what “ASAP” means for him.","dec"],
-    ["The new hire studies the sketch and understands the layout.","dec"],
     ["“Got it, Thursday noon,” Sam replies.","fb"],["The client repeats the plan back to Maya.","fb"],
     ["Grace asks: “Do you mean the north lot or the south lot?”","fb"],
-    ["A jackhammer starts outside the meeting room.","noise"],["The video call keeps freezing.","noise"],["A vague message: “Send the stuff soon.”","noise"]]}]},
-3:{ name:"BARRIER BUSTERS", short:"The 7 barriers and their fixes", boss:"priya",
-  brief:[["Barriers","Anything that stops a message from being understood."],
-         ["The 7 barriers","Distractions · Timing · Stress · Closed mind · Assumptions · Backgrounds · Personality."],
-         ["Every barrier has a fix","Quiet place, good timing, plan ahead, listen to the end, check what they know, plain words, adapt your style."]],
-  mission:"Each card describes a problem. Send it to the barrier that causes it. You will see the fix after each answer.",
-  waves:[{title:"Wave 1",lanes:["dis","tim","str","clo"],items:[
+    ["A jackhammer starts outside the meeting room.","noise"],["The video call keeps freezing.","noise"],["A vague message: “Send the stuff soon.”","noise"]]},
+   {title:"Wave 3 · Barriers",pick:6,lanes:["dis","tim","str","clo"],items:[
     ["Phones keep buzzing during the safety briefing.","dis"],["The meeting room is freezing cold and noisy.","dis"],
     ["Asking for a raise five minutes before her big presentation.","tim"],["Explaining a new procedure at 4:59 on a Friday.","tim"],
     ["Deadline panic makes the supervisor snap at the team.","str"],["Ken is too overwhelmed to read the long email.","str"],
     ["“I already know what he’ll say, so why listen?”","clo"],["Priya ignores the idea because it came from an intern.","clo"]]},
-   {title:"Wave 2",lanes:["ass","bac","per"],items:[
+   {title:"Wave 4 · More barriers",pick:5,lanes:["ass","bac","per"],items:[
     ["The sender uses jargon the new hire has never heard.","ass"],["Sam thinks everyone knows where the storage room is.","ass"],
     ["A joke that works in one country offends in another.","bac"],["A thumbs-up means OK to one worker and is rude to another.","bac"],
     ["A very direct speaker upsets a quiet, reserved listener.","per"],["An outgoing manager overwhelms a shy new employee.","per"]]}]},
-4:{ name:"LISTEN UP!", short:"Listening and nonverbal communication", boss:"ken",
-  brief:[["Hearing vs listening","Hearing is physical. Listening is a decision to take part."],
-         ["Active listening","Paraphrase, ask questions, summarize: “So the deadline is now Friday?”"],
-         ["7 · 38 · 55","When words and face disagree: 7% words, 38% voice, 55% face."],
-         ["4 stages","Focusing → Interpreting → Evaluating → Responding."]],
-  mission:"Three waves: listening or not, where the meaning comes from, then the 4 stages. The belt gets faster!",
-  waves:[{title:"Wave 1 · Listening?",lanes:["act","not"],items:[
-    ["“So you’re saying the client wants the report by Friday?”","act"],["Asking: “What do you mean by urgent?”","act"],
-    ["Summarizing the three actions at the end of the meeting.","act"],["Keeping eye contact and an open posture.","act"],
-    ["Nodding while scrolling through your phone.","not"],["Planning your reply while they are still talking.","not"],
-    ["Tuning out because the topic is boring.","not"],["Judging the speaker by their accent.","not"]]},
-   {title:"Wave 2 · 7 · 38 · 55",lanes:["wor","voi","fac"],items:[
-    ["The sentence itself: “The project is fine.”","wor"],["The dictionary meaning of the word “deadline”.","wor"],
-    ["A sharp, rising tone of voice.","voi"],["Speaking very fast and very loud.","voi"],
-    ["A frown while saying “sure”.","fac"],["Rolling her eyes during the update.","fac"]]},
-   {title:"Wave 3 · The 4 stages",lanes:["foc","int","eva","res"],items:[
-    ["Put the phone away and look at the speaker.","foc"],["Find a quiet spot before the call starts.","foc"],
-    ["Work out what the speaker really means.","int"],["Hold back judgment and check the meaning.","int"],
-    ["Gather more facts before deciding.","eva"],["Decide whether the information is genuine.","eva"],
-    ["Decide what action to take, then reply.","res"],["Consider your time and energy, then act.","res"]]}]}
+2:{ type:"swipe", name:"CLEAR OR VAGUE?", short:"Session 2 · Speaking, writing and listening", boss:"lina",
+  brief:[["Clear message","Say exactly what, who and when. Not “Send the numbers ASAP” but “Send the Q3 Ottawa sales by Thursday noon.”"],
+         ["Speaking","Introduction (purpose) → main body (key points in order) → conclusion (summary, no new information)."],
+         ["Writing","Know your reader and your objective. Keep only essential information. Plain English, short sentences."],
+         ["Listening","Hearing is physical, listening is a decision. 4 stages: Focusing → Interpreting → Evaluating → Responding. Active listeners paraphrase, ask and summarize."]],
+  mission:"Swipe each card: right or left. When a message is vague, pick the best rewrite for bonus points. 3 rounds.",
+  rounds:[
+   {title:"Round 1 · Clear or vague?",L:{label:"VAGUE",icon:"🌫",col:"#e2483d"},R:{label:"CLEAR",icon:"🎯",col:"#3fbf6a"},items:[
+    {t:"Please send the numbers ASAP.",r:false,why:"Which numbers? By when? The reader has to guess.",rw:["Please send the Q3 Ottawa sales totals by Thursday at noon.","Please send all the numbers you have, really ASAP!","Numbers needed. Thanks."]},
+    {t:"Questions to the usual person.",r:false,why:"Who is “the usual person”? A new employee would not know.",rw:["Send your questions to Grace Lee, Facilities, ext. 214.","Ask around if you have questions.","Questions go to whoever usually handles this."]},
+    {t:"We’ll meet sometime next week about the thing.",r:false,why:"No day, no time, no place, no topic.",rw:["Budget meeting: Tuesday, October 20, 10 a.m., Room 3B.","Meeting next week, details to follow.","Let’s touch base soon about the project thing."]},
+    {t:"Due to the situation, things will be done differently going forward re: parking.",r:false,why:"What situation? What changes? Starting when?",rw:["From Monday, October 5, park in the south lot. The north lot is closed for repaving.","Parking is changing because of the situation.","Please follow the new parking process ASAP."]},
+    {t:"Fix the issue with the order when you can.",r:false,why:"Which order? What issue? “When you can” has no deadline.",rw:["Please correct the delivery address on order #4471 before 3 p.m. today.","Please fix the order issue soon.","There’s an issue. Can you look into it?"]},
+    {t:"The report needs some changes.",r:false,why:"Which changes? By when?",rw:["Please add the October costs to page 4 of the report and send it back by Friday.","The report needs changes, come see me.","Make the report better."]},
+    {t:"The north parking lot is closed until October 30. Please use the south lot.",r:true,why:"It says what, where and until when."},
+    {t:"Please bring your safety boots to the site visit on Wednesday at 8 a.m.",r:true,why:"What to bring, which event, which day and time."},
+    {t:"Your Friday shift starts at 7 a.m. instead of 9 a.m.",r:true,why:"Short, specific, impossible to misread."},
+    {t:"Send me the signed contract by email before 5 p.m. today.",r:true,why:"What, how and by when. Clear."}]},
+   {title:"Round 2 · Good habit or bad habit?",pick:8,L:{label:"BAD HABIT",icon:"👎",col:"#e2483d"},R:{label:"GOOD HABIT",icon:"👍",col:"#3fbf6a"},items:[
+    {t:"State the purpose of your talk in the introduction.",r:true,why:"The introduction tells listeners why they should listen."},
+    {t:"Keep a specific reader in mind when you write.",r:true,why:"Knowing your reader tells you what to include and how."},
+    {t:"Use plain English and short sentences.",r:true,why:"Plain English is faster to read and harder to misunderstand."},
+    {t:"Stick to the main points.",r:true,why:"Drop unnecessary information so the key message stands out."},
+    {t:"Summarize the main ideas in the conclusion.",r:true,why:"The conclusion summarizes the main ideas and expected results."},
+    {t:"Add new information in the conclusion.",r:false,why:"The conclusion summarizes. It never adds new information."},
+    {t:"Use lots of jargon so you sound professional.",r:false,why:"Use words your listeners know. Jargon creates a barrier."},
+    {t:"Include every detail you can think of.",r:false,why:"Decide what information is essential and drop the rest."},
+    {t:"Speak very fast to save everyone time.",r:false,why:"Watch your tone and pace. Too fast means nobody follows."},
+    {t:"Write first, think about the reader later.",r:false,why:"Know your reader and your objective before you write."}]},
+   {title:"Round 3 · Good listener?",pick:8,L:{label:"NOT LISTENING",icon:"🙉",col:"#e2483d"},R:{label:"ACTIVE LISTENING",icon:"👂",col:"#3fbf6a"},items:[
+    {t:"“So you’re saying the client wants the report by Friday?”",r:true,why:"Paraphrasing shows you understood."},
+    {t:"Asking: “What do you mean by urgent?”",r:true,why:"A clarifying question removes guesswork."},
+    {t:"Summarizing the three actions at the end of the meeting.",r:true,why:"Summarizing confirms everyone heard the same thing."},
+    {t:"Putting your phone away and facing the speaker.",r:true,why:"That is Stage 1, Focusing: decide to listen and show it."},
+    {t:"Holding back judgment until the speaker has finished.",r:true,why:"That is Stage 2, Interpreting: work out the meaning before judging."},
+    {t:"Nodding while scrolling through your phone.",r:false,why:"Your body says yes, your attention says no."},
+    {t:"Planning your reply while they are still talking.",r:false,why:"You stop listening to prepare your answer."},
+    {t:"Judging the speaker by their accent or clothes.",r:false,why:"An obstacle to listening. Focus on the message."},
+    {t:"Taking so many notes that you miss the main point.",r:false,why:"Too many notes pull attention away from the speaker."},
+    {t:"Hearing only what you expected to hear.",r:false,why:"That is the lowest level, Downloading: listening out of habit."}]}]},
+3:{ type:"sort", name:"SIGNALS & CULTURES", short:"Session 3 · Nonverbal and intercultural", boss:"priya",
+  brief:[["Nonverbal communication","Messages without words: face, eye contact, distance, touch, posture, gestures, appearance."],
+         ["7 · 38 · 55","When words and face disagree: 7% of meaning comes from words, 38% from the voice, 55% from the face."],
+         ["Mixed signal","The words say one thing, the body says another. People believe the body."],
+         ["Bridging cultures","Withhold judgment, empathize, tolerate ambiguity, find common ground, treat each person as an individual."]],
+  mission:"3 waves: where the meaning comes from, mixed signals, then bridges or walls between cultures.",
+  waves:[
+   {title:"Wave 1 · 7 · 38 · 55",pick:8,lanes:["wor","voi","fac"],items:[
+    ["The sentence itself: “The project is fine.”","wor"],["The dictionary meaning of the word “deadline”.","wor"],["The exact words printed in a memo.","wor"],
+    ["A sharp, rising tone of voice.","voi"],["Speaking very fast and very loud.","voi"],["A long sigh before answering.","voi"],
+    ["A frown while saying “sure”.","fac"],["Rolling her eyes during the update.","fac"],["A warm smile when he says hello.","fac"]]},
+   {title:"Wave 2 · Mixed signal?",pick:8,lanes:["mix","con"],items:[
+    ["“I’m interested,” said with arms crossed while reading email.","mix"],["“No problem,” with a sigh and an eye roll.","mix"],
+    ["“I’m listening,” while typing on the laptop.","mix"],["“Great idea!” in a flat, bored voice.","mix"],["“I’m fine,” with clenched fists.","mix"],
+    ["“Great job,” with a warm smile.","con"],["“Welcome to the team,” with a handshake and eye contact.","con"],
+    ["“I agree,” while nodding and leaning in.","con"],["“Sorry for the delay,” in a calm, sincere tone.","con"]]},
+   {title:"Wave 3 · Bridge or wall?",pick:8,lanes:["brg","blk"],items:[
+    ["Withholding judgment when a colleague avoids eye contact.","brg"],["Asking a new colleague how greetings work in their culture.","brg"],
+    ["Finding common ground: you both love soccer.","brg"],["Accepting that some things will feel unclear at first.","brg"],
+    ["Treating each person as an individual, not a stereotype.","brg"],
+    ["Assuming everyone thinks the way you do.","blk"],["Laughing at a coworker’s accent.","blk"],["Saying “people from there are always late.”","blk"],
+    ["Leaving a new colleague out of lunch because they are “different”.","blk"]]}]}
 };
 /* ================= SPRITES ================= */
 const PAL = {K:"#14152b",Y:"#ffd84a",y:"#e0a91c",H:"#3b2418",S:"#c68a5f",T:"#2bb3a3",W:"#f7f4ec",P:"#2e3a6e",B:"#6b3f22",R:"#e2483d",C:"#ff6b5a",L:"#4a7bd9",G:"#3fbf6a",D:"#9aa0b5"};
@@ -327,21 +389,23 @@ const BELT_Y=60, BELT_END=262, ITEM_START=-24;
 
 function newGame(n){
   const F=FLOORS[n];
-  return {n,F,wi:0,lanes:[],queue:[],cur:null,phase:"banner",bT:110,banner:"SHIFT START",
+  if(F.type==="swipe") return newSwipe(n);
+  const picked=F.waves.map(w=>shuffle(w.items.slice()).slice(0,w.pick||w.items.length));
+  return {type:"sort",n,F,wi:0,lanes:[],queue:[],picked,cur:null,phase:"banner",bT:110,banner:"SHIFT START",
     lives:3,score:0,combo:0,maxCombo:0,ok:0,tot:0,mistakes:[],flyers:[],flash:{},speedLvl:0,fbT:0,fbOk:true,bossMood:0,
-    totalItems:F.waves.reduce((s,w)=>s+w.items.length,0),done:0};
+    totalItems:picked.reduce((s,w)=>s+w.length,0),done:0};
 }
 function setupWave(i){ const w=G.F.waves[i]; G.wi=i; G.lanes=w.lanes.map(k=>Object.assign({key:k},LANE[k]));
-  G.queue=shuffle(w.items.map(([t,a])=>({t,a}))); G.phase="banner"; G.bT=i?130:110; G.banner=i?w.title.toUpperCase():"SHIFT START · "+w.title.toUpperCase();
+  G.queue=G.picked[i].map(([t,a])=>({t,a})); G.phase="banner"; G.bT=i?130:110; G.banner=i?w.title.toUpperCase():"SHIFT START · "+w.title.toUpperCase();
   buildLaneButtons(); showMsg("", "Get ready…", ""); }
-function durFor(){ const base = G.n===1?10.5 : G.n===2?11 : 10.5; return Math.max(5, base - G.speedLvl*.4); }
+function durFor(){ const base = G.lanes.length>=5?11.5:10.5; return Math.max(5, base - G.speedLvl*.35); }
 function nextItem(){
   if(!G.queue.length){ if(G.wi+1<G.F.waves.length){ setupWave(G.wi+1); return; } finishShift(); return; }
   const it=G.queue.shift(); G.cur={it,x:ITEM_START,v:(BELT_END-ITEM_START)/(durFor()*60)}; G.phase="run";
   showMsg("INCOMING · "+(G.done+1)+"/"+G.totalItems, it.t, "");
 }
-function startFloor(n){ floorN=n; G=newGame(n); parts=[]; mode="play"; setupWave(0); setSay(G.F.boss, bossName(), G.F.mission); }
-function bossName(){ return {sam:"SAM · SUPERVISOR",omar:"OMAR · IT",priya:"PRIYA · HR",ken:"KEN · MANAGER"}[G.F.boss]||"BOSS"; }
+function startFloor(n){ floorN=n; G=newGame(n); parts=[]; mode="play"; setDeck(G.type); if(G.type==="swipe") swStart(); else setupWave(0); setSay(G.F.boss, bossName(), G.F.mission); }
+function bossName(){ return {sam:"SAM · SUPERVISOR",omar:"OMAR · IT",priya:"PRIYA · HR",ken:"KEN · MANAGER",lina:"LINA · COORDINATOR"}[G.F.boss]||"BOSS"; }
 
 function binRect(i){ const n=G.lanes.length, gap=6, left=8, right=VW-8; const w=Math.min(58,Math.floor((right-left-gap*(n-1))/n)); const total=w*n+gap*(n-1); const x0=Math.round((VW-total)/2);
   return {x:x0+i*(w+gap), y:124, w, h:46}; }
@@ -367,7 +431,7 @@ function skipFb(){ if(G&&G.phase==="fb"&&G.fbT<G.fbMin) G.fbT=0; }
 function float(x,y,txt,col){ parts.push({x,y,vx:0,vy:-.6,life:50,txt,col}); }
 let MAYA_THROW=0;
 
-function update(){
+function sortUpdate(){
   tick++; if(MAYA_THROW>0) MAYA_THROW--; if(G.bossMood>0) G.bossMood--; else if(G.bossMood<0) G.bossMood++;
   if(G.phase==="run"&&G.cur){ G.cur.x+=G.cur.v; if(G.cur.x>=BELT_END) miss(); }
   else if(G.phase==="fb"){ if(--G.fbT<=0){ if(G.lives<=0){ mode="over"; showOver(); return; } nextItem(); } }
@@ -378,7 +442,7 @@ function update(){
 }
 
 /* ================= DRAW ================= */
-function draw(){
+function sortDraw(){
   const c=ctx; c.imageSmoothingEnabled=false;
   // wall
   c.fillStyle="#d9dfe9"; c.fillRect(0,0,VW,VH);
@@ -432,7 +496,7 @@ function draw(){
   c.fillStyle="#14152b"; c.fillRect(0,178,VW,14);
   if(G){ for(let i=0;i<3;i++){ c.globalAlpha=i<G.lives?1:.25; c.drawImage(SCUP,4+i*13,180); } c.globalAlpha=1;
     c.font="8px 'Press Start 2P', monospace"; c.textBaseline="top"; c.fillStyle="#ffd84a"; const s=String(G.score); c.fillText(s,VW-4-c.measureText(s).width,182);
-    const mult=Math.min(4,1+Math.floor(G.combo/3)); const lab="FLOOR "+G.n+" · "+G.F.name+(mult>1?"  COMBO X"+mult:""); text3(c,lab,Math.round(VW/2-w3(lab)/2),183,mult>1?"#ffd84a":"#ffffff");
+    const mult=Math.min(4,1+Math.floor(G.combo/3)); const lab=DAY_OF[G.n].toUpperCase()+" · "+G.F.name+(mult>1?"  COMBO X"+mult:""); text3(c,lab,Math.round(VW/2-w3(lab)/2),183,mult>1?"#ffd84a":"#ffffff");
     // progress bar
     c.fillStyle="#3a3f6a"; c.fillRect(46,188,VW-100,2); c.fillStyle="#3fbf6a"; c.fillRect(46,188,Math.round((VW-100)*prog),2);
     if(G.phase==="banner"){ c.fillStyle="rgba(20,21,43,.88)"; c.fillRect(0,78,VW,30); c.fillStyle="#ffd84a"; c.fillRect(0,78,VW,2); c.fillRect(0,106,VW,2);
@@ -443,8 +507,127 @@ function draw(){
 /* ================= LOOP ================= */
 let last=0, accT=0;
 function frame(t){ requestAnimationFrame(frame); const dt=Math.min(100,t-(last||t)); last=t;
-  if(mode==="play"&&G){ accT+=dt; while(accT>=1000/60){ update(); accT-=1000/60; if(mode!=="play"){ accT=0; break; } } } else accT=0;
-  draw(); }
+  const up = G&&G.type==="swipe"?swUpdate:sortUpdate, dr = G&&G.type==="swipe"?swDraw:sortDraw;
+  if(mode==="play"&&G){ accT+=dt; while(accT>=1000/60){ up(); accT-=1000/60; if(mode!=="play"){ accT=0; break; } } } else accT=0;
+  dr(); }
+/* ================= CLEAR OR VAGUE? (swipe engine) ================= */
+function newSwipe(n){
+  const F=FLOORS[n];
+  const picked=F.rounds.map(r=>shuffle(r.items.slice()).slice(0,r.pick||r.items.length));
+  return {type:"swipe",n,F,ri:0,picked,queue:[],cur:null,phase:"banner",bT:110,banner:"",lives:3,score:0,combo:0,maxCombo:0,ok:0,tot:0,
+    mistakes:[],done:0,totalItems:picked.reduce((s,r)=>s+r.length,0),fbT:0,fbMin:0,fly:null,mood:0,stamp:null,lanes:[]};
+}
+function swStart(){ swRound(0); }
+function swRound(i){ const R=G.F.rounds[i]; G.ri=i; G.queue=G.picked[i].slice(); G.phase="banner"; G.bT=i?130:110; G.banner=R.title.toUpperCase();
+  swSetSides(R); swCard("ROUND "+(i+1)+" OF "+G.F.rounds.length, "Get ready…", ""); }
+function swSetSides(R){
+  const l=document.getElementById("btnL"), r=document.getElementById("btnR");
+  l.innerHTML=`<span aria-hidden="true">◀ ${R.L.icon}</span> ${esc(R.L.label)}`; r.innerHTML=`${esc(R.R.label)} <span aria-hidden="true">${R.R.icon} ▶</span>`;
+  l.style.setProperty("--c",R.L.col); r.style.setProperty("--c",R.R.col);
+  document.getElementById("hintL").textContent="◀ "+R.L.label; document.getElementById("hintR").textContent=R.R.label+" ▶";
+  document.getElementById("hintL").style.color=R.L.col; document.getElementById("hintR").style.color=R.R.col; }
+function swDur(){ return Math.max(6, 13 - G.ok*.25); }
+function swNext(){
+  document.getElementById("rwBox").innerHTML="";
+  if(!G.queue.length){ if(G.ri+1<G.F.rounds.length){ swRound(G.ri+1); return; } finishShift(); return; }
+  const it=G.queue.shift(); G.cur={it,t:0,dur:swDur()*60}; G.phase="run"; G.stamp=null;
+  swCard("CARD "+(G.done+1)+"/"+G.totalItems, it.t, ""); resetCardPos();
+}
+function swCard(tag,text,fb,cls){ document.getElementById("swTag").textContent=tag; if(text!==null) document.getElementById("swText").textContent=text;
+  document.getElementById("swFb").innerHTML=fb||""; document.getElementById("swCard").className="swcard"+(cls?" "+cls:""); }
+function decide(side){
+  if(mode!=="play"||!G||G.type!=="swipe"||G.phase!=="run") return;
+  const it=G.cur.it, R=G.F.rounds[G.ri], saidRight=side==="R", ok=saidRight===it.r, frac=1-G.cur.t/G.cur.dur;
+  G.done++; G.tot++; flyCard(side); G.fly={side,t:0};
+  if(ok){ G.combo++; G.maxCombo=Math.max(G.maxCombo,G.combo); G.ok++; const mult=Math.min(4,1+Math.floor(G.combo/3)); const pts=100*mult+Math.round(50*frac);
+    G.score+=pts; G.mood=40; G.stamp={ok:true,t:40}; SFX.coin(); if(G.combo%3===0) SFX.good();
+    if(it.rw){ G.phase="rewrite"; G.lastPts=pts; showRewrite(it,pts,mult); return; }
+    swFeedback(true,"✓ Right! +"+pts+(mult>1?" · combo x"+mult:""),it.why,75); }
+  else { G.combo=0; G.lives--; G.mood=-60; G.stamp={ok:false,t:60}; SFX.bad();
+    G.mistakes.push({t:it.t,your:(saidRight?R.R.label:R.L.label),right:(it.r?R.R.label:R.L.label),why:it.why});
+    swFeedback(false,"✗ That one is "+(it.r?R.R.label:R.L.label)+".",it.why,170); }
+}
+function showRewrite(it,pts,mult){
+  const opts=shuffle(it.rw.map((t,i)=>({t,i})));
+  swCard("REWRITE IT!", it.t, `<b>✓ Yes, it’s vague! +${pts}${mult>1?" · combo x"+mult:""}</b> ${esc(it.why)}`, "ok");
+  document.getElementById("rwBox").innerHTML=`<div class="rwq">Which rewrite is clearest? <span>+150 bonus</span></div>`+opts.map((o,k)=>`<button type="button" class="opt" data-i="${o.i}"><i>${k+1}</i><span>${esc(o.t)}</span></button>`).join("");
+  document.querySelectorAll("#rwBox .opt").forEach(b=>b.onclick=()=>pickRewrite(+b.dataset.i,it));
+}
+function pickRewrite(i,it){
+  if(G.phase!=="rewrite") return; const ok=i===0;
+  document.querySelectorAll("#rwBox .opt").forEach(b=>{ b.disabled=true; const j=+b.dataset.i; if(j===0) b.classList.add("right"); else if(j===i) b.classList.add("wrong"); });
+  if(ok){ G.score+=150; SFX.good(); swFeedback(true,"✓ Perfect rewrite! +150","It says exactly what, who and when.",90,true); }
+  else { SFX.bad(); G.mistakes.push({t:it.t,your:"Rewrite: "+it.rw[i],right:"Rewrite: "+it.rw[0],why:"A clear message says what, who and when."});
+    swFeedback(false,"✗ Still vague. The best rewrite is highlighted in green.","A clear message says exactly what, who and when.",170,true); }
+}
+function swFeedback(ok,head,why,frames,keepRw){ G.phase="fb"; G.fbT=frames; G.fbMin=frames-30;
+  if(!keepRw) document.getElementById("rwBox").innerHTML="";
+  document.getElementById("swFb").innerHTML=`<b>${esc(head)}</b> ${esc(why)}${ok?"":`<span class="tap">Tap here or press Space to continue</span>`}`;
+  document.getElementById("swCard").className="swcard done "+(ok?"ok":"no"); }
+function swSkip(){ if(G&&G.type==="swipe"&&G.phase==="fb"&&G.fbT<G.fbMin) G.fbT=0; }
+function swUpdate(){
+  tick++; if(G.mood>0) G.mood--; else if(G.mood<0) G.mood++; if(G.stamp&&--G.stamp.t<=0) G.stamp=null; if(G.fly) G.fly.t++;
+  if(G.phase==="run"){ G.cur.t++; document.getElementById("swBar").style.width=Math.max(0,100-G.cur.t/G.cur.dur*100)+"%";
+    if(G.cur.t>=G.cur.dur){ const it=G.cur.it, R=G.F.rounds[G.ri]; G.done++; G.tot++; G.combo=0; G.lives--; G.mood=-60; G.stamp={ok:false,t:60}; SFX.hurt();
+      G.mistakes.push({t:it.t,your:"(too late)",right:(it.r?R.R.label:R.L.label),why:it.why}); swFeedback(false,"⏰ Too late! That one is "+(it.r?R.R.label:R.L.label)+".",it.why,170); } }
+  else if(G.phase==="fb"){ if(--G.fbT<=0){ if(G.lives<=0){ mode="over"; showOver(); return; } swNext(); } }
+  else if(G.phase==="banner"){ if(--G.bT<=0) swNext(); }
+  parts=parts.filter(q=>{ q.x+=q.vx; q.y+=q.vy; return --q.life>0; });
+}
+
+/* drag / swipe on the card */
+const swCardEl=document.getElementById("swCard"); let drag=null;
+function resetCardPos(){ swCardEl.style.transition="none"; swCardEl.style.transform=""; swCardEl.style.opacity=""; requestAnimationFrame(()=>swCardEl.style.transition=""); }
+function flyCard(side){ swCardEl.style.transition="transform .25s ease-in, opacity .25s"; swCardEl.style.transform=`translateX(${side==="R"?120:-120}%) rotate(${side==="R"?18:-18}deg)`; swCardEl.style.opacity="0";
+  setTimeout(()=>{ swCardEl.style.transition="none"; swCardEl.style.transform=""; swCardEl.style.opacity=""; },280); }
+swCardEl.addEventListener("pointerdown",e=>{ if(!G||G.type!=="swipe") return; if(G.phase==="fb"){ swSkip(); return; } if(G.phase!=="run") return; drag={x:e.clientX,id:e.pointerId}; try{swCardEl.setPointerCapture(e.pointerId);}catch(_){}; swCardEl.style.transition="none"; });
+swCardEl.addEventListener("pointermove",e=>{ if(!drag) return; const dx=e.clientX-drag.x; swCardEl.style.transform=`translateX(${dx}px) rotate(${dx/18}deg)`;
+  document.getElementById("hintL").style.opacity=dx<-20?1:.35; document.getElementById("hintR").style.opacity=dx>20?1:.35; });
+function endDrag(e){ if(!drag) return; const dx=e.clientX-drag.x; drag=null; document.getElementById("hintL").style.opacity=.35; document.getElementById("hintR").style.opacity=.35;
+  if(Math.abs(dx)>70) decide(dx>0?"R":"L"); else { swCardEl.style.transition=""; swCardEl.style.transform=""; } }
+swCardEl.addEventListener("pointerup",endDrag); swCardEl.addEventListener("pointercancel",e=>{ drag=null; swCardEl.style.transform=""; });
+document.getElementById("btnL").addEventListener("click",()=>decide("L"));
+document.getElementById("btnR").addEventListener("click",()=>decide("R"));
+
+/* pixel scene: Maya at her desk */
+const MONITOR=spr(["KKKKKKKKKKKKKKKK","KLLLLLLLLLLLLLLK","KLWWWWWWWWWWWWLK","KLWKKKKKKKWWWWLK","KLWWWWWWWWWWWWLK","KLWKKKKKWWWWWWLK","KLWWWWWWWWWWWWLK","KLWKKKKKKKKKWWLK","KLLLLLLLLLLLLLLK","KKKKKKKKKKKKKKKK",".......KK.......",".....KKKKKK....."]);
+function swDraw(){
+  const c=ctx; c.imageSmoothingEnabled=false;
+  c.fillStyle="#e6ddf0"; c.fillRect(0,0,VW,VH); c.fillStyle="#d6cbe6"; for(let x=0;x<VW;x+=32) c.fillRect(x,0,1,124);
+  // window
+  c.fillStyle="#5b6b8f"; c.fillRect(118,14,84,54); const gr=c.createLinearGradient(0,16,0,66); gr.addColorStop(0,"#7cc7ff"); gr.addColorStop(1,"#d9f1ff"); c.fillStyle=gr; c.fillRect(121,17,78,48);
+  c.fillStyle="rgba(40,50,90,.5)"; [[124,30],[136,22],[150,34],[164,26],[178,38],[190,30]].forEach(([x,h])=>c.fillRect(x,65-h,10,h)); c.fillStyle="#5b6b8f"; c.fillRect(159,17,2,48);
+  text3(c,"NORTHLINE BUILD · WRITING DESK",10,8,"#7a6c96");
+  // left: rewrite bin, right: outbox
+  const R=G&&G.F.rounds?G.F.rounds[G.ri]:null;
+  const bx=[[14,G&&R?R.L:null,"L"],[VW-70,G&&R?R.R:null,"R"]];
+  bx.forEach(([x,S,side])=>{ c.fillStyle="#14152b"; c.fillRect(x-1,73,58,52); c.fillStyle=S?S.col:"#888"; c.fillRect(x,74,56,10); c.fillStyle="#f7f4ec"; c.fillRect(x,84,56,40);
+    c.fillStyle="#cfc6dd"; c.fillRect(x+4,100,48,3); c.fillRect(x+4,108,48,3);
+    if(S){ const lab=S.label.length>12?S.label.split(" ")[0]:S.label; text3(c,lab,x+28-Math.floor(w3(lab)/2),89,"#14152b"); }
+    c.fillStyle="#14152b"; for(let k=0;k<5;k++){ const ax= side==="L"? x+24+k : x+32-k; c.fillRect(ax,114-k,1,1+2*k); } });
+  // floor + desk
+  c.fillStyle="#9aa3b1"; c.fillRect(0,124,VW,54); c.fillStyle="#7f8899"; for(let x=0;x<VW;x+=24) c.fillRect(x,124,1,54);
+  c.fillStyle="#8a5a2b"; c.fillRect(110,124,100,6); c.fillStyle="#6e4420"; c.fillRect(114,130,4,40); c.fillRect(202,130,4,40);
+  c.drawImage(MONITOR,166,100,32,24);
+  // Maya
+  const fr = G&&G.stamp&&G.stamp.ok ? MAYA.jump : MAYA.idle; c.drawImage(fr,140,108,12,16);
+  if(G&&G.mood>0) text3(c,"YES!",136,98,"#3fbf6a","#14152b"); else if(G&&G.mood<0) text3(c,"OOPS",136,98,"#e2483d","#14152b");
+  // flying envelope
+  if(G&&G.fly&&G.fly.t<24){ const k=G.fly.t/24, tx=G.fly.side==="R"?VW-50:34; const x=150+(tx-150)*k, y=104-Math.sin(k*Math.PI)*34+(90-104)*k; c.drawImage(SENV,Math.round(x),Math.round(y),15,10); }
+  // coworker at outbox
+  if(G) c.drawImage(NPCS[G.F.boss]||NPCS.lina,VW-24,108);
+  // stamp
+  if(G&&G.stamp){ c.save(); c.globalAlpha=Math.min(1,G.stamp.t/15); c.fillStyle=G.stamp.ok?"#3fbf6a":"#e2483d"; c.fillRect(146,36,28,28); c.fillStyle="#fff"; c.font="bold 20px sans-serif"; c.textBaseline="top"; c.fillText(G.stamp.ok?"✓":"✗",152,40); c.restore(); }
+  // HUD
+  c.fillStyle="#14152b"; c.fillRect(0,178,VW,14);
+  if(G){ for(let i=0;i<3;i++){ c.globalAlpha=i<G.lives?1:.25; c.drawImage(SCUP,4+i*13,180); } c.globalAlpha=1;
+    c.font="8px 'Press Start 2P', monospace"; c.textBaseline="top"; c.fillStyle="#ffd84a"; const s=String(G.score); c.fillText(s,VW-4-c.measureText(s).width,182);
+    const mult=Math.min(4,1+Math.floor(G.combo/3)); const lab=DAY_OF[G.n].toUpperCase()+" · "+G.F.name+(mult>1?"  COMBO X"+mult:""); text3(c,lab,Math.round(VW/2-w3(lab)/2),183,mult>1?"#ffd84a":"#ffffff");
+    const prog=G.done/G.totalItems; c.fillStyle="#3a3f6a"; c.fillRect(46,188,VW-100,2); c.fillStyle="#3fbf6a"; c.fillRect(46,188,Math.round((VW-100)*prog),2);
+    if(G.phase==="banner"){ c.fillStyle="rgba(20,21,43,.88)"; c.fillRect(0,60,VW,30); c.fillStyle="#ffd84a"; c.fillRect(0,60,VW,2); c.fillRect(0,88,VW,2);
+      c.font="8px 'Press Start 2P', monospace"; c.fillStyle="#ffffff"; const b=G.banner; c.fillText(b,Math.round(VW/2-c.measureText(b).width/2),66);
+      const h2="SWIPE LEFT OR RIGHT · READ THE SIDES"; text3(c,h2,Math.round(VW/2-w3(h2)/2),79,"#ffd84a"); } }
+}
 /* ================= DIALOG STRIP ================= */
 let sayUntil=0, curSay="";
 const faceC=document.getElementById("face").getContext("2d");
@@ -460,15 +643,15 @@ function iconImg(c,scale){ const x=document.createElement("canvas"); x.width=c.w
 
 function nameGate(){
   mode="menu"; let last=""; try{ last=localStorage.getItem(STORE+"|last")||""; }catch(e){}
-  openModal(`<div class="tag">MODULE 3 · LESSON 1</div><h2>Welcome to Mail Rush</h2>
-   <p>You play <b>Maya</b> in the Northline Build mail room. Read each message and send it to the right bin before it gets lost.</p>
+  openModal(`<div class="tag">MODULE 3 · LESSON 1</div><h2>Maya’s First Week</h2>
+   <p>You play <b>Maya</b>, new at Northline Build. Each day this week brings a new mini-game: Tuesday, Wednesday and Thursday.</p>
    <label for="nm" class="small">Your first and last name</label>
    <input class="name" id="nm" autocomplete="name" value="${esc(last)}" placeholder="e.g. Sarah Babiker">
    <div class="err" id="nmErr"></div>
    <div class="row"><button class="btn go" id="nmGo" type="button">ENTER THE OFFICE ▶</button></div>`);
   const inp=document.getElementById("nm"); inp.focus(); inp.select();
   const go=()=>{ const v=inp.value.trim().replace(/\s+/g," "); if(v.length<3||!/\s/.test(v)){ document.getElementById("nmErr").textContent="Please type your first and last name."; inp.focus(); return; }
-    P=loadProf(v); P.name=v; saveProf(); document.getElementById("who").textContent=v; send("Game · Signed in",null,""); showFloors(); };
+    P=loadProf(v); P.name=v; saveProf(); document.getElementById("who").textContent=v; send("Game · Signed in",null,""); goToday(); };
   document.getElementById("nmGo").onclick=go; inp.onkeydown=e=>{ if(e.key==="Enter") go(); };
 }
 
@@ -479,21 +662,45 @@ function floorOpen(n){ return dateOpen(n) && (n===1 || INSTRUCTOR || P.cleared[n
 function niceDate(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("en-CA",{weekday:"long",month:"long",day:"numeric"}); }
 
 function showFloors(){
-  mode="menu"; const tot=[1,2,3,4].reduce((s,n)=>s+(P.best[n]||0),0);
-  const rows=[1,2,3,4].map(n=>{ const F=FLOORS[n], open=floorOpen(n), done=!!P.cleared[n];
-    const st = done ? "✓ BEST "+P.best[n] : open ? "PLAY ▶" : (!dateOpen(n) ? "🔒 "+DAY_OF[n].toUpperCase() : "🔒 FINISH "+(n-1));
+  mode="menu"; const tot=DAYS.reduce((s,n)=>s+(P.best[n]||0),0);
+  const rows=DAYS.map(n=>{ const F=FLOORS[n], open=floorOpen(n), done=!!P.cleared[n];
+    const st = done ? "✓ BEST "+P.best[n] : open ? "PLAY ▶" : (!dateOpen(n) ? "🔒 "+DAY_OF[n].toUpperCase() : "🔒 FINISH DAY "+(n-1));
     return `<button class="floor ${open?"":"locked"} ${done?"done":""}" type="button" data-n="${n}" ${open?"":"aria-disabled=\"true\""}>
       <span class="n">${n}</span><span class="t"><b>${F.name}</b><span>${F.short}${!dateOpen(n)?" · opens "+niceDate(UNLOCK[n]):""}</span></span><span class="st">${st}</span></button>`; }).join("");
-  openModal(`<div class="tag">BUILDING DIRECTORY${INSTRUCTOR?" · INSTRUCTOR MODE":""}</div><h2>Choose a floor</h2>
-    <p class="small">A new part opens each day: Tuesday, Wednesday, then Thursday. Finish a floor to unlock the next one.</p>
+  openModal(`<div class="tag">BUILDING DIRECTORY${INSTRUCTOR?" · INSTRUCTOR MODE":""}</div><h2>Choose a day</h2>
+    <p class="small">A new part opens each day: Tuesday, Wednesday, then Thursday. Finish a day to unlock the next one.</p>
     <div class="floors">${rows}</div>
-    <div class="stats"><div class="stat"><b>${tot}</b><span>total best points</span></div><div class="stat"><b>${Object.keys(P.cleared).length}/4</b><span>floors cleared</span></div><div class="stat"><b>${rankOf(tot)}</b><span>your rank</span></div></div>
+    <div class="stats"><div class="stat"><b>${tot}</b><span>total best points</span></div><div class="stat"><b>${Object.keys(P.cleared).length}/${DAYS.length}</b><span>days done</span></div><div class="stat"><b>${rankOf(tot)}</b><span>your rank</span></div></div>
     <div class="row"><button class="btn" type="button" id="howBtn">HOW TO PLAY</button><button class="btn" type="button" id="swBtn">NOT ${esc(P.name.split(" ")[0].toUpperCase())}?</button></div>`);
-  card.querySelectorAll(".floor").forEach(b=>b.onclick=()=>{ const n=+b.dataset.n; if(!floorOpen(n)){ b.querySelector(".st").textContent = !dateOpen(n)?"OPENS "+DAY_OF[n].toUpperCase():"FINISH FLOOR "+(n-1)+" FIRST"; return; } showBrief(n); });
+  card.querySelectorAll(".floor").forEach(b=>b.onclick=()=>{ const n=+b.dataset.n; if(!floorOpen(n)){ b.querySelector(".st").textContent = !dateOpen(n)?"OPENS "+DAY_OF[n].toUpperCase():"FINISH DAY "+(n-1)+" FIRST"; return; } showBrief(n); });
   document.getElementById("howBtn").onclick=()=>showHow(showFloors);
   document.getElementById("swBtn").onclick=nameGate;
 }
-function rankOf(x){ return x>=12000?"DIRECTOR":x>=8000?"MANAGER":x>=4000?"COORD.":"INTERN"; }
+
+function todaysFloor(){ let f=0; for(const n of DAYS){ if(!dateOpen(n)) break; f=n; if(!P.cleared[n]) return n; } return f||null; }
+function goToday(){ if(INSTRUCTOR) return showFloors(); showWeek(); }
+function showWeek(){
+  mode="menu"; const f=todaysFloor(); const icons={1:"📬",2:"🗂",3:"🌍"};
+  const rows=DAYS.map(n=>{ const F=FLOORS[n], done=!!P.cleared[n], isToday=n===f;
+    let st, cls;
+    if(isToday){ st=done?"REPLAY ▶":"PLAY ▶"; cls="today"; }
+    else if(done){ st="✓ DONE · "+P.best[n]+" pts"; cls="done locked"; }
+    else if(!dateOpen(n)){ st="🔒 LOCKED"; cls="locked"; }
+    else { st="🔒 FINISH "+DAY_OF[n-1].toUpperCase()+" FIRST"; cls="locked"; }
+    return `<button class="floor ${cls}" type="button" data-n="${n}" ${isToday?"":"aria-disabled=\"true\""}>
+      <span class="n" aria-hidden="true">${icons[n]}</span><span class="t"><b>${DAY_OF[n]} · ${F.name}</b><span>${esc(F.short)}<br>${isToday?"Open now":(done?"Completed":"Opens on "+niceDate(UNLOCK[n]))}</span></span><span class="st">${st}</span></button>`; }).join("");
+  const first=esc(P.name.split(" ")[0]);
+  openModal(`<div class="tag">MODULE 3 · LESSON 1 · THIS WEEK</div><h2>Hi ${first}! Your week at Northline Build</h2>
+    <p class="small">One game per day. Each game opens on its day: Tuesday, Wednesday, then Thursday.</p>
+    <div class="floors">${rows}</div>
+    ${f?"":`<p><b>Nothing to play yet.</b> The first game opens on ${niceDate(UNLOCK[1])}.</p>`}
+    <div class="row">${f?`<button class="btn go" type="button" id="wGo">START ${DAY_OF[f].toUpperCase()} ▶</button>`:""}<button class="btn" type="button" id="wNo">NOT ${first.toUpperCase()}?</button></div>`);
+  card.querySelectorAll(".floor").forEach(b=>b.onclick=()=>{ if(+b.dataset.n===f) showBrief(f); });
+  if(f) document.getElementById("wGo").onclick=()=>showBrief(f);
+  document.getElementById("wNo").onclick=nameGate;
+}
+function rankOf(x){ return x>=25000?"DIRECTOR":x>=17000?"MANAGER":x>=9000?"COORD.":"INTERN"; }
+function setDeck(type){ document.getElementById("sortDeck").hidden = type==="swipe"; document.getElementById("swipeDeck").hidden = type!=="swipe"; }
 
 /* message card + lane buttons */
 const msgEl=document.getElementById("msg");
@@ -515,82 +722,91 @@ msgEl.addEventListener("click",()=>skipFb());
 
 function showHow(back){
   const ic=c=>`<img class="ic" alt="" src="${iconImg(c,3)}">`;
-  openModal(`<div class="tag">HOW TO PLAY</div><h2>Mail room survival guide</h2>
-   <div class="how">
+  const sw = G&&G.type==="swipe";
+  openModal(`<div class="tag">HOW TO PLAY</div><h2>${sw?"Clear or vague?":"Mail room survival guide"}</h2>
+   <div class="how">${sw?`
+    ${ic(SENV)}<span>Read the yellow card. <b>Swipe it</b> left or right, or tap the buttons (keyboard: ← →).</span>
+    ${ic(MAYA.jump)}<span>When you spot a <b>vague</b> message, pick the clearest rewrite: <b>+150 bonus</b>.</span>`:`
     ${ic(PARCEL)}<span>A message rolls along the belt. <b>Read it</b> in the yellow card under the game.</span>
-    ${ic(MAYA.jump)}<span><b>Tap the right bin</b> (or press 1, 2, 3…) before the parcel reaches <b>LOST MAIL</b>.</span>
-    ${ic(SCUP)}<span>You have <b>3 coffees</b>. A wrong bin or a lost parcel costs one.</span>
-    ${ic(SENV)}<span>3 right answers in a row = <b>combo</b>: points ×2, ×3, ×4. Faster answers = bonus points.</span>
+    ${ic(MAYA.jump)}<span><b>Tap the right bin</b> (or press 1, 2, 3…) before the parcel reaches <b>LOST MAIL</b>.</span>`}
+    ${ic(SCUP)}<span>You have <b>3 coffees</b>. A wrong answer or running out of time costs one.</span>
+    ${ic(SCARD)}<span>3 right answers in a row = <b>combo</b>: points ×2, ×3, ×4. Faster answers = bonus points.</span>
    </div>
-   <p class="small">The belt speeds up as you get better. Your best score on each floor is sent to your instructor automatically.</p>
+   <p class="small">Your best score each day is sent to your instructor automatically.</p>
    <div class="row"><button class="btn go" type="button" id="hb">GOT IT ▶</button></div>`);
   document.getElementById("hb").onclick=back;
 }
 function showBrief(n){
-  const F=FLOORS[n]; floorN=n; G=newGame(n); G.lanes=G.F.waves[0].lanes.map(k=>Object.assign({key:k},LANE[k])); G.phase="idle"; mode="menu";
-  buildLaneButtons(); showMsg("FLOOR "+n, "Your shift starts when you press START.", "");
-  openModal(`<div class="tag">FLOOR ${n} · ${DAY_OF[n].toUpperCase()}</div><h2>${F.name}</h2>
+  const F=FLOORS[n]; floorN=n; G=newGame(n); G.phase="idle"; mode="menu"; setDeck(F.type);
+  if(F.type==="swipe"){ swSetSides(F.rounds[0]); swCard(DAY_OF[n].toUpperCase(),"Your day starts when you press START.",""); }
+  else { G.lanes=G.F.waves[0].lanes.map(k=>Object.assign({key:k},LANE[k])); buildLaneButtons(); showMsg(DAY_OF[n].toUpperCase(), "Your shift starts when you press START.", ""); }
+  openModal(`<div class="tag">${DAY_OF[n].toUpperCase()} · ${esc(F.short.toUpperCase())}</div><h2>${F.name}</h2>
    <div class="defs">${F.brief.map(([t,d])=>`<div class="def"><b>${esc(t)}</b><span>${esc(d)}</span></div>`).join("")}</div>
    <p><b>Mission:</b> ${esc(F.mission)}</p>
-   <div class="row"><button class="btn go" type="button" id="bGo">START SHIFT ▶</button><button class="btn" type="button" id="bBack">FLOORS</button></div>`);
+   <div class="row"><button class="btn go" type="button" id="bGo">START ▶</button><button class="btn" type="button" id="bHow">HOW TO PLAY</button><button class="btn" type="button" id="bBack">${INSTRUCTOR?"FLOORS":"THIS WEEK"}</button></div>`);
   document.getElementById("bGo").onclick=()=>{ closeModal(); startFloor(n); };
-  document.getElementById("bBack").onclick=showFloors;
+  document.getElementById("bHow").onclick=()=>showHow(()=>showBrief(n));
+  document.getElementById("bBack").onclick=goToday;
 }
 function showOver(){
-  openModal(`<div class="tag">FLOOR ${floorN}</div><div class="big">OUT OF COFFEE</div>
-   <p>Too much mail went to the wrong place. Look at the review below, then try the shift again.</p>
+  openModal(`<div class="tag">${DAY_OF[floorN].toUpperCase()}</div><div class="big">OUT OF COFFEE</div>
+   <p>Too many wrong answers this time. Look at the review below, then try again.</p>
    ${reviewHtml()}
-   <div class="row"><button class="btn go" type="button" id="oGo">TRY AGAIN ▶</button><button class="btn" type="button" id="oBack">FLOORS</button></div>`);
+   <div class="row"><button class="btn go" type="button" id="oGo">TRY AGAIN ▶</button><button class="btn" type="button" id="oBack">${INSTRUCTOR?"FLOORS":"THIS WEEK"}</button></div>`);
   document.getElementById("oGo").onclick=()=>{ closeModal(); startFloor(floorN); };
-  document.getElementById("oBack").onclick=showFloors;
+  document.getElementById("oBack").onclick=goToday;
 }
-function reviewHtml(){ if(!G.mistakes.length) return `<p class="small">No mistakes. Perfect sorting!</p>`;
-  return `<div class="review"><b>Review your mistakes</b>${G.mistakes.map(m=>`<div class="rv"><div class="rt">${esc(m.t)}</div><div class="ra">You: ${esc(m.your)} → Right bin: <b>${esc(m.right)}</b></div><div class="rw">${esc(m.why)}</div></div>`).join("")}</div>`; }
+function reviewHtml(){ if(!G.mistakes.length) return `<p class="small">No mistakes. Perfect!</p>`;
+  return `<div class="review"><b>Review your mistakes</b>${G.mistakes.map(m=>`<div class="rv"><div class="rt">${esc(m.t)}</div><div class="ra">You: ${esc(m.your)} → Right answer: <b>${esc(m.right)}</b></div><div class="rw">${esc(m.why)}</div></div>`).join("")}</div>`; }
 function finishShift(){
   mode="clear"; SFX.win();
   const n=floorN, score=G.score, prev=P.best[n]||0, isBest=score>prev, first=!P.cleared[n];
   P.cleared[n]=true; if(isBest) P.best[n]=score; saveProf();
-  if(isBest||first) send("Game · Floor "+n+" cleared"+(isBest&&!first?" (new best)":""), score, "Floor "+n+": "+G.ok+"/"+G.tot+" correct, best combo "+G.maxCombo);
-  const total=[1,2,3,4].reduce((s,k)=>s+(P.best[k]||0),0), last=n===4, nextOpen=!last&&floorOpen(n+1);
+  if(isBest||first) send("Game · "+DAY_OF[n]+" ("+FLOORS[n].name+") done"+(isBest&&!first?" (new best)":""), score, DAY_OF[n]+": "+G.ok+"/"+G.tot+" correct, best combo "+G.maxCombo);
+  const total=DAYS.reduce((s,k)=>s+(P.best[k]||0),0), last=n===DAYS.length, nextOpen=!last&&floorOpen(n+1);
   const acc=Math.round(G.ok/Math.max(1,G.tot)*100);
-  openModal(`<div class="tag">FLOOR ${n} · SHIFT OVER</div><div class="big">${last?"LESSON 1 COMPLETE!":acc>=80?"GREAT SHIFT!":"SHIFT DONE"}</div>
+  openModal(`<div class="tag">${DAY_OF[n].toUpperCase()} · DONE</div><div class="big">${last?"LESSON 1 COMPLETE!":acc>=80?"GREAT JOB!":"DAY DONE"}</div>
    <div class="stats"><div class="stat"><b>${score}</b><span>points</span></div><div class="stat"><b>${acc}%</b><span>accuracy</span></div><div class="stat"><b>x${Math.min(4,1+Math.floor(G.maxCombo/3))}</b><span>best combo</span></div></div>
-   <p>${isBest?"New best score! It has been sent to your instructor.":"Your best on this floor is still "+prev+" points."}</p>
+   <p>${isBest?"New best score! It has been sent to your instructor.":"Your best for "+DAY_OF[n]+" is still "+prev+" points."}</p>
    ${last?`<p>Total best: <b>${total}</b> · Rank: <b>${rankOf(total)}</b></p>`:""}
-   ${!last&&!nextOpen?`<p class="small">Floor ${n+1} opens on ${niceDate(UNLOCK[n+1])}. Come back then!</p>`:""}
+   ${!last&&!nextOpen?`<p class="small">The next part opens on <b>${niceDate(UNLOCK[n+1])}</b>. Come back then! You can replay today’s game to beat your score.</p>`:""}
    ${reviewHtml()}
-   <div class="row">${nextOpen?`<button class="btn go" type="button" id="cNext">FLOOR ${n+1} ▶</button>`:""}<button class="btn ${nextOpen?"":"go"}" type="button" id="cFl">FLOORS</button><button class="btn" type="button" id="cAg">REPLAY</button></div>`);
+   <div class="row">${nextOpen?`<button class="btn go" type="button" id="cNext">${DAY_OF[n+1].toUpperCase()} ▶</button>`:""}<button class="btn" type="button" id="cFl">${INSTRUCTOR?"FLOORS":"THIS WEEK"}</button><button class="btn ${nextOpen?"":"go"}" type="button" id="cAg">REPLAY</button></div>`);
   if(nextOpen) document.getElementById("cNext").onclick=()=>showBrief(n+1);
-  document.getElementById("cFl").onclick=showFloors;
+  document.getElementById("cFl").onclick=goToday;
   document.getElementById("cAg").onclick=()=>showBrief(n);
 }
 
 /* ================= SEND TO INSTRUCTOR ================= */
 function send(event,score,detail){
   if(!FORM.action||typeof fetch!=="function"||INSTRUCTOR) return;
-  const total=[1,2,3,4].reduce((s,n)=>s+(P.best[n]||0),0);
+  const total=DAYS.reduce((s,n)=>s+(P.best[n]||0),0);
   const body=new URLSearchParams();
   body.append(FORM.fields.name,P.name); body.append(FORM.fields.event,event);
-  body.append(FORM.fields.sessions,"Mail Rush · "+Object.keys(P.cleared).length+"/4 floors");
+  body.append(FORM.fields.sessions,"Maya’s First Week · "+Object.keys(P.cleared).length+"/"+DAYS.length+" days");
   body.append(FORM.fields.xp,String(score==null?total:score));
-  body.append(FORM.fields.report,(detail?detail+" · ":"")+"Best per floor: "+[1,2,3,4].map(n=>"F"+n+"="+(P.best[n]||0)).join(", ")+" · Total "+total);
+  body.append(FORM.fields.report,(detail?detail+" · ":"")+"Best: "+DAYS.map(n=>DAY_OF[n].slice(0,3)+"="+(P.best[n]||0)).join(", ")+" · Total "+total);
   fetch(FORM.action,{method:"POST",mode:"no-cors",body}).catch(()=>{});
 }
 
 /* ================= CONTROLS ================= */
 addEventListener("keydown",e=>{
   if(mode!=="play") return;
+  if(G&&G.type==="swipe"){
+    if(e.code==="ArrowLeft"){ e.preventDefault(); decide("L"); } else if(e.code==="ArrowRight"){ e.preventDefault(); decide("R"); }
+    else if(G.phase==="rewrite"&&/^Digit[1-3]$/.test(e.code)){ const bt=document.querySelectorAll("#rwBox .opt")[+e.code.slice(-1)-1]; if(bt) bt.click(); }
+    else if(e.code==="Space"||e.code==="Enter"){ e.preventDefault(); swSkip(); } return; }
   if(/^Digit[1-5]$/.test(e.code)||/^Numpad[1-5]$/.test(e.code)){ e.preventDefault(); choose(+e.code.slice(-1)-1); }
   else if(e.code==="Space"||e.code==="Enter"){ e.preventDefault(); skipFb(); } });
 document.getElementById("sndBtn").onclick=e=>{ SOUND=!SOUND; e.currentTarget.textContent="SOUND: "+(SOUND?"ON":"OFF"); e.currentTarget.setAttribute("aria-pressed",String(SOUND)); if(SOUND) SFX.coin(); };
-document.getElementById("mapBtn").onclick=()=>{ if(!P.name) return nameGate(); showFloors(); };
-document.addEventListener("visibilitychange",()=>{ if(document.hidden&&mode==="play"){ mode="paused"; openModal(`<div class="tag">PAUSED</div><h2>Coffee break</h2><p>The belt stopped while you were away.</p><div class="row"><button class="btn go" type="button" id="rs">BACK TO WORK ▶</button></div>`); document.getElementById("rs").onclick=()=>{ closeModal(); mode="play"; }; } });
+const mapBtn=document.getElementById("mapBtn"); if(!INSTRUCTOR) mapBtn.hidden=true; mapBtn.onclick=()=>{ if(!P.name) return nameGate(); showFloors(); };
+document.addEventListener("visibilitychange",()=>{ if(document.hidden&&mode==="play"){ mode="paused"; openModal(`<div class="tag">PAUSED</div><h2>Coffee break</h2><p>The game paused while you were away.</p><div class="row"><button class="btn go" type="button" id="rs">BACK TO WORK ▶</button></div>`); document.getElementById("rs").onclick=()=>{ closeModal(); mode="play"; }; } });
 
 /* ================= BOOT ================= */
 (async function boot(){
   try{ await Promise.race([document.fonts.load("8px 'Press Start 2P'"),new Promise(r=>setTimeout(r,1500))]); }catch(e){}
   G=newGame(1); G.lanes=G.F.waves[0].lanes.map(k=>Object.assign({key:k},LANE[k])); G.phase="idle"; buildLaneButtons();
-  setSay("maya","MAYA","Hi! I’m Maya. This week I run the Northline Build mail room. Help me send every message to the right place!");
+  setSay("maya","MAYA","Hi! I’m Maya, new at Northline Build. Help me get through my first week!");
   requestAnimationFrame(frame);
   nameGate();
 })();
