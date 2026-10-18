@@ -143,6 +143,8 @@ input.name:focus{outline:3px solid var(--teal);outline-offset:1px}
 .floor.locked{background:#e5e2d8;cursor:not-allowed;box-shadow:none;opacity:.85}
 .floor.locked .n{background:#777;color:#ddd}
 .floor .n{font-family:var(--body);font-size:20px}
+.floor .n.d{font-family:var(--px);font-size:9px}
+.wkh{font-family:var(--px);font-size:10px;margin:8px 0 2px;color:#6a5a00}
 .floor.today{background:#fff6cf;box-shadow:0 4px 0 #000,0 0 0 3px var(--sun)}
 .floor.today .st{color:#1d7a3e}
 @media (max-width:480px){.floor{grid-template-columns:auto 1fr}.floor .st{grid-column:2;text-align:left}}
@@ -916,12 +918,14 @@ function niceDate(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,
 
 function showFloors(){
   mode="menu"; const tot=DAYS.reduce((s,n)=>s+(P.best[n]||0),0);
-  const rows=DAYS.map(n=>{ const F=FLOORS[n], open=floorOpen(n), done=!!P.cleared[n];
-    const st = done ? "✓ BEST "+P.best[n] : open ? "PLAY ▶" : (!dateOpen(n) ? "🔒 "+DAY_OF[n].toUpperCase() : "🔒 FINISH DAY "+(n-1));
+  const row=n=>{ const F=FLOORS[n], open=floorOpen(n), done=!!P.cleared[n];
+    const st = done ? "✓ BEST "+P.best[n] : open ? "PLAY ▶" : (!dateOpen(n) ? "🔒 "+DAY_OF[n].toUpperCase() : "🔒 FINISH "+DAY_OF[n-1].toUpperCase());
     return `<button class="floor ${open?"":"locked"} ${done?"done":""}" type="button" data-n="${n}" ${open?"":"aria-disabled=\"true\""}>
-      <span class="n">${n}</span><span class="t"><b>${dayLabel(n)} · ${F.name}</b><span>${F.short}${!dateOpen(n)?" · opens "+niceDate(UNLOCK[n]):""}</span></span><span class="st">${st}</span></button>`; }).join("");
+      <span class="n d">${DAY_OF[n].slice(0,3).toUpperCase()}</span><span class="t"><b>${DAY_OF[n]} · ${F.name}</b><span>${F.short}${!dateOpen(n)?" · opens "+niceDate(UNLOCK[n]):""}</span></span><span class="st">${st}</span></button>`; };
+  const weeks=[...new Set(DAYS.map(d=>WEEK_OF[d]))].sort((a,b)=>b-a);
+  const rows=weeks.map(w=>`<div class="wkh">${WEEK_INFO[w].title} · ${WEEK_INFO[w].sub}</div>`+DAYS.filter(d=>WEEK_OF[d]===w).map(row).join("")).join("");
   openModal(`<div class="tag">BUILDING DIRECTORY${INSTRUCTOR?" · INSTRUCTOR MODE":""}</div><h2>Choose a day</h2>
-    <p class="small">A new part opens each day: Tuesday, Wednesday, then Thursday. Finish a day to unlock the next one.</p>
+    <p class="small">Instructor view: every game is open. Newest week first.</p>
     <div class="floors">${rows}</div>
     <div class="stats"><div class="stat"><b>${tot}</b><span>total best points</span></div><div class="stat"><b>${Object.keys(P.cleared).length}/${DAYS.length}</b><span>days done</span></div><div class="stat"><b>${rankOf(tot)}</b><span>your rank</span></div></div>
     <div class="row"><button class="btn" type="button" id="howBtn">HOW TO PLAY</button><button class="btn" type="button" id="swBtn">NOT ${esc(P.name.split(" ")[0].toUpperCase())}?</button></div>`);
@@ -930,11 +934,15 @@ function showFloors(){
   document.getElementById("swBtn").onclick=nameGate;
 }
 
+function weekDays(w){ return DAYS.filter(d=>WEEK_OF[d]===w); }
 function currentWeek(){ let w=1; for(const n of DAYS) if(dateOpen(n)) w=WEEK_OF[n];
-  const cur=DAYS.filter(d=>WEEK_OF[d]===w), nxt=DAYS.filter(d=>WEEK_OF[d]===w+1);
-  if(!INSTRUCTOR && nxt.length && cur.every(d=>P.cleared[d]) && today()>UNLOCK[cur[cur.length-1]]) w=w+1;   // week finished: show the next one
+  const cur=weekDays(w), nxt=weekDays(w+1);
+  if(nxt.length && today()>UNLOCK[cur[cur.length-1]]) w=w+1;   // the week is over: show the next one (unfinished games stay available as catch-up)
   return w; }
-function todaysFloor(){ const w=currentWeek(); let f=0; for(const n of DAYS.filter(d=>WEEK_OF[d]===w)){ if(!dateOpen(n)) break; f=n; if(!P.cleared[n]) return n; } return f||null; }
+function firstOpenUndone(days){ let f=0; for(const n of days){ if(!dateOpen(n)) break; f=n; if(!P.cleared[n]) return {n,undone:true}; } return f?{n:f,undone:false}:null; }
+function todaysFloor(){ const w=currentWeek(); const r=firstOpenUndone(weekDays(w)); if(r&&r.undone) return r.n;
+  for(let x=1;x<w;x++){ const c=firstOpenUndone(weekDays(x)); if(c&&c.undone) return c.n; }   // catch up on an earlier week
+  return r?r.n:null; }
 function goToday(){ if(INSTRUCTOR) return showFloors(); showWeek(); }
 function showWeek(){
   mode="menu"; const f=todaysFloor(), w=currentWeek(); const icons={1:"📬",2:"🗂",3:"🌍",4:"✉",5:"✂",6:"✅",7:"🎯"};
@@ -947,15 +955,16 @@ function showWeek(){
     else { st="🔒 FINISH "+DAY_OF[n-1].toUpperCase()+" FIRST"; cls="locked"; }
     return `<button class="floor ${cls}" type="button" data-n="${n}" ${isToday?"":"aria-disabled=\"true\""}>
       <span class="n" aria-hidden="true">${icons[n]}</span><span class="t"><b>${DAY_OF[n]} · ${F.name}</b><span>${esc(F.short)}<br>${isToday?"Open now":(done?"Completed":"Opens on "+niceDate(UNLOCK[n]))}</span></span><span class="st">${st}</span></button>`; }).join("");
-  const past=[...new Set(DAYS.map(d=>WEEK_OF[d]))].filter(x=>x<w).map(x=>{ const ds=DAYS.filter(d=>WEEK_OF[d]===x); const pts=ds.reduce((s,d)=>s+(P.best[d]||0),0);
-    return `<p class="small">✓ ${WEEK_INFO[x].title}: ${ds.filter(d=>P.cleared[d]).length}/${ds.length} games done · ${pts} pts</p>`; }).join("");
+  const catchup = f && WEEK_OF[f]<w;
+  const past=[...new Set(DAYS.map(d=>WEEK_OF[d]))].filter(x=>x<w).map(x=>{ const ds=weekDays(x); const pts=ds.reduce((s,d)=>s+(P.best[d]||0),0), dn=ds.filter(d=>P.cleared[d]).length;
+    return `<p class="small">${dn===ds.length?"✓":"⏳"} ${WEEK_INFO[x].title}: ${dn}/${ds.length} games done · ${pts} pts${dn<ds.length?" · you can still catch up":""}</p>`; }).join("");
   const first=esc(P.name.split(" ")[0]);
   openModal(`<div class="tag">MODULE 3 · ${WEEK_INFO[w].title.toUpperCase()}</div><h2>Hi ${first}! ${WEEK_INFO[w].sub}</h2>
     <p class="small">One game per day. Each game opens on its day.</p>
     <div class="floors">${rows}</div>
     ${past}
-    ${f?"":`<p><b>Nothing to play yet.</b> The first game opens on ${niceDate(UNLOCK[days[0]])}.</p>`}
-    <div class="row">${f?`<button class="btn go" type="button" id="wGo">START ${DAY_OF[f].toUpperCase()} ▶</button>`:""}<button class="btn" type="button" id="wNo">NOT ${first.toUpperCase()}?</button></div>`);
+    ${!f?`<p><b>Nothing to play yet.</b> The first game opens on ${niceDate(UNLOCK[days[0]])}.</p>`:catchup?`<p><b>Catch up!</b> You still have <b>${DAY_OF[f]} · ${FLOORS[f].name}</b> from ${WEEK_INFO[WEEK_OF[f]].title} to finish.</p>`:""}
+    <div class="row">${f?`<button class="btn go" type="button" id="wGo">${catchup?"CATCH UP: ":"START "}${DAY_OF[f].toUpperCase()}${catchup?" (WEEK "+WEEK_OF[f]+")":""} ▶</button>`:""}<button class="btn" type="button" id="wNo">NOT ${first.toUpperCase()}?</button></div>`);
   card.querySelectorAll(".floor").forEach(b=>b.onclick=()=>{ if(+b.dataset.n===f) showBrief(f); });
   if(f) document.getElementById("wGo").onclick=()=>showBrief(f);
   document.getElementById("wNo").onclick=nameGate;
