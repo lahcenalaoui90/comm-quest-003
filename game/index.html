@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Maya’s First Week</title>
+<title>Maya at Northline</title>
 <meta name="theme-color" content="#14152b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -83,6 +83,29 @@ kbd{font-family:var(--px);font-size:9px;background:var(--panel);border:2px solid
 .swb:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 .rwbox{display:grid;gap:8px}.rwbox:empty{display:none}
 .rwq{font-family:var(--px);font-size:10px;color:var(--sun);line-height:1.6}.rwq span{color:var(--teal)}
+.pentask{background:var(--panel);border:3px solid #000;padding:10px 12px;font-size:15px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pentask b{font-family:var(--px);font-size:9px;background:var(--coral);color:#fff;padding:5px 7px;border:2px solid #000}
+.pentask span{margin-left:auto;font-family:var(--px);font-size:9px;color:var(--sun)}
+.pentask u{text-decoration-thickness:2px}
+.ptimer{height:8px;background:var(--panel);border:2px solid #000;margin-top:-6px}.ptimer i{display:block;height:100%;width:100%;background:var(--teal);transition:width .2s linear}.ptimer i.hot{background:var(--coral)}
+.paper{background:#fffdf6;color:#1d1f33;border:4px solid #000;box-shadow:6px 6px 0 #000;padding:16px 18px 18px;background-image:repeating-linear-gradient(transparent 0 33px,#e8e2d0 33px 34px);line-height:34px}
+.pkind{font-family:var(--px);font-size:9px;letter-spacing:1px;color:#9b7b5c;line-height:1.4;margin-bottom:6px}
+.phead{font-size:14px;color:#4a4f70;border-bottom:2px solid #1d1f33;padding-bottom:6px;margin-bottom:8px;line-height:28px}
+.pbody{font-size:clamp(16px,2.4vw,19px)}
+.ch{cursor:pointer;border-radius:3px;padding:2px 1px;transition:background .12s}
+@media (hover:hover){.ch[data-id]:hover{background:#fff1a8}}
+.ch[data-id]:focus-visible{outline:3px solid var(--teal)}
+.ch.fixed del{color:#c0392b;text-decoration-thickness:2px}
+.ch.fixed ins{text-decoration:none;color:#1d7a3e;font-weight:700;background:#d9f5e1;padding:1px 4px}
+.ch.fixed.late ins{color:#a35a00;background:#ffe6c4}
+.ch.tagged{background:color-mix(in srgb,var(--c) 18%,white);box-shadow:inset 0 -3px 0 var(--c);font-weight:500}
+.ch.tagged i{font-style:normal;font-family:var(--px);font-size:8px;background:var(--c);color:#fff;padding:3px 5px;margin-right:4px;vertical-align:middle}
+.ch.nope{animation:nope .4s}
+@keyframes nope{0%,100%{transform:none;background:transparent}25%{transform:translateX(-3px);background:#f7c7c2}75%{transform:translateX(3px);background:#f7c7c2}}
+.pfb{border:3px solid #000;padding:9px 12px;font-size:15px;margin-top:2px}.pfb+.pfb{margin-top:8px}
+.pfb.ok{background:#c9f2d6;color:var(--ink)}.pfb.no{background:#f7c7c2;color:var(--ink)}
+#penFb{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));width:min(560px,calc(100% - 32px));z-index:5;pointer-events:none;display:grid;gap:6px;box-shadow:6px 6px 0 #000}#penFb:empty{display:none}#penFb .pfb{margin:0}
+.q2{font-size:17px;font-weight:500;color:var(--paper)}
 /* modals */
 .modal{position:fixed;inset:0;background:rgba(9,10,24,.84);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
 .card{background:var(--paper);color:var(--ink);border:4px solid #000;box-shadow:8px 8px 0 #000;max-width:600px;width:100%;max-height:calc(100dvh - 32px);overflow:auto;padding:22px 20px}
@@ -140,8 +163,8 @@ input.name:focus{outline:3px solid var(--teal);outline-offset:1px}
 <div class="wrap">
   <header>
     <div class="brand">
-      <h1>MAYA’S FIRST WEEK</h1>
-      <div class="sub">Module 3 : Business Communication · Lesson 1 · <span id="who"></span></div>
+      <h1>MAYA AT NORTHLINE</h1>
+      <div class="sub">Module 3 : Business Communication · <span id="who"></span></div>
     </div>
     <div class="tools">
       <button class="btn" id="mapBtn" type="button">FLOORS</button>
@@ -152,6 +175,13 @@ input.name:focus{outline:3px solid var(--teal);outline-offset:1px}
   
   <div id="sortDeck" class="deck"><div class="msg" id="msg" aria-live="polite"><div class="mtag" id="msgTag">INCOMING</div><p id="msgText">Your shift starts soon.</p><div id="msgFb"></div></div>
   <div class="lanes" id="lanes"></div></div>
+  <div id="penDeck" class="deck" hidden>
+    <div class="pentask" id="penTask"><b>✎ RED PEN</b> Ready?</div>
+    <div class="ptimer"><i id="penBar"></i></div>
+    <div class="paper" id="paper"><div class="pkind" id="pKind">DOCUMENT</div><div class="phead" id="pHead"></div><div class="pbody" id="pBody"></div></div>
+    <div id="penFb" aria-live="polite"></div>
+    <div id="penQ" class="rwbox"></div>
+  </div>
   <div id="swipeDeck" class="deck" hidden>
     <div class="swzone"><div class="swhint" id="hintL">◀ VAGUE</div><div class="swhint r" id="hintR">CLEAR ▶</div>
       <div class="swcard" id="swCard"><div class="mtag" id="swTag">CARD</div><p id="swText">Get ready…</p><div id="swFb"></div><div class="swtimer"><i id="swBar"></i></div></div></div>
@@ -173,7 +203,8 @@ const FORM = {
   action: "https://docs.google.com/forms/d/e/1FAIpQLScn7993TFDvzk7TY9Q3HHvW3Y_6BI1v8H3pEb45xNOvFE-TYQ/formResponse",
   fields: { name:"entry.441402498", event:"entry.1776007161", sessions:"entry.28314834", xp:"entry.383135505", report:"entry.88272251" }
 };
-const INSTRUCTOR = location.hash === "#instructor";
+let INSTRUCTOR = false;   // set at boot: true only when the URL ends with the secret instructor code
+const BOSS_HASH = "9ed9f539880ffb0a7285b7706e8654c75e35be65703a7c621f71f86e3efaaeff";
 const NPCPAL = {
   sam:  {Y:"#2b2b2b",y:"#1a1a1a",H:"#2b2b2b",S:"#8d5a3b",T:"#3a5bd9",W:"#ffffff",P:"#2a2a40",B:"#222"},
   lina: {Y:"#b5452d",y:"#8a2f1c",H:"#b5452d",S:"#f0c7a0",T:"#9b59b6",W:"#ffffff",P:"#333355",B:"#3a2a1a"},
@@ -314,6 +345,92 @@ const FLOORS = {
     ["Assuming everyone thinks the way you do.","blk"],["Laughing at a coworker’s accent.","blk"],["Saying “people from there are always late.”","blk"],
     ["Leaving a new colleague out of lunch because they are “different”.","blk"]]}]}
 };
+/* ================= WEEK 2 · LESSON 2 · THE RED PEN ================= */
+Object.assign(UNLOCK,{4:"2026-10-19",5:"2026-10-20",6:"2026-10-21",7:"2026-10-22"});
+Object.assign(DAY_OF,{4:"Monday",5:"Tuesday",6:"Wednesday",7:"Thursday"});
+DAYS.push(4,5,6,7);
+const WEEK_OF={1:1,2:1,3:1,4:2,5:2,6:2,7:2};
+const WEEK_INFO={1:{title:"Week 1 · Lesson 1",sub:"Communication overview"},2:{title:"Week 2 · Lesson 2",sub:"Business writing"}};
+function dayLabel(n){ return (WEEK_OF[n]>1?"W"+WEEK_OF[n]+" ":"")+DAY_OF[n]; }
+/* Document markup:
+   [[wrong text|fix|why]]  = a problem to find (fault mode)
+   {{E|sentence}}           = a target to find (classify mode): E ethos, P pathos, L logos
+   Everything else is split into tappable chunks that are fine. */
+Object.assign(FLOORS,{
+4:{ type:"pen", name:"RIGHT TONE, RIGHT DOC", short:"Session 4 · Types of workplace writing and tone", boss:"sam",
+  brief:[["Letter","Formal message to someone outside the company. Formal tone."],
+         ["Email","Fast message to one or many people, inside or outside. Neutral tone."],
+         ["Memo","Informs colleagues in the same company. Informal to neutral tone."],
+         ["Report & manual","Report: data and recommendations. Manual: step-by-step instructions or policies."],
+         ["Tone","Friendly for coworkers. Formal for clients, senior executives and important reports."]],
+  mission:"Grab your red pen! Each document has mistakes in tone or format. Tap every wrong part before the clock runs out.",
+  docs:[
+   {kind:"Business letter",head:"To: Ms. Anita Patel, Director, Riverside Properties<br>Subject: Thank you for our partnership",
+    body:"[[Hey Anita!!|Dear Ms. Patel,|Too casual. A formal letter to a client starts with “Dear Ms. …,”.]] Thank you for five years of partnership with Northline Build. [[Your projects were super cool lol.|It has been a pleasure to deliver your projects.|Slang does not belong in a formal letter.]] We look forward to starting the new tower in 2027. [[Cheers 😎|Sincerely,|Emojis and casual sign-offs do not fit a formal letter.]] Maya Chen, Site Coordinator",
+    q:{q:"Which type of document is this?",o:["Business letter","Memo","Manual","Text message"],a:0,why:"A formal message to someone outside the company is a business letter."}},
+   {kind:"Memo",head:"To: All site staff · From: Maya Chen<br>Subject: Parking from Monday",
+    body:"The north lot closes on Monday for repaving. [[Pursuant to the aforementioned circumstances, all personnel are hereby instructed to|Please|Far too stiff for a memo to coworkers. Keep it friendly and simple.]] park in the south lot until October 30. [[Questions to the usual person.|Questions? Ask Grace in Facilities, ext. 214.|Vague: nobody knows who “the usual person” is.]] Thanks for your help!",
+    q:{q:"A memo is sent to…",o:["Colleagues in the same company","A client outside the company","A court of law","The newspaper"],a:0,why:"A memo informs colleagues inside the same company."}},
+   {kind:"Email",head:"To: Ken Ross, Director<br>Subject: [[stuff|Q3 safety summary: 2 incidents, both closed|A vague subject line hides the purpose of the email.]]",
+    body:"[[Yo Ken,|Hello Ken,|Too casual for a senior executive.]] Here is the Q3 safety summary. There were 2 minor incidents. Both are now closed. The full report is attached. [[k bye 👋|Best regards,|Too casual for a director. Use a professional closing.]] Maya",
+    q:{q:"Which tone fits a message to a senior executive?",o:["Formal","Slang","Very casual with emojis","Angry"],a:0,why:"Formal tone for senior executives and important reports."}},
+   {kind:"Manual",head:"Safety manual · Lockout procedure · Step 3",
+    body:"[[Do the thing with the switch, you know how.|Turn the main switch to OFF.|A manual must give exact instructions, not hints.]] Attach your personal lock to the switch. [[Then maybe tell someone, if you feel like it.|Then inform your supervisor.|Safety steps are required, not optional.]] Press START to test that the machine does not run.",
+    q:{q:"A manual is…",o:["A written set of instructions, procedures or policies","A thank-you letter","A meeting invitation","A legal agreement"],a:0,why:"Manuals explain how to do things, step by step."}}]},
+5:{ type:"pen", name:"PLAIN ENGLISH", short:"Session 4 · The writing process and plain English", boss:"omar",
+  brief:[["3-step writing process","Pre-writing (think, research, outline) → Writing (draft) → Revision (rethink, reshape, get feedback)."],
+         ["Plain English","Short sentences. Common words: use, not utilize; because, not due to the fact that."],
+         ["Active voice","“Management is replacing the sheet.” Not “The sheet will be replaced by management.”"],
+         ["Cut the extra","Remove repeated words, fillers like “basically”, and jargon like “leverage synergies”."]],
+  mission:"These drafts are wordy. Tap every wordy, repeated or jargon-filled part. Your red pen will rewrite it in plain English.",
+  docs:[
+   {kind:"Email",head:"To: Site team<br>Subject: Steel delivery is late",
+    body:"Hello team, [[At this point in time,|Now,|Wordy: “now” says the same thing.]] the steel delivery is late. [[Due to the fact that|Because|Wordy: use “because”.]] the supplier had a truck problem, it will arrive on Thursday. [[In the event that|If|Wordy: use “if”.]] it is late again, I will call you right away. Thanks, Maya",
+    q:{q:"What is the FIRST step of the writing process?",o:["Pre-writing: think, research, outline","Writing the draft","Revision","Sending"],a:0,why:"Pre-writing comes first: think about your purpose, research and outline."}},
+   {kind:"Memo",head:"To: All staff<br>Subject: New visitor sign-in",
+    body:"All visitors must sign in at the gate. [[It has been decided by management that the paper sheet will be replaced|Management is replacing the paper sheet|Passive voice hides who acts. Use active voice.]] by a tablet on Monday. [[Please make sure that you ensure that|Please make sure|Repetition: “make sure” and “ensure” mean the same thing.]] every visitor signs in. [[We would like to take this opportunity to thank you for your kind cooperation in this matter.|Thank you!|Long and wordy. Keep it short.]]"},
+   {kind:"Email",head:"To: Project team<br>Subject: Tuesday meeting",
+    body:"Hi all, [[the meeting which is scheduled to take place on the date of Tuesday|Tuesday’s meeting|Wordy: say it in two words.]] starts at 10 a.m. in Room 3B. [[Please utilize|Please use|Plain English: “use”, not “utilize”.]] the side door. [[We will endeavour to commence promptly.|We will start on time.|Plain English: short, common words.]] See you there!"},
+   {kind:"Report draft",head:"Budget update · Draft 1",
+    body:"[[In terms of the overall general situation regarding the budget,|The budget|Wordy opening. Start with the subject.]] is 5% over plan. [[Basically, the main reason is basically|The main reason is|“Basically” twice adds nothing.]] the higher price of concrete. [[Going forward, we should circle back and leverage synergies.|Next month, we should compare three concrete suppliers.|Jargon. Say exactly what to do.]]",
+    q:{q:"Fixing words and sentences after the first draft is which step?",o:["Revision","Pre-writing","Writing","Outlining"],a:0,why:"Revision: rethink, reshape and polish the draft."}}]},
+6:{ type:"pen", name:"THE 12-POINT CHECK", short:"Session 5 · Evaluating your message", boss:"priya",
+  brief:[["The 12-point check","1 Purpose · 2 Readers · 3 Document requirements · 4 Get to the point · 5 Accurate information · 6 Logical order"],
+         ["…continued","7 Clear and proofread · 8 Efficient words · 9 Accessible ideas · 10 Lists · 11 Format and white space · 12 Deadlines"],
+         ["How to score","1 point for each point the message respects. A strong message scores 10/12 or more."]],
+  mission:"Check each message like an editor. Tap every part that breaks one of the 12 points. Each fix tells you which point it was.",
+  docs:[
+   {kind:"Email",head:"To: All staff<br>Subject: [[Update|Fire drill: Thursday, October 22, 2 p.m.|Point 1 · Purpose: the subject must say what the message is about.]]",
+    body:"Hello everyone, a fire drill will take place [[soon.|on Thursday, October 22, at 2 p.m.|Point 12 · Deadlines: give the exact date and time.]] When the alarm rings, leave by the nearest exit and meet in the south parking lot. [[The drill will take 3 hours.|The drill will take 15 minutes.|Point 5 · Accuracy: check your facts. A drill takes minutes, not hours.]] [[Thanks for you’re help.|Thanks for your help.|Point 7 · Proofread: “you’re” should be “your”.]]",
+    q:{q:"Which point is about checking spelling and grammar?",o:["Point 7 · Express yourself clearly; proofread","Point 10 · Use lists","Point 12 · Deadlines","Point 2 · Readers"],a:0,why:"Point 7: express yourself clearly and proofread."}},
+   {kind:"Memo",head:"To: Site crews<br>Subject: New safety gear rule",
+    body:"Starting Monday, every worker must wear [[a hard hat and safety glasses and steel-toe boots and a high-visibility vest and gloves on site.|this gear on site: • hard hat • safety glasses • steel-toe boots • high-visibility vest • gloves.|Point 10 · Lists: five items read faster as bullets.]] [[Pls rmbr 2 bring ur gear 2moro.|Please bring your gear tomorrow.|Point 8 · Efficient words, not text-speak.]] Extra gear is available at the site office."},
+   {kind:"Report",head:"Q3 report · Summary",
+    body:"[[This report is about many different things that happened.|This report shows that Q3 costs were 5% over budget.|Point 4 · Get to the point: main idea first.]] Concrete prices rose by 12%. [[Some people think it might be maybe a lot.|Concrete cost $48,000 more than planned.|Point 5 · Accurate, researched information: give the number.]] We recommend comparing three suppliers before Q4. [[See the 47 pages attached for details.|See the one-page cost table attached.|Point 9 · Make ideas accessible: don’t bury the reader.]]"},
+   {kind:"Email",head:"To: New employees<br>Subject: WHMIS training on Friday",
+    body:"[[Hey you guys,|Hello and welcome,|Point 2 · Readers: new employees need a professional, welcoming tone.]] WHMIS training is mandatory for all new staff. [[First the test, then I explain the room, then you sign in, then the video, and we start at 9.|Schedule: 9:00 sign in · 9:15 video · 10:00 test.|Point 6 · Present material logically: steps in order.]] It takes place in Room 2.",
+    q:{q:"A message respects 9 of the 12 points. Its score is…",o:["9/12","3/12","12/12","9/10"],a:0,why:"1 point per respected point, out of 12."}}]},
+7:{ type:"pen", mode:"classify", name:"PERSUADE!", short:"Session 5 · Rhetorical triangle, skimmers and skeptics", boss:"ken",
+  brief:[["Ethos · the writer","Your credibility: skills, experience, honesty."],
+         ["Pathos · the audience","The reader’s interests, needs and feelings."],
+         ["Logos · the subject","Logic and evidence: numbers, facts, examples."],
+         ["Skimmers & skeptics","Skimmers read fast for key words and bullets. Skeptics read every word, looking for a reason to say no."]],
+  mission:"Each message tries to persuade. Find the sentence that uses ETHOS, PATHOS or LOGOS when you are asked. Then decide who the reader is.",
+  docs:[
+   {kind:"Proposal",head:"To: Riverside Properties<br>Subject: Proposal · New windows",
+    body:"We propose replacing the windows in your building. {{E|Northline Build has delivered 40 projects in Ottawa since 2010.}} {{L|New windows cut heating costs by 25%, saving about $18,000 a year.}} {{P|Your tenants will enjoy a quieter, warmer home this winter.}} Work can start in November.",
+    q:{q:"A reader looks only at the headings and bullets. This reader is a…",o:["Skimmer","Skeptic","Sender","Supervisor"],a:0,why:"Skimmers read quickly for key words and bullets."}},
+   {kind:"Memo",head:"To: Site crews<br>Subject: The SafeSite app starts Monday",
+    body:"From Monday, we will use the SafeSite app for daily reports. {{L|Reports now take 2 minutes instead of 15.}} {{E|As your safety lead for 12 years, I tested this app on three sites.}} {{P|You will spend less time on paperwork and get home earlier.}} Training is on Friday at 8 a.m.",
+    q:{q:"A reader reads every word, looking for a reason to say no. This reader is a…",o:["Skeptic","Skimmer","Receiver","Client"],a:0,why:"Skeptics read every word and look for flaws."}},
+   {kind:"Email",head:"To: Ken Ross, Director<br>Subject: Request · Second crane in March",
+    body:"I am asking to rent a second crane in March. {{P|This keeps your team on schedule and your client happy.}} {{L|The rental costs $40,000 but saves $95,000 in labour.}} {{E|I have managed the Bank Street budget for three years without overspending.}} Can we decide by Friday?",
+    q:{q:"To convince skeptics, you should…",o:["Back every claim with examples and data","Use more emojis","Hide the numbers","Write only the subject line"],a:0,why:"Skeptics need proof: examples and data."}},
+   {kind:"Cover letter",head:"To: Hiring Manager, Northline Build<br>Subject: Application · Site Coordinator",
+    body:"I am applying for the Site Coordinator position. {{E|I hold a college certificate in Construction Project Management and have five years of site experience.}} {{L|On my last project, I cut material waste by 18%.}} {{P|I share your goal of safe, community-friendly building.}} I would welcome an interview.",
+    q:{q:"To help skimmers, you should…",o:["Put the main point first, with clear headings","Write one very long paragraph","Put the main point at the end","Avoid headings"],a:0,why:"Main point first and clear headings let skimmers find what they need."}}]}
+});
+const APPEAL={E:{label:"ETHOS",sub:"the writer’s credibility",col:"#4a7bd9"},P:{label:"PATHOS",sub:"the reader’s interests and feelings",col:"#e84393"},L:{label:"LOGOS",sub:"logic and evidence",col:"#3fbf6a"}};
 /* ================= SPRITES ================= */
 const PAL = {K:"#14152b",Y:"#ffd84a",y:"#e0a91c",H:"#3b2418",S:"#c68a5f",T:"#2bb3a3",W:"#f7f4ec",P:"#2e3a6e",B:"#6b3f22",R:"#e2483d",C:"#ff6b5a",L:"#4a7bd9",G:"#3fbf6a",D:"#9aa0b5"};
 const TOP = [
@@ -390,6 +507,7 @@ const BELT_Y=60, BELT_END=262, ITEM_START=-24;
 function newGame(n){
   const F=FLOORS[n];
   if(F.type==="swipe") return newSwipe(n);
+  if(F.type==="pen") return newPen(n);
   const picked=F.waves.map(w=>shuffle(w.items.slice()).slice(0,w.pick||w.items.length));
   return {type:"sort",n,F,wi:0,lanes:[],queue:[],picked,cur:null,phase:"banner",bT:110,banner:"SHIFT START",
     lives:3,score:0,combo:0,maxCombo:0,ok:0,tot:0,mistakes:[],flyers:[],flash:{},speedLvl:0,fbT:0,fbOk:true,bossMood:0,
@@ -404,7 +522,7 @@ function nextItem(){
   const it=G.queue.shift(); G.cur={it,x:ITEM_START,v:(BELT_END-ITEM_START)/(durFor()*60)}; G.phase="run";
   showMsg("INCOMING · "+(G.done+1)+"/"+G.totalItems, it.t, "");
 }
-function startFloor(n){ floorN=n; G=newGame(n); parts=[]; mode="play"; setDeck(G.type); if(G.type==="swipe") swStart(); else setupWave(0); setSay(G.F.boss, bossName(), G.F.mission); }
+function startFloor(n){ floorN=n; G=newGame(n); parts=[]; mode="play"; setDeck(G.type); if(G.type==="swipe") swStart(); else if(G.type==="pen") penStart(); else setupWave(0); setSay(G.F.boss, bossName(), G.F.mission); }
 function bossName(){ return {sam:"SAM · SUPERVISOR",omar:"OMAR · IT",priya:"PRIYA · HR",ken:"KEN · MANAGER",lina:"LINA · COORDINATOR"}[G.F.boss]||"BOSS"; }
 
 function binRect(i){ const n=G.lanes.length, gap=6, left=8, right=VW-8; const w=Math.min(58,Math.floor((right-left-gap*(n-1))/n)); const total=w*n+gap*(n-1); const x0=Math.round((VW-total)/2);
@@ -507,7 +625,7 @@ function sortDraw(){
 /* ================= LOOP ================= */
 let last=0, accT=0;
 function frame(t){ requestAnimationFrame(frame); const dt=Math.min(100,t-(last||t)); last=t;
-  const up = G&&G.type==="swipe"?swUpdate:sortUpdate, dr = G&&G.type==="swipe"?swDraw:sortDraw;
+  const ty=G&&G.type, up = ty==="swipe"?swUpdate:ty==="pen"?penUpdate:sortUpdate, dr = ty==="swipe"?swDraw:ty==="pen"?penDraw:sortDraw;
   if(mode==="play"&&G){ accT+=dt; while(accT>=1000/60){ up(); accT-=1000/60; if(mode!=="play"){ accT=0; break; } } } else accT=0;
   dr(); }
 /* ================= CLEAR OR VAGUE? (swipe engine) ================= */
@@ -628,6 +746,141 @@ function swDraw(){
       c.font="8px 'Press Start 2P', monospace"; c.fillStyle="#ffffff"; const b=G.banner; c.fillText(b,Math.round(VW/2-c.measureText(b).width/2),66);
       const h2="SWIPE LEFT OR RIGHT · READ THE SIDES"; text3(c,h2,Math.round(VW/2-w3(h2)/2),79,"#ffd84a"); } }
 }
+/* ================= THE RED PEN (proofreading engine) ================= */
+function penParse(src){
+  // returns array of tokens {t, kind:'ok'|'bad'|'tgt', fix, why, tag}
+  const out=[]; const re=/\[\[([^|\]]+)\|([^|\]]+)\|([^\]]+)\]\]|\{\{([EPL])\|([^}]+)\}\}/g; let last=0, m;
+  const pushPlain=s=>{ s.split(/(<br>)/).forEach(part=>{ if(part==="<br>"){ out.push({kind:"br"}); return; }
+      part.split(/(?<=[.!?,;:])\s+/).forEach(ch=>{ if(ch.trim()) out.push({t:ch.trim(),kind:"ok"}); }); }); };
+  while((m=re.exec(src))){ pushPlain(src.slice(last,m.index)); if(m[1]) out.push({t:m[1],kind:"bad",fix:m[2],why:m[3]}); else out.push({t:m[5],kind:"tgt",tag:m[4]}); last=re.lastIndex; }
+  pushPlain(src.slice(last)); return out;
+}
+function newPen(n){
+  const F=FLOORS[n];
+  return {type:"pen",n,F,di:0,phase:"banner",bT:110,banner:"",lives:4,score:0,combo:0,maxCombo:0,ok:0,tot:0,mistakes:[],done:0,
+    totalItems:F.docs.length,doc:null,t:0,dur:0,mood:0,stamp:null,lanes:[],fbT:0,fbMin:0};
+}
+function penStart(){ penDoc(0); }
+function penDoc(i){
+  const D=G.F.docs[i]; G.di=i; G.phase="banner"; G.bT=i?100:110; G.banner="DOCUMENT "+(i+1)+" OF "+G.F.docs.length+" · "+D.kind.toUpperCase();
+  const head=penParse(D.head), body=penParse(D.body); let id=0; head.forEach(t=>t.id=id++); body.forEach(t=>t.id=id++);
+  const all=head.concat(body);
+  const tasks = G.F.mode==="classify" ? shuffle(["E","P","L"]).map(tag=>({tag,ids:all.filter(t=>t.kind==="tgt"&&t.tag===tag).map(t=>t.id)}))
+                                      : [{tag:null,ids:all.filter(t=>t.kind==="bad").map(t=>t.id)}];
+  G.doc={D,head,body,all,tasks,ti:0,found:{},wrongs:0};
+  G.dur=(G.F.mode==="classify"?75:70)*60 + all.filter(t=>t.kind==="bad").length*8*60; G.t=0;
+  renderPaper(); penTask(); document.getElementById("penFb").innerHTML=""; document.getElementById("penQ").innerHTML="";
+  if(i) document.getElementById("penTask").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function renderPaper(){
+  const d=G.doc, tok=t=> t.kind==="br" ? "<br>" :
+    (d.found[t.id] ? (t.kind==="bad" ? `<span class="ch fixed${d.found[t.id]==="late"?" late":""}"><del>${esc(t.t)}</del> <ins>${esc(t.fix)}</ins></span>`
+                                    : `<span class="ch tagged" style="--c:${APPEAL[t.tag].col}"><i>${APPEAL[t.tag].label}</i> ${esc(t.t)}</span>`)
+                 : `<span class="ch" role="button" tabindex="0" data-id="${t.id}">${esc(t.t)}</span>`);
+  document.getElementById("pKind").textContent=d.D.kind;
+  document.getElementById("pHead").innerHTML=d.head.map(tok).join(" ");
+  document.getElementById("pBody").innerHTML=d.body.map(tok).join(" ");
+  document.querySelectorAll("#paper .ch[data-id]").forEach(el=>{ el.addEventListener("click",()=>penTap(+el.dataset.id,el)); el.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); penTap(+el.dataset.id,el);} }); });
+}
+let penToastT=null;
+function penToast(html,ms){ const el=document.getElementById("penFb"); el.innerHTML=html; clearTimeout(penToastT); penToastT=setTimeout(()=>{ el.innerHTML=""; },ms||3500); }
+function penTask(){
+  const d=G.doc, task=d.tasks[d.ti], el=document.getElementById("penTask");
+  if(G.F.mode==="classify"){ const A=APPEAL[task.tag]; el.innerHTML=`<b style="background:${A.col}">${A.label}</b> Find the sentence about ${A.sub}. <span>${d.ti+1}/3</span>`; }
+  else { const left=task.ids.filter(id=>!d.found[id]).length; el.innerHTML=`<b>✎ RED PEN</b> Find the mistakes. <span>${left} left</span>`; }
+}
+function penTap(id,el){
+  if(mode!=="play"||!G||G.type!=="pen"||G.phase!=="run") return;
+  const d=G.doc, task=d.tasks[d.ti], t=d.all.find(x=>x.id===id);
+  if(task.ids.includes(id)){
+    d.found[id]=true; G.ok++; G.tot++; G.combo++; G.maxCombo=Math.max(G.maxCombo,G.combo);
+    const mult=Math.min(4,1+Math.floor(G.combo/3)), pts=100*mult; G.score+=pts; G.mood=40; G.stamp={ok:true,t:30}; SFX.coin(); if(G.combo%3===0) SFX.good();
+    const why = t.kind==="bad" ? t.why : APPEAL[t.tag].label+": "+APPEAL[t.tag].sub+".";
+    penToast(`<div class="pfb ok"><b>✓ +${pts}${mult>1?" · combo x"+mult:""}</b> ${esc(why)}</div>`,4000);
+    if(G.F.mode==="classify"){ d.ti++; }
+    renderPaper();
+    const doneAll = G.F.mode==="classify" ? d.ti>=d.tasks.length : task.ids.every(x=>d.found[x]);
+    if(doneAll) penDocDone(false); else penTask();
+  } else {
+    G.combo=0; G.lives--; G.tot++; d.wrongs++; G.mood=-60; G.stamp={ok:false,t:50}; SFX.bad();
+    el.classList.remove("nope"); void el.offsetWidth; el.classList.add("nope");
+    const msg = t.kind==="tgt" ? `That sentence uses ${APPEAL[t.tag].label} (${APPEAL[t.tag].sub}). Look for ${APPEAL[task.tag].label}.` : "This part is fine. Look again!";
+    G.mistakes.push({t:t.t,your:G.F.mode==="classify"?"Picked for "+APPEAL[task.tag].label:"Marked as a mistake",right:t.kind==="tgt"?APPEAL[t.tag].label:"Nothing to fix here",why:msg});
+    penToast(`<div class="pfb no"><b>✗ −1 coffee.</b> ${esc(msg)}</div>`,3500);
+    if(G.lives<=0){ G.phase="dead"; setTimeout(()=>{ mode="over"; showOver(); },900); }
+  }
+}
+function penTimeout(){
+  const d=G.doc; SFX.hurt(); G.combo=0; G.lives--; G.mood=-60; G.stamp={ok:false,t:50};
+  d.tasks.slice(d.ti).forEach(task=>task.ids.forEach(id=>{ if(!d.found[id]){ const t=d.all.find(x=>x.id===id); d.found[id]="late"; G.tot++;
+    G.mistakes.push({t:t.t,your:"(not found in time)",right:t.kind==="bad"?"Fix: "+t.fix:APPEAL[t.tag].label,why:t.kind==="bad"?t.why:APPEAL[t.tag].sub}); } }));
+  renderPaper(); penToast(`<div class="pfb no"><b>⏰ Time’s up! −1 coffee.</b> The missed parts are shown in orange.</div>`,4500);
+  if(G.lives<=0){ G.phase="dead"; setTimeout(()=>{ mode="over"; showOver(); },1200); return; }
+  penDocDone(true);
+}
+function penDocDone(late){
+  const d=G.doc; G.done++;
+  if(!late){ const bonus=Math.round((1-G.t/G.dur)*200); G.score+=bonus; G.stamp={ok:true,t:60}; SFX.win();
+    document.getElementById("penFb").insertAdjacentHTML("beforeend",`<div class="pfb ok"><b>📄 Document clean! Time bonus +${bonus}</b></div>`); clearTimeout(penToastT); penToastT=setTimeout(()=>{ document.getElementById("penFb").innerHTML=""; },4000); }
+  document.getElementById("penTask").innerHTML=`<b>✓ DONE</b> ${late?"Read the fixes above.":"Great editing!"}`;
+  if(d.D.q){ G.phase="q"; const q=d.D.q, opts=shuffle(q.o.map((t,i)=>({t,i})));
+    document.getElementById("penQ").innerHTML=`<div class="rwq">Bonus question <span>+100</span></div><div class="q2">${esc(q.q)}</div>`+opts.map((o,k)=>`<button type="button" class="opt" data-i="${o.i}"><i>${k+1}</i><span>${esc(o.t)}</span></button>`).join("");
+    document.querySelectorAll("#penQ .opt").forEach(b=>b.onclick=()=>penAnswer(+b.dataset.i));
+    setTimeout(()=>document.getElementById("penQ").scrollIntoView({behavior:"smooth",block:"center"}),400); }
+  else { G.phase="fb"; G.fbT=late?200:140; G.fbMin=G.fbT-40; penContinueBtn(); setTimeout(()=>document.getElementById("penQ").scrollIntoView({behavior:"smooth",block:"center"}),400); }
+}
+function penAnswer(i){
+  if(G.phase!=="q") return; const q=G.doc.D.q, ok=i===q.a; G.tot++;
+  document.querySelectorAll("#penQ .opt").forEach(b=>{ b.disabled=true; const j=+b.dataset.i; if(j===q.a) b.classList.add("right"); else if(j===i) b.classList.add("wrong"); });
+  if(ok){ G.ok++; G.score+=100; SFX.good(); } else { SFX.bad(); G.mistakes.push({t:q.q,your:q.o[i],right:q.o[q.a],why:q.why}); }
+  document.getElementById("penQ").insertAdjacentHTML("beforeend",`<div class="why ${ok?"ok":"no"}"><b>${ok?"Correct! +100":"Not quite."}</b> ${esc(q.why)}</div>`);
+  G.phase="fb"; G.fbT=ok?150:230; G.fbMin=G.fbT-40; penContinueBtn();
+}
+function penContinueBtn(){ document.getElementById("penQ").insertAdjacentHTML("beforeend",`<div class="row"><button type="button" class="btn go" id="penNext">${G.di+1<G.F.docs.length?"NEXT DOCUMENT ▶":"FINISH ▶"}</button></div>`);
+  document.getElementById("penNext").onclick=()=>{ G.fbT=0; }; }
+function penSkip(){ if(G&&G.type==="pen"&&G.phase==="fb"&&G.fbT<G.fbMin) G.fbT=0; }
+function penAfter(){ if(G.di+1<G.F.docs.length) penDoc(G.di+1); else finishShift(); }
+function penUpdate(){
+  tick++; if(G.mood>0) G.mood--; else if(G.mood<0) G.mood++; if(G.stamp&&--G.stamp.t<=0) G.stamp=null;
+  if(G.phase==="run"){ G.t++; const left=Math.max(0,1-G.t/G.dur); const bar=document.getElementById("penBar"); bar.style.width=(left*100)+"%"; bar.classList.toggle("hot",left<.25);
+    if(G.t>=G.dur){ G.phase="x"; penTimeout(); } }
+  else if(G.phase==="fb"){ if(--G.fbT<=0){ G.phase="x"; penAfter(); } }
+  else if(G.phase==="banner"){ if(--G.bT<=0) G.phase="run"; }
+  parts=parts.filter(q=>{ q.x+=q.vx; q.y+=q.vy; return --q.life>0; });
+}
+const REDPEN=spr(["......KK",".....KRK","....KRRK","...KRRK.","..KRRK..",".KWRK...","KKWK....","KK......"]);
+function penDraw(){
+  const c=ctx; c.imageSmoothingEnabled=false;
+  c.fillStyle="#f1e3d3"; c.fillRect(0,0,VW,VH); c.fillStyle="#e5d3bf"; for(let x=0;x<VW;x+=32) c.fillRect(x,0,1,124);
+  text3(c,"NORTHLINE BUILD · EDITING DESK",10,8,"#9b7b5c");
+  // bookshelf + window
+  c.fillStyle="#8a5a2b"; c.fillRect(14,22,70,60); c.fillStyle="#6e4420"; c.fillRect(16,24,66,17); c.fillRect(16,43,66,17); c.fillRect(16,62,66,17);
+  const cols=["#e2483d","#4a7bd9","#3fbf6a","#ffd84a","#9b59b6","#ff9f1c"]; for(let r=0;r<3;r++) for(let i=0;i<9;i++){ c.fillStyle=cols[(i+r*2)%6]; c.fillRect(18+i*7,26+r*19,5,13); }
+  c.fillStyle="#5b6b8f"; c.fillRect(214,16,84,56); const gr=c.createLinearGradient(0,18,0,70); gr.addColorStop(0,"#ffb36b"); gr.addColorStop(1,"#ffe2b8"); c.fillStyle=gr; c.fillRect(217,19,78,50);
+  c.fillStyle="rgba(60,40,70,.45)"; [[220,26],[232,18],[246,32],[260,22],[274,36],[286,26]].forEach(([x,h])=>c.fillRect(x,69-h,10,h));
+  // floor + desk
+  c.fillStyle="#b9a08a"; c.fillRect(0,124,VW,54); c.fillStyle="#a58b74"; for(let x=0;x<VW;x+=24) c.fillRect(x,124,1,54);
+  c.fillStyle="#8a5a2b"; c.fillRect(96,120,150,6); c.fillStyle="#6e4420"; c.fillRect(100,126,4,46); c.fillRect(238,126,4,46);
+  // trays
+  const left=G?G.F.docs.length-G.done:4, done=G?G.done:0;
+  [[112,"TO CHECK",left,"#ffffff"],[196,"DONE",done,"#c9f2d6"]].forEach(([x,lab,n,col])=>{ c.fillStyle="#14152b"; c.fillRect(x-1,107,36,14); c.fillStyle="#5d6d7e"; c.fillRect(x,108,34,12);
+    for(let i=0;i<n;i++){ c.fillStyle=col; c.fillRect(x+3,106-i*3,28,3); c.fillStyle="#14152b"; c.fillRect(x+3,106-i*3,28,1); }
+    text3(c,lab,x+17-Math.floor(w3(lab)/2),100-Math.max(0,n)*3-2,"#5b4636"); });
+  // Maya + pen
+  c.drawImage(G&&G.stamp&&G.stamp.ok?MAYA.jump:MAYA.idle,160,104,12,16); c.drawImage(REDPEN,172,104+(tick%40<20?0:1),8,8);
+  if(G&&G.mood>0) text3(c,"FIXED!",152,95,"#3fbf6a","#14152b"); else if(G&&G.mood<0) text3(c,"HMM..",154,95,"#e2483d","#14152b");
+  if(G) c.drawImage(NPCS[G.F.boss]||NPCS.sam,VW-30,108);
+  if(G&&G.stamp){ c.save(); c.globalAlpha=Math.min(1,G.stamp.t/15); c.fillStyle=G.stamp.ok?"#3fbf6a":"#e2483d"; c.fillRect(146,40,28,28); c.fillStyle="#fff"; c.font="bold 20px sans-serif"; c.textBaseline="top"; c.fillText(G.stamp.ok?"✓":"✗",152,44); c.restore(); }
+  // HUD
+  c.fillStyle="#14152b"; c.fillRect(0,178,VW,14);
+  if(G){ for(let i=0;i<4;i++){ c.globalAlpha=i<G.lives?1:.25; c.drawImage(SCUP,4+i*13,180); } c.globalAlpha=1;
+    c.font="8px 'Press Start 2P', monospace"; c.textBaseline="top"; c.fillStyle="#ffd84a"; const s=String(G.score); c.fillText(s,VW-4-c.measureText(s).width,182);
+    const mult=Math.min(4,1+Math.floor(G.combo/3)); const lab=DAY_OF[G.n].toUpperCase()+" · "+G.F.name+(mult>1?"  X"+mult:""); text3(c,lab,Math.round(VW/2-w3(lab)/2)+8,183,mult>1?"#ffd84a":"#ffffff");
+    c.fillStyle="#3a3f6a"; c.fillRect(58,188,VW-112,2); c.fillStyle="#3fbf6a"; c.fillRect(58,188,Math.round((VW-112)*G.done/G.totalItems),2);
+    if(G.phase==="banner"){ c.fillStyle="rgba(20,21,43,.88)"; c.fillRect(0,60,VW,30); c.fillStyle="#ffd84a"; c.fillRect(0,60,VW,2); c.fillRect(0,88,VW,2);
+      c.font="8px 'Press Start 2P', monospace"; c.fillStyle="#ffffff"; const b=G.banner; c.fillText(b,Math.round(VW/2-c.measureText(b).width/2),66);
+      const h2=G.F.mode==="classify"?"FIND ETHOS · PATHOS · LOGOS":"TAP EVERY MISTAKE IN THE DOCUMENT"; text3(c,h2,Math.round(VW/2-w3(h2)/2),79,"#ffd84a"); } }
+}
 /* ================= DIALOG STRIP ================= */
 let sayUntil=0, curSay="";
 const faceC=document.getElementById("face").getContext("2d");
@@ -643,8 +896,8 @@ function iconImg(c,scale){ const x=document.createElement("canvas"); x.width=c.w
 
 function nameGate(){
   mode="menu"; let last=""; try{ last=localStorage.getItem(STORE+"|last")||""; }catch(e){}
-  openModal(`<div class="tag">MODULE 3 · LESSON 1</div><h2>Maya’s First Week</h2>
-   <p>You play <b>Maya</b>, new at Northline Build. Each day this week brings a new mini-game: Tuesday, Wednesday and Thursday.</p>
+  openModal(`<div class="tag">MODULE 3 · LESSON 1</div><h2>Maya at Northline Build</h2>
+   <p>You play <b>Maya</b>, new at Northline Build. Each class day brings a new mini-game about your lesson.</p>
    <label for="nm" class="small">Your first and last name</label>
    <input class="name" id="nm" autocomplete="name" value="${esc(last)}" placeholder="e.g. Sarah Babiker">
    <div class="err" id="nmErr"></div>
@@ -658,7 +911,7 @@ function nameGate(){
 /* floor availability */
 function today(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function dateOpen(n){ return INSTRUCTOR || today()>=UNLOCK[n]; }
-function floorOpen(n){ return dateOpen(n) && (n===1 || INSTRUCTOR || P.cleared[n-1]); }
+function floorOpen(n){ return dateOpen(n) && (INSTRUCTOR || WEEK_OF[n-1]!==WEEK_OF[n] || P.cleared[n-1]); }
 function niceDate(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("en-CA",{weekday:"long",month:"long",day:"numeric"}); }
 
 function showFloors(){
@@ -666,7 +919,7 @@ function showFloors(){
   const rows=DAYS.map(n=>{ const F=FLOORS[n], open=floorOpen(n), done=!!P.cleared[n];
     const st = done ? "✓ BEST "+P.best[n] : open ? "PLAY ▶" : (!dateOpen(n) ? "🔒 "+DAY_OF[n].toUpperCase() : "🔒 FINISH DAY "+(n-1));
     return `<button class="floor ${open?"":"locked"} ${done?"done":""}" type="button" data-n="${n}" ${open?"":"aria-disabled=\"true\""}>
-      <span class="n">${n}</span><span class="t"><b>${F.name}</b><span>${F.short}${!dateOpen(n)?" · opens "+niceDate(UNLOCK[n]):""}</span></span><span class="st">${st}</span></button>`; }).join("");
+      <span class="n">${n}</span><span class="t"><b>${dayLabel(n)} · ${F.name}</b><span>${F.short}${!dateOpen(n)?" · opens "+niceDate(UNLOCK[n]):""}</span></span><span class="st">${st}</span></button>`; }).join("");
   openModal(`<div class="tag">BUILDING DIRECTORY${INSTRUCTOR?" · INSTRUCTOR MODE":""}</div><h2>Choose a day</h2>
     <p class="small">A new part opens each day: Tuesday, Wednesday, then Thursday. Finish a day to unlock the next one.</p>
     <div class="floors">${rows}</div>
@@ -677,11 +930,16 @@ function showFloors(){
   document.getElementById("swBtn").onclick=nameGate;
 }
 
-function todaysFloor(){ let f=0; for(const n of DAYS){ if(!dateOpen(n)) break; f=n; if(!P.cleared[n]) return n; } return f||null; }
+function currentWeek(){ let w=1; for(const n of DAYS) if(dateOpen(n)) w=WEEK_OF[n];
+  const cur=DAYS.filter(d=>WEEK_OF[d]===w), nxt=DAYS.filter(d=>WEEK_OF[d]===w+1);
+  if(!INSTRUCTOR && nxt.length && cur.every(d=>P.cleared[d]) && today()>UNLOCK[cur[cur.length-1]]) w=w+1;   // week finished: show the next one
+  return w; }
+function todaysFloor(){ const w=currentWeek(); let f=0; for(const n of DAYS.filter(d=>WEEK_OF[d]===w)){ if(!dateOpen(n)) break; f=n; if(!P.cleared[n]) return n; } return f||null; }
 function goToday(){ if(INSTRUCTOR) return showFloors(); showWeek(); }
 function showWeek(){
-  mode="menu"; const f=todaysFloor(); const icons={1:"📬",2:"🗂",3:"🌍"};
-  const rows=DAYS.map(n=>{ const F=FLOORS[n], done=!!P.cleared[n], isToday=n===f;
+  mode="menu"; const f=todaysFloor(), w=currentWeek(); const icons={1:"📬",2:"🗂",3:"🌍",4:"✉",5:"✂",6:"✅",7:"🎯"};
+  const days=DAYS.filter(d=>WEEK_OF[d]===w);
+  const rows=days.map(n=>{ const F=FLOORS[n], done=!!P.cleared[n], isToday=n===f;
     let st, cls;
     if(isToday){ st=done?"REPLAY ▶":"PLAY ▶"; cls="today"; }
     else if(done){ st="✓ DONE · "+P.best[n]+" pts"; cls="done locked"; }
@@ -689,18 +947,22 @@ function showWeek(){
     else { st="🔒 FINISH "+DAY_OF[n-1].toUpperCase()+" FIRST"; cls="locked"; }
     return `<button class="floor ${cls}" type="button" data-n="${n}" ${isToday?"":"aria-disabled=\"true\""}>
       <span class="n" aria-hidden="true">${icons[n]}</span><span class="t"><b>${DAY_OF[n]} · ${F.name}</b><span>${esc(F.short)}<br>${isToday?"Open now":(done?"Completed":"Opens on "+niceDate(UNLOCK[n]))}</span></span><span class="st">${st}</span></button>`; }).join("");
+  const past=[...new Set(DAYS.map(d=>WEEK_OF[d]))].filter(x=>x<w).map(x=>{ const ds=DAYS.filter(d=>WEEK_OF[d]===x); const pts=ds.reduce((s,d)=>s+(P.best[d]||0),0);
+    return `<p class="small">✓ ${WEEK_INFO[x].title}: ${ds.filter(d=>P.cleared[d]).length}/${ds.length} games done · ${pts} pts</p>`; }).join("");
   const first=esc(P.name.split(" ")[0]);
-  openModal(`<div class="tag">MODULE 3 · LESSON 1 · THIS WEEK</div><h2>Hi ${first}! Your week at Northline Build</h2>
-    <p class="small">One game per day. Each game opens on its day: Tuesday, Wednesday, then Thursday.</p>
+  openModal(`<div class="tag">MODULE 3 · ${WEEK_INFO[w].title.toUpperCase()}</div><h2>Hi ${first}! ${WEEK_INFO[w].sub}</h2>
+    <p class="small">One game per day. Each game opens on its day.</p>
     <div class="floors">${rows}</div>
-    ${f?"":`<p><b>Nothing to play yet.</b> The first game opens on ${niceDate(UNLOCK[1])}.</p>`}
+    ${past}
+    ${f?"":`<p><b>Nothing to play yet.</b> The first game opens on ${niceDate(UNLOCK[days[0]])}.</p>`}
     <div class="row">${f?`<button class="btn go" type="button" id="wGo">START ${DAY_OF[f].toUpperCase()} ▶</button>`:""}<button class="btn" type="button" id="wNo">NOT ${first.toUpperCase()}?</button></div>`);
   card.querySelectorAll(".floor").forEach(b=>b.onclick=()=>{ if(+b.dataset.n===f) showBrief(f); });
   if(f) document.getElementById("wGo").onclick=()=>showBrief(f);
   document.getElementById("wNo").onclick=nameGate;
 }
-function rankOf(x){ return x>=25000?"DIRECTOR":x>=17000?"MANAGER":x>=9000?"COORD.":"INTERN"; }
-function setDeck(type){ document.getElementById("sortDeck").hidden = type==="swipe"; document.getElementById("swipeDeck").hidden = type!=="swipe"; }
+function rankOf(x,w){ const T = w===2?[13000,9500,5000]:[25000,17000,9000]; return x>=T[0]?"DIRECTOR":x>=T[1]?"MANAGER":x>=T[2]?"COORD.":"INTERN"; }
+function weekTotal(w){ return DAYS.filter(d=>WEEK_OF[d]===w).reduce((s,d)=>s+(P.best[d]||0),0); }
+function setDeck(type){ document.getElementById("sortDeck").hidden = type!=="sort"; document.getElementById("swipeDeck").hidden = type!=="swipe"; document.getElementById("penDeck").hidden = type!=="pen"; }
 
 /* message card + lane buttons */
 const msgEl=document.getElementById("msg");
@@ -722,14 +984,17 @@ msgEl.addEventListener("click",()=>skipFb());
 
 function showHow(back){
   const ic=c=>`<img class="ic" alt="" src="${iconImg(c,3)}">`;
-  const sw = G&&G.type==="swipe";
-  openModal(`<div class="tag">HOW TO PLAY</div><h2>${sw?"Clear or vague?":"Mail room survival guide"}</h2>
-   <div class="how">${sw?`
+  const sw = G&&G.type==="swipe", pen = G&&G.type==="pen";
+  openModal(`<div class="tag">HOW TO PLAY</div><h2>${pen?"The red pen":sw?"Clear or vague?":"Mail room survival guide"}</h2>
+   <div class="how">${pen?`
+    ${ic(REDPEN)}<span>Read the document. <b>Tap every part that is wrong</b>: the red pen fixes it and tells you why.</span>
+    ${ic(MAYA.jump)}<span>On Thursday, tap the sentence that uses <b>ethos, pathos or logos</b> when you are asked.</span>
+    ${ic(SENV)}<span>After each document, answer a <b>bonus question</b> for +100.</span>`:sw?`
     ${ic(SENV)}<span>Read the yellow card. <b>Swipe it</b> left or right, or tap the buttons (keyboard: ← →).</span>
     ${ic(MAYA.jump)}<span>When you spot a <b>vague</b> message, pick the clearest rewrite: <b>+150 bonus</b>.</span>`:`
     ${ic(PARCEL)}<span>A message rolls along the belt. <b>Read it</b> in the yellow card under the game.</span>
     ${ic(MAYA.jump)}<span><b>Tap the right bin</b> (or press 1, 2, 3…) before the parcel reaches <b>LOST MAIL</b>.</span>`}
-    ${ic(SCUP)}<span>You have <b>3 coffees</b>. A wrong answer or running out of time costs one.</span>
+    ${ic(SCUP)}<span>You have <b>${pen?4:3} coffees</b>. A wrong ${pen?"tap":"answer"} or running out of time costs one.</span>
     ${ic(SCARD)}<span>3 right answers in a row = <b>combo</b>: points ×2, ×3, ×4. Faster answers = bonus points.</span>
    </div>
    <p class="small">Your best score each day is sent to your instructor automatically.</p>
@@ -738,7 +1003,8 @@ function showHow(back){
 }
 function showBrief(n){
   const F=FLOORS[n]; floorN=n; G=newGame(n); G.phase="idle"; mode="menu"; setDeck(F.type);
-  if(F.type==="swipe"){ swSetSides(F.rounds[0]); swCard(DAY_OF[n].toUpperCase(),"Your day starts when you press START.",""); }
+  if(F.type==="pen"){ document.getElementById("pKind").textContent="DOCUMENT"; document.getElementById("pHead").innerHTML=""; document.getElementById("pBody").innerHTML="Your documents arrive when you press START."; document.getElementById("penTask").innerHTML="<b>✎ RED PEN</b> Ready?"; document.getElementById("penFb").innerHTML=""; document.getElementById("penQ").innerHTML=""; }
+  else if(F.type==="swipe"){ swSetSides(F.rounds[0]); swCard(DAY_OF[n].toUpperCase(),"Your day starts when you press START.",""); }
   else { G.lanes=G.F.waves[0].lanes.map(k=>Object.assign({key:k},LANE[k])); buildLaneButtons(); showMsg(DAY_OF[n].toUpperCase(), "Your shift starts when you press START.", ""); }
   openModal(`<div class="tag">${DAY_OF[n].toUpperCase()} · ${esc(F.short.toUpperCase())}</div><h2>${F.name}</h2>
    <div class="defs">${F.brief.map(([t,d])=>`<div class="def"><b>${esc(t)}</b><span>${esc(d)}</span></div>`).join("")}</div>
@@ -762,13 +1028,13 @@ function finishShift(){
   mode="clear"; SFX.win();
   const n=floorN, score=G.score, prev=P.best[n]||0, isBest=score>prev, first=!P.cleared[n];
   P.cleared[n]=true; if(isBest) P.best[n]=score; saveProf();
-  if(isBest||first) send("Game · "+DAY_OF[n]+" ("+FLOORS[n].name+") done"+(isBest&&!first?" (new best)":""), score, DAY_OF[n]+": "+G.ok+"/"+G.tot+" correct, best combo "+G.maxCombo);
-  const total=DAYS.reduce((s,k)=>s+(P.best[k]||0),0), last=n===DAYS.length, nextOpen=!last&&floorOpen(n+1);
+  if(isBest||first) send("Game · "+dayLabel(n)+" ("+FLOORS[n].name+") done"+(isBest&&!first?" (new best)":""), score, dayLabel(n)+": "+G.ok+"/"+G.tot+" correct, best combo "+G.maxCombo);
+  const wk=WEEK_OF[n], total=weekTotal(wk), last=WEEK_OF[n+1]!==wk, nextOpen=!last&&floorOpen(n+1);
   const acc=Math.round(G.ok/Math.max(1,G.tot)*100);
-  openModal(`<div class="tag">${DAY_OF[n].toUpperCase()} · DONE</div><div class="big">${last?"LESSON 1 COMPLETE!":acc>=80?"GREAT JOB!":"DAY DONE"}</div>
+  openModal(`<div class="tag">${DAY_OF[n].toUpperCase()} · DONE</div><div class="big">${last?"LESSON "+wk+" COMPLETE!":acc>=80?"GREAT JOB!":"DAY DONE"}</div>
    <div class="stats"><div class="stat"><b>${score}</b><span>points</span></div><div class="stat"><b>${acc}%</b><span>accuracy</span></div><div class="stat"><b>x${Math.min(4,1+Math.floor(G.maxCombo/3))}</b><span>best combo</span></div></div>
    <p>${isBest?"New best score! It has been sent to your instructor.":"Your best for "+DAY_OF[n]+" is still "+prev+" points."}</p>
-   ${last?`<p>Total best: <b>${total}</b> · Rank: <b>${rankOf(total)}</b></p>`:""}
+   ${last?`<p>Week total: <b>${total}</b> · Rank: <b>${rankOf(total,wk)}</b></p>`:""}
    ${!last&&!nextOpen?`<p class="small">The next part opens on <b>${niceDate(UNLOCK[n+1])}</b>. Come back then! You can replay today’s game to beat your score.</p>`:""}
    ${reviewHtml()}
    <div class="row">${nextOpen?`<button class="btn go" type="button" id="cNext">${DAY_OF[n+1].toUpperCase()} ▶</button>`:""}<button class="btn" type="button" id="cFl">${INSTRUCTOR?"FLOORS":"THIS WEEK"}</button><button class="btn ${nextOpen?"":"go"}" type="button" id="cAg">REPLAY</button></div>`);
@@ -783,15 +1049,16 @@ function send(event,score,detail){
   const total=DAYS.reduce((s,n)=>s+(P.best[n]||0),0);
   const body=new URLSearchParams();
   body.append(FORM.fields.name,P.name); body.append(FORM.fields.event,event);
-  body.append(FORM.fields.sessions,"Maya’s First Week · "+Object.keys(P.cleared).length+"/"+DAYS.length+" days");
+  body.append(FORM.fields.sessions,"Maya game · "+Object.keys(P.cleared).length+"/"+DAYS.length+" days");
   body.append(FORM.fields.xp,String(score==null?total:score));
-  body.append(FORM.fields.report,(detail?detail+" · ":"")+"Best: "+DAYS.map(n=>DAY_OF[n].slice(0,3)+"="+(P.best[n]||0)).join(", ")+" · Total "+total);
+  body.append(FORM.fields.report,(detail?detail+" · ":"")+"Best: "+DAYS.map(n=>dayLabel(n).replace(/day$/,"").replace("nes","").replace("Thurs","Thu").replace("Tues","Tue")+"="+(P.best[n]||0)).join(", ")+" · Total "+total);
   fetch(FORM.action,{method:"POST",mode:"no-cors",body}).catch(()=>{});
 }
 
 /* ================= CONTROLS ================= */
 addEventListener("keydown",e=>{
   if(mode!=="play") return;
+  if(G&&G.type==="pen"){ if(G.phase==="q"&&/^Digit[1-4]$/.test(e.code)){ const bt=document.querySelectorAll("#penQ .opt")[+e.code.slice(-1)-1]; if(bt) bt.click(); } else if(e.code==="Space"&&G.phase==="fb"){ e.preventDefault(); penSkip(); } return; }
   if(G&&G.type==="swipe"){
     if(e.code==="ArrowLeft"){ e.preventDefault(); decide("L"); } else if(e.code==="ArrowRight"){ e.preventDefault(); decide("R"); }
     else if(G.phase==="rewrite"&&/^Digit[1-3]$/.test(e.code)){ const bt=document.querySelectorAll("#rwBox .opt")[+e.code.slice(-1)-1]; if(bt) bt.click(); }
@@ -799,14 +1066,17 @@ addEventListener("keydown",e=>{
   if(/^Digit[1-5]$/.test(e.code)||/^Numpad[1-5]$/.test(e.code)){ e.preventDefault(); choose(+e.code.slice(-1)-1); }
   else if(e.code==="Space"||e.code==="Enter"){ e.preventDefault(); skipFb(); } });
 document.getElementById("sndBtn").onclick=e=>{ SOUND=!SOUND; e.currentTarget.textContent="SOUND: "+(SOUND?"ON":"OFF"); e.currentTarget.setAttribute("aria-pressed",String(SOUND)); if(SOUND) SFX.coin(); };
-const mapBtn=document.getElementById("mapBtn"); if(!INSTRUCTOR) mapBtn.hidden=true; mapBtn.onclick=()=>{ if(!P.name) return nameGate(); showFloors(); };
+const mapBtn=document.getElementById("mapBtn"); mapBtn.hidden=true; mapBtn.onclick=()=>{ if(!P.name) return nameGate(); showFloors(); };
 document.addEventListener("visibilitychange",()=>{ if(document.hidden&&mode==="play"){ mode="paused"; openModal(`<div class="tag">PAUSED</div><h2>Coffee break</h2><p>The game paused while you were away.</p><div class="row"><button class="btn go" type="button" id="rs">BACK TO WORK ▶</button></div>`); document.getElementById("rs").onclick=()=>{ closeModal(); mode="play"; }; } });
 
 /* ================= BOOT ================= */
 (async function boot(){
   try{ await Promise.race([document.fonts.load("8px 'Press Start 2P'"),new Promise(r=>setTimeout(r,1500))]); }catch(e){}
+  try{ const h=location.hash.slice(1); if(h){ const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(h)); INSTRUCTOR=[...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,"0")).join("")===BOSS_HASH; } }catch(e){}
+  try{ if(INSTRUCTOR) sessionStorage.setItem("mw_boss","1"); else if(sessionStorage.getItem("mw_boss")==="1") INSTRUCTOR=true; }catch(e){}
+  if(INSTRUCTOR){ mapBtn.hidden=false; if(location.hash) history.replaceState(null,"",location.pathname+location.search); }
   G=newGame(1); G.lanes=G.F.waves[0].lanes.map(k=>Object.assign({key:k},LANE[k])); G.phase="idle"; buildLaneButtons();
-  setSay("maya","MAYA","Hi! I’m Maya, new at Northline Build. Help me get through my first week!");
+  setSay("maya","MAYA","Hi! I’m Maya from Northline Build. Every class day brings a new challenge. Let’s go!");
   requestAnimationFrame(frame);
   nameGate();
 })();
