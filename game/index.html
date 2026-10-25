@@ -433,6 +433,114 @@ Object.assign(FLOORS,{
     q:{q:"To help skimmers, you should…",o:["Put the main point first, with clear headings","Write one very long paragraph","Put the main point at the end","Avoid headings"],a:0,why:"Main point first and clear headings let skimmers find what they need."}}]}
 });
 const APPEAL={E:{label:"ETHOS",sub:"the writer’s credibility",col:"#4a7bd9"},P:{label:"PATHOS",sub:"the reader’s interests and feelings",col:"#e84393"},L:{label:"LOGOS",sub:"logic and evidence",col:"#3fbf6a"}};
+/* ================= WEEK 3 · LESSON 3 · EMAILS, MEETINGS, LETTERS ================= */
+Object.assign(UNLOCK,{8:"2026-10-26",9:"2026-10-27",10:"2026-10-28",11:"2026-10-29"});
+Object.assign(DAY_OF,{8:"Monday",9:"Tuesday",10:"Wednesday",11:"Thursday"});
+DAYS.push(8,9,10,11);
+Object.assign(WEEK_OF,{8:3,9:3,10:3,11:3});
+WEEK_INFO[3]={title:"Week 3 · Lesson 3",sub:"Emails, meetings and letters"};
+Object.assign(LANE,{
+  to:{label:"To",px:"TO",icon:"👤",col:"#4a7bd9",why:"To: the people who must act or reply."},
+  cc:{label:"Cc",px:"CC",icon:"👥",col:"#2bb3a3",why:"Cc: people kept in the loop. No action needed."},
+  bcc:{label:"Bcc",px:"BCC",icon:"🕶",col:"#9b59b6",why:"Bcc: many recipients who must not see each other’s addresses."},
+  gnet:{label:"Good email",px:"GOOD",icon:"👍",col:"#3fbf6a",why:"Professional email: specific, polite, clear action and deadline."},
+  bnet:{label:"Netiquette fail",px:"FAIL",icon:"🚫",col:"#e2483d",why:"Avoid text-speak, ALL CAPS, emoticons, unexplained acronyms and careless Reply All."},
+  fol:{label:"1 · Follow-up",px:"FOLLOW",icon:"↩",col:"#5d6d7e",why:"Items from the previous meeting come first."},
+  inf:{label:"2 · Information",px:"INFO",icon:"ℹ",col:"#4a7bd9",why:"Informational items come before decisions."},
+  dcs:{label:"3 · Decision",px:"DECIDE",icon:"⚖",col:"#ff9f1c",why:"Items that need discussion and a decision come after the updates."},
+  wrp:{label:"4 · Wrap-up",px:"WRAP",icon:"✔",col:"#3fbf6a",why:"End with questions, then a wrap-up and action items."},
+  gmt:{label:"Good practice",px:"GOOD",icon:"👍",col:"#3fbf6a",why:"Good agendas: priority order, logical flow, 30 min to 1 h 30, preparation shared."},
+  bmt:{label:"Bad practice",px:"BAD",icon:"👎",col:"#e2483d",why:"This makes meetings long, unfocused or unprepared."}
+});
+Object.assign(FLOORS,{
+8:{ type:"sort", name:"INBOX PRO", short:"Session 6 · To, Cc, Bcc and netiquette", boss:"grace",
+  brief:[["To","The people who must act or reply."],["Cc","People kept in the loop. No action needed."],["Bcc","Many recipients who must not see each other’s addresses."],
+         ["Netiquette","Specific subject line, purpose first, action and deadline, good grammar. No text-speak, no ALL CAPS, no emoticons. Think twice before Reply All."]],
+  mission:"Emails roll down the belt. Wave 1: To, Cc or Bcc? Wave 2: good email or netiquette fail?",
+  waves:[
+   {title:"Wave 1 · To, Cc or Bcc?",pick:8,lanes:["to","cc","bcc"],items:[
+    ["Your manager, who must approve the budget.","to"],["The client whose question you are answering.","to"],["The colleague who must send you the report by Friday.","to"],
+    ["Your team lead, who only needs to stay informed.","cc"],["HR, kept in the loop about a schedule change.","cc"],["Your supervisor, so she knows you replied to the client.","cc"],
+    ["200 clients receiving a holiday-hours notice.","bcc"],["Parents of 40 students receiving the same reminder.","bcc"],["A list of suppliers who don’t know each other.","bcc"]]},
+   {title:"Wave 2 · Netiquette",pick:8,lanes:["gnet","bnet"],items:[
+    ["Subject: “Approval needed: laptop purchase by Fri Oct 30”","gnet"],["Saying why you are writing in the first sentence.","gnet"],
+    ["Ending with “Best regards,” and your name, title and phone.","gnet"],["“Please reply by Thursday at noon.”","gnet"],["Checking who really needs your answer before Reply All.","gnet"],
+    ["A subject line that just says “Hi”.","bnet"],["WRITING THE WHOLE EMAIL IN CAPITALS.","bnet"],["“pls send ur report asap thx”","bnet"],
+    ["Adding 😂🔥 to a message to a client.","bnet"],["Clicking Reply All to say “Thanks!” to 80 people.","bnet"],["“FYI the SKU is TBD per SOP.” with no explanation.","bnet"]]}]},
+9:{ type:"pen", name:"FIX THE EMAIL", short:"Session 6 · Anatomy of a professional email and memos", boss:"lina",
+  brief:[["Anatomy of an email","Specific subject → greeting → purpose first → details → action and deadline → closing and signature."],
+         ["Grammar","Good grammar, proper capitals and punctuation. No text-speak, no emoticons, no unexplained acronyms."],
+         ["Memos","Internal messages with a standard heading: TO, FROM, DATE, SUBJECT. Less formal than letters."]],
+  mission:"Grab the red pen. Tap every part of these emails and memos that breaks the rules.",
+  docs:[
+   {kind:"Email",head:"To: all-staff@northline.ca<br>Subject: [[REPORTS|Weekly reports due Friday, Oct 30, 4 p.m.|A subject line must be specific: what and when.]]",
+    body:"[[hey guys!!!|Hello everyone,|Use a proper greeting, without extra punctuation.]] [[I NEED YOUR REPORTS NOW.|Please send your weekly report by Friday at 4 p.m.|All capitals reads as shouting. Give a clear deadline.]] [[pls send ur stuff as pdf thx|Please send it as a PDF.|Text-speak looks careless.]] Best regards, Maya Chen, Site Coordinator, 613-555-0142",
+    q:{q:"What goes in the FIRST sentence of an email?",o:["Why you are writing (the purpose)","Your phone number","A joke","The weather"],a:0,why:"Purpose first, so the reader knows why the email matters."}},
+   {kind:"Email",head:"To: Mr. Daniel Roy (client)<br>Subject: Re: Kitchen tiles",
+    body:"[[Yo Dan 😎|Hello Mr. Roy,|Too casual for a client, and no emoticons.]] Thank you for your question about the kitchen tiles. [[FYI the SKU is TBD per SOP.|The tile model will be confirmed by Wednesday.|Unexplained acronyms confuse the reader.]] We will install the tiles on Monday, November 2. [[lol cya|Best regards,|Use a professional closing.]] Maya Chen",
+    q:{q:"Your supervisor should see this reply but does not need to act. Put her in…",o:["Cc","To","Bcc","Nowhere"],a:0,why:"Cc keeps people in the loop."}},
+   {kind:"Memo",head:"MEMO<br>TO: All site staff · FROM: Maya Chen<br>[[DATE: sometime this week|DATE: October 27, 2026|A memo heading needs the exact date.]]<br>SUBJECT: New badge readers",
+    body:"From Monday, use your badge at the north gate. [[The thing will beep and stuff.|The reader beeps once when your badge is accepted.|Be specific.]] [[If ur badge doesnt work call IT!!!|If your badge does not work, call IT at ext. 300.|No text-speak. Give the contact.]]",
+    q:{q:"A memo is…",o:["An internal message with TO, FROM, DATE and SUBJECT","A formal letter to a client","A text message","A legal contract"],a:0,why:"Memos are internal and use a standard heading."}},
+   {kind:"Email",head:"To: Omar Haddad<br>Subject: Safety vests for the Bank Street site",
+    body:"Hi Omar, the crew needs new safety vests for the Bank Street site. [[Can you maybe look at the vest thing at some point?|Could you order 20 vests (size L) by Thursday, October 29?|State the action and the deadline clearly.]] The supplier list is attached. [[Thx|Thank you,|Write words in full.]] Maya",
+    q:{q:"What should come near the end of an email, before the closing?",o:["The action needed and the deadline","A new topic","An apology for writing","Nothing"],a:0,why:"Say what you need, from whom, by when."}}]},
+10:{ type:"sort", name:"MEETING MASTER", short:"Session 7 · Meeting agendas", boss:"ken",
+  brief:[["Why an agenda","It keeps meetings focused, organized and flowing."],["Basic structure","Date, time, location and duration · purpose · what to prepare."],
+         ["Logical flow","Follow-up from last time → information → decisions → questions → wrap-up."],["Priority & timing","Rank topics by importance and urgency. 30 minutes to 1 h 30 at most."]],
+  mission:"Wave 1: put each agenda item in the right part of the meeting. Wave 2: good or bad meeting practice?",
+  waves:[
+   {title:"Wave 1 · Agenda flow",pick:8,lanes:["fol","inf","dcs","wrp"],items:[
+    ["Follow-up from last week: who fixes the broken drill?","fol"],["Review of the action items from the Oct 20 meeting.","fol"],
+    ["Update: the new intern starts Monday.","inf"],["Announcement: the office is closed on November 11.","inf"],["Info: new client contacts.","inf"],
+    ["Choose the supplier for the new safety vests.","dcs"],["Vote on the Q4 site-visit schedule.","dcs"],["Decide the date of the team lunch.","dcs"],
+    ["Open floor for questions.","wrp"],["Summary of who does what, by when.","wrp"]]},
+   {title:"Wave 2 · Good or bad practice?",pick:8,lanes:["gmt","bmt"],items:[
+    ["Asking attendees which topics to include.","gmt"],["Ranking topics by importance and urgency.","gmt"],["Giving each topic a time limit.","gmt"],
+    ["Attaching the draft and saying what to prepare.","gmt"],["Keeping the meeting between 30 minutes and 1 h 30.","gmt"],["Putting date, time, location and duration at the top.","gmt"],
+    ["A 3-hour meeting with no breaks.","bmt"],["No purpose written on the agenda.","bmt"],["The most important decision last, after 10 small items.","bmt"],
+    ["Sending the agenda 5 minutes before the meeting.","bmt"],["Unrelated topics in random order.","bmt"]]}]},
+11:{ type:"swipe", name:"GOOD NEWS, BAD NEWS", short:"Session 8 · Letters, positive and negative messages", boss:"priya",
+  brief:[["Direct strategy","For good or routine news: main idea first, then details, then a friendly close."],
+         ["Indirect strategy","For bad news: buffer → reasons → bad news once → alternative → goodwill close."],
+         ["Business letters","Sender’s address, addressee’s address, date, “Dear Mr. Roy:”, body, “Sincerely,” and signature. Positive, courteous tone."],
+         ["Negative news online","Exhaust your options with the company before posting. Sympathy notes: sensitive, personal, helpful, forward-looking."]],
+  mission:"Swipe each card. Round 1: direct or indirect? Round 2: right or wrong in a business letter? Round 3: do or don’t?",
+  rounds:[
+   {title:"Round 1 · Direct or indirect?",pick:8,L:{label:"INDIRECT",icon:"🛋",col:"#9b59b6"},R:{label:"DIRECT",icon:"🎯",col:"#4a7bd9"},items:[
+    {t:"Confirming a client’s meeting time.",r:true,why:"Routine, positive news: say it first."},
+    {t:"Telling staff the holiday party is on December 12.",r:true,why:"Good news: main idea first."},
+    {t:"Sending instructions for the new timesheet.",r:true,why:"Instructions are routine: direct strategy."},
+    {t:"Answering a supplier’s simple price question.",r:true,why:"A routine reply: answer first."},
+    {t:"Congratulating a coworker on her promotion.",r:true,why:"Positive message: go straight to the point."},
+    {t:"Refusing a customer’s refund request.",r:false,why:"Bad news: start with a buffer, then reasons."},
+    {t:"Telling a supplier their contract won’t be renewed.",r:false,why:"Disappointing news: use the indirect strategy."},
+    {t:"Saying no to a client who wants the job two weeks early.",r:false,why:"A refusal: buffer, reasons, the no, an alternative, goodwill."},
+    {t:"Announcing that overtime is cancelled for December.",r:false,why:"Staff will be disappointed: indirect strategy."},
+    {t:"Rejecting a job applicant.",r:false,why:"Bad news for the reader: soften it with a buffer."}]},
+   {title:"Round 2 · Business letter: right or wrong?",pick:8,L:{label:"WRONG",icon:"✗",col:"#e2483d"},R:{label:"RIGHT",icon:"✓",col:"#3fbf6a"},items:[
+    {t:"“Dear Mr. Roy:” as the salutation.",r:true,why:"A formal salutation fits a business letter."},
+    {t:"Ending with “Sincerely,” then the signature and typed name.",r:true,why:"That is the standard closing."},
+    {t:"Sender’s address, then the addressee’s address, then the date.",r:true,why:"That is the standard order at the top of a letter."},
+    {t:"Keeping a positive, courteous tone even with bad news.",r:true,why:"Tone keeps the relationship, even when the news is bad."},
+    {t:"Personalizing the letter for the recipient.",r:true,why:"A personal letter shows respect."},
+    {t:"Starting with “Hey Roy,”",r:false,why:"Too casual. Use “Dear Mr. Roy:”."},
+    {t:"No date anywhere on the letter.",r:false,why:"A letter needs the date it is sent."},
+    {t:"An angry tone because the news is bad.",r:false,why:"Stay positive and courteous."},
+    {t:"The same letter sent to everyone, without names.",r:false,why:"Personalize it for each recipient."},
+    {t:"A spelling mistake in the client’s name.",r:false,why:"Follow spelling rules, especially for names."}]},
+   {title:"Round 3 · Negative news: do or don’t?",pick:8,L:{label:"DON’T",icon:"🙅",col:"#e2483d"},R:{label:"DO",icon:"🙆",col:"#3fbf6a"},items:[
+    {t:"Start a refusal with a buffer: thanks or agreement.",r:true,why:"A buffer prepares the reader."},
+    {t:"Explain the reasons honestly.",r:true,why:"Clear reasons make the bad news fair."},
+    {t:"Offer an alternative if you can.",r:true,why:"An alternative keeps the client."},
+    {t:"End with a friendly, forward-looking close.",r:true,why:"A goodwill close protects the relationship."},
+    {t:"Try every option with the company before posting a review.",r:true,why:"Exhaust your options first."},
+    {t:"In a sympathy note, offer help without too much detail.",r:true,why:"Be sensitive, personal and helpful."},
+    {t:"Repeat the bad news three times.",r:false,why:"State the bad news once, plainly."},
+    {t:"Post a rant online just to let off steam.",r:false,why:"Ask: would future employers approve? Businesses can sue."},
+    {t:"Describe the details of a colleague’s loss.",r:false,why:"Refer to the loss sensitively, without details."},
+    {t:"Blame the reader for the problem.",r:false,why:"Stay courteous and focus on solutions."}]}]}
+});
 /* ================= SPRITES ================= */
 const PAL = {K:"#14152b",Y:"#ffd84a",y:"#e0a91c",H:"#3b2418",S:"#c68a5f",T:"#2bb3a3",W:"#f7f4ec",P:"#2e3a6e",B:"#6b3f22",R:"#e2483d",C:"#ff6b5a",L:"#4a7bd9",G:"#3fbf6a",D:"#9aa0b5"};
 const TOP = [
@@ -525,7 +633,7 @@ function nextItem(){
   showMsg("INCOMING · "+(G.done+1)+"/"+G.totalItems, it.t, "");
 }
 function startFloor(n){ floorN=n; G=newGame(n); parts=[]; mode="play"; setDeck(G.type); if(G.type==="swipe") swStart(); else if(G.type==="pen") penStart(); else setupWave(0); setSay(G.F.boss, bossName(), G.F.mission); }
-function bossName(){ return {sam:"SAM · SUPERVISOR",omar:"OMAR · IT",priya:"PRIYA · HR",ken:"KEN · MANAGER",lina:"LINA · COORDINATOR"}[G.F.boss]||"BOSS"; }
+function bossName(){ return {sam:"SAM · SUPERVISOR",omar:"OMAR · IT",priya:"PRIYA · HR",ken:"KEN · MANAGER",lina:"LINA · COORDINATOR",grace:"GRACE · RECEPTION"}[G.F.boss]||"BOSS"; }
 
 function binRect(i){ const n=G.lanes.length, gap=6, left=8, right=VW-8; const w=Math.min(58,Math.floor((right-left-gap*(n-1))/n)); const total=w*n+gap*(n-1); const x0=Math.round((VW-total)/2);
   return {x:x0+i*(w+gap), y:124, w, h:46}; }
@@ -945,7 +1053,7 @@ function todaysFloor(){ const w=currentWeek(); const r=firstOpenUndone(weekDays(
   return r?r.n:null; }
 function goToday(){ if(INSTRUCTOR) return showFloors(); showWeek(); }
 function showWeek(){
-  mode="menu"; const f=todaysFloor(), w=currentWeek(); const icons={1:"📬",2:"🗂",3:"🌍",4:"✉",5:"✂",6:"✅",7:"🎯"};
+  mode="menu"; const f=todaysFloor(), w=currentWeek(); const icons={1:"📬",2:"🗂",3:"🌍",4:"✉",5:"✂",6:"✅",7:"🎯",8:"📧",9:"✎",10:"🗓",11:"💌"};
   const days=DAYS.filter(d=>WEEK_OF[d]===w);
   const rows=days.map(n=>{ const F=FLOORS[n], done=!!P.cleared[n], isToday=n===f;
     let st, cls;
@@ -969,7 +1077,7 @@ function showWeek(){
   if(f) document.getElementById("wGo").onclick=()=>showBrief(f);
   document.getElementById("wNo").onclick=nameGate;
 }
-function rankOf(x,w){ const T = w===2?[13000,9500,5000]:[25000,17000,9000]; return x>=T[0]?"DIRECTOR":x>=T[1]?"MANAGER":x>=T[2]?"COORD.":"INTERN"; }
+function rankOf(x,w){ const T = w===3?[20000,14000,7000]:w===2?[13000,9500,5000]:[25000,17000,9000]; return x>=T[0]?"DIRECTOR":x>=T[1]?"MANAGER":x>=T[2]?"COORD.":"INTERN"; }
 function weekTotal(w){ return DAYS.filter(d=>WEEK_OF[d]===w).reduce((s,d)=>s+(P.best[d]||0),0); }
 function setDeck(type){ document.getElementById("sortDeck").hidden = type!=="sort"; document.getElementById("swipeDeck").hidden = type!=="swipe"; document.getElementById("penDeck").hidden = type!=="pen"; }
 
