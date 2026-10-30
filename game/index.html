@@ -541,6 +541,115 @@ Object.assign(FLOORS,{
     {t:"Describe the details of a colleague’s loss.",r:false,why:"Refer to the loss sensitively, without details."},
     {t:"Blame the reader for the problem.",r:false,why:"Stay courteous and focus on solutions."}]}]}
 });
+/* ================= WEEK 4 · LESSON 4 · PROPOSALS AND REPORTS ================= */
+Object.assign(UNLOCK,{12:"2026-11-02",13:"2026-11-03",14:"2026-11-04",15:"2026-11-05"});
+Object.assign(DAY_OF,{12:"Monday",13:"Tuesday",14:"Wednesday",15:"Thursday"});
+DAYS.push(12,13,14,15);
+Object.assign(WEEK_OF,{12:4,13:4,14:4,15:4});
+WEEK_INFO[4]={title:"Week 4 · Lesson 4",sub:"Proposals and reports"};
+Object.assign(LANE,{
+  sol:{label:"Solicited",px:"ASKED",icon:"📨",col:"#4a7bd9",why:"Solicited: the client asked for it, often through an RFP."},
+  uns:{label:"Unsolicited",px:"NOT ASKED",icon:"💡",col:"#ff9f1c",why:"Unsolicited: you take the initiative. It needs a harder sell."},
+  rfp:{label:"RFP",px:"RFP",icon:"📋",col:"#4a7bd9",why:"RFP: the project, the exact deliverables, how bids are reviewed, a contact."},
+  prj:{label:"Projection",px:"PROJECT",icon:"📈",col:"#3fbf6a",why:"Projection: estimates of future performance, backed by data, tables and spreadsheets."},
+  exs:{label:"Exec summary",px:"SUMMARY",icon:"📄",col:"#9b59b6",why:"Executive summary: a one-page overview (mission, team, market, plans). Write it last."},
+  bca:{label:"Business case",px:"CASE",icon:"⚖",col:"#e84393",why:"Business case: the problem, options considered, solution chosen, expected costs."},
+  pri:{label:"Primary",px:"PRIMARY",icon:"🎤",col:"#2bb3a3",why:"Primary research: you collect it yourself (surveys, interviews, focus groups, observation)."},
+  sec:{label:"Secondary",px:"SECOND",icon:"📚",col:"#9b59b6",why:"Secondary research: someone else already collected it (Statistics Canada, reports, databases)."},
+  qual:{label:"Qualitative",px:"QUALI",icon:"💬",col:"#e84393",why:"Qualitative: opinions, attitudes and ideas, in words."},
+  quan:{label:"Quantitative",px:"QUANTI",icon:"🔢",col:"#4a7bd9",why:"Quantitative: numbers, statistics and percentages."},
+  rov:{label:"1 · Overview",px:"OVERVIEW",icon:"👁",col:"#5d6d7e",why:"Overview: what the report is about, in brief."},
+  rbg:{label:"2 · Background",px:"BACKGRND",icon:"🧭",col:"#4a7bd9",why:"Background and scope: context, period and what the report covers."},
+  rbd:{label:"3 · Main body",px:"BODY",icon:"📊",col:"#ff9f1c",why:"Main body: the data and findings."},
+  rcn:{label:"4 · Conclusions",px:"CONCLUDE",icon:"🏁",col:"#3fbf6a",why:"Conclusions (and recommendations if requested)."}
+});
+Object.assign(FLOORS,{
+12:{ type:"sort", name:"PROPOSAL PILE", short:"Session 9 · Proposals, RFPs and other documents", boss:"sam",
+  brief:[["Proposal","Offers a solution and asks the reader to accept it."],["Solicited vs unsolicited","Solicited: the client asked (often an RFP). Unsolicited: your own initiative, so it needs a harder sell."],
+         ["RFP · Projection","RFP: project, deliverables, review process, contact. Projection: future estimates backed by data."],["Exec summary · Business case","Exec summary: one-page overview, written last. Business case: problem, options, solution, costs."]],
+  mission:"Documents roll down the belt. Wave 1: solicited or unsolicited? Wave 2: which type of document is it?",
+  waves:[
+   {title:"Wave 1 · Solicited or unsolicited?",pick:8,lanes:["sol","uns"],items:[
+    ["Responding to the city’s RFP for park lighting.","sol"],["A client asks three contractors to bid on a kitchen renovation.","sol"],["Answering a university’s call for catering proposals.","sol"],
+    ["The hospital invites firms to quote on new signage.","sol"],["A tender notice asks for bids to repave the parking lot.","sol"],
+    ["Pitching a recycling program to your manager on your own initiative.","uns"],["Emailing a café owner a patio redesign she never asked for.","uns"],
+    ["Offering a client a maintenance plan nobody requested.","uns"],["Proposing a new safety app to the director without being asked.","uns"]]},
+   {title:"Wave 2 · Which document is it?",pick:8,lanes:["rfp","prj","exs","bca"],items:[
+    ["Lists the exact deliverables and explains how bids will be reviewed.","rfp"],["Describes the project and gives a contact for bidders.","rfp"],
+    ["Estimates next year’s sales, illustrated with spreadsheets.","prj"],["Forecasts revenue for the next three years, with tables.","prj"],
+    ["Covers the mission statement, management team and market in one page.","exs"],["Written last, read first: a one-page overview for busy executives.","exs"],
+    ["Walks through the options considered and the solution selected.","bca"],["Ends with the expected costs of the chosen solution.","bca"]]}]},
+13:{ type:"pen", name:"WINNING PROPOSAL", short:"Session 9 · Writing a winning proposal", boss:"lina",
+  brief:[["Structure","Company overview → statement of the problem → background and benefits → scope and deliverables → contact and references."],
+         ["Targeted","Show you studied the client’s need and are their best option."],["Well-substantiated","Facts, statistics and a project plan back every claim."],
+         ["Persuasive & organized","Prime selling point first, positive tone, nothing generic. Easy to evaluate, like a checklist."]],
+  mission:"These proposals would lose the contract. Tap every part that is generic, unproven, negative or unclear.",
+  docs:[
+   {kind:"Proposal · company overview",head:"To: City of Ottawa, Parks Department<br>Subject: Proposal · Park lighting (RFP 2026-118)",
+    body:"[[We are the best company in the world.|Northline Build has installed lighting in 14 Ottawa parks since 2015.|Generic claim. Back it with facts.]] [[We have lots of experience.|Our team includes 3 licensed electricians and 2 project managers.|Unproven. Give numbers.]] Our references from the City of Gatineau are attached.",
+    q:{q:"This proposal answers an RFP. It is…",o:["Solicited","Unsolicited","A business case","A projection"],a:0,why:"The client asked for proposals through an RFP."}},
+   {kind:"Proposal · scope and price",head:"Scope of services and deliverables",
+    body:"We will install new LED lights along the main path. [[We will do some other stuff too.|We will also replace 12 damaged poles and the timer system.|The scope must say exactly what you will deliver.]] [[The price will be decided later.|Total cost: $86,500, including materials and labour.|Give the cost. Evaluators need it.]] [[It should be done eventually.|Work will be completed by May 15, 2027.|Give a clear deadline.]]",
+    q:{q:"Which section comes right after the company overview?",o:["Statement of the problem","Contact details","Scope and deliverables","References"],a:0,why:"Overview → problem → background and benefits → scope → contact."}},
+   {kind:"Proposal · statement of the problem",head:"To: Riverside Café<br>Subject: A brighter, bigger patio for next summer",
+    body:"[[Your patio is ugly and badly designed.|Your patio seats 12 guests, but you turn customers away on busy evenings.|State the need in the client’s terms, without insults.]] A redesign could add 10 seats. [[We don’t really know your business, but we can probably help.|We visited on three Fridays and counted 25 customers turned away.|Show you studied the client’s need.]]",
+    q:{q:"Nobody asked for this proposal. That is why it needs…",o:["A harder sell","No price","No structure","A business case"],a:0,why:"Unsolicited proposals need a harder sell."}},
+   {kind:"Proposal · benefits and close",head:"Background and benefits",
+    body:"[[Unfortunately, our prices are not the cheapest and we might have delays.|Our fixed price includes a 2-year warranty and on-time delivery.|Use a proactive, optimistic tone.]] [[Benefits are explained somewhere in the attached 60 pages.|Benefits: 40% lower energy bills, safer paths, fewer repairs.|Organized: give the evaluator what they want, in order.]] Contact: Maya Chen, 613-555-0142.",
+    q:{q:"A winning proposal is targeted, well-substantiated, persuasive and…",o:["Organized","Long","Generic","Secret"],a:0,why:"Organized: easy to evaluate, like a checklist."}}]},
+14:{ type:"swipe", name:"FACT OR BIAS?", short:"Session 10 · Objective reports, surveys and sources", boss:"ken",
+  brief:[["Objective reports","Fact-based and impartial. Not written to make the company look good."],
+         ["Biased vs objective","Biased: “Our amazing process massively improved deliveries.” Objective: “Delivery time fell from 5.1 to 3.4 days.”"],
+         ["Good survey questions","Neutral, one thing at a time, balanced options."],["Check your sources","Current? Relevant? Who wrote it? Accurate? To inform or to sell?"]],
+  mission:"Swipe each card. Round 1: objective or biased? Fix the biased ones. Round 2: good or bad survey question? Round 3: trust the source or not?",
+  rounds:[
+   {title:"Round 1 · Objective or biased?",L:{label:"BIASED",icon:"🎭",col:"#e2483d"},R:{label:"OBJECTIVE",icon:"📏",col:"#3fbf6a"},
+    rw:{ok:"✓ Yes, it’s biased!",q:"Which version is objective?",why:"Objective writing uses facts and numbers, not opinions.",no:"✗ Still biased. The objective version is highlighted in green."},items:[
+    {t:"Our brilliant team crushed every target.",r:false,why:"Opinion words, no data.",rw:["The team met 9 of its 10 quarterly targets.","Our amazing team did a fantastic job.","Everyone agrees the team was the best."]},
+    {t:"The old supplier was obviously useless.",r:false,why:"An insult, not a fact.",rw:["The old supplier delivered 38% of orders late.","The old supplier was really bad.","Nobody liked the old supplier."]},
+    {t:"Everyone loves the new software.",r:false,why:"“Everyone” and “loves” cannot be proven.",rw:["In a survey, 41 of 50 users rated the software 4 or 5 out of 5.","The software is super popular.","All users are very happy."]},
+    {t:"Our amazing new process massively improved deliveries.",r:false,why:"No numbers, only praise.",rw:["Average delivery time fell from 5.1 to 3.4 days between June and August.","Deliveries are now incredibly fast.","The process is a huge success."]},
+    {t:"Complaints fell from 42 to 19 per month.",r:true,why:"Facts and numbers."},
+    {t:"Three of five sites finished on schedule.",r:true,why:"A measurable fact."},
+    {t:"Survey response rate: 64% (128 of 200).",r:true,why:"Precise data with the base number."},
+    {t:"Average delivery time: 3.4 days (target: 3).",r:true,why:"Fact plus the target, including the gap."}]},
+   {title:"Round 2 · Good survey question?",pick:8,L:{label:"BAD QUESTION",icon:"🎣",col:"#e2483d"},R:{label:"GOOD QUESTION",icon:"✅",col:"#3fbf6a"},items:[
+    {t:"How would you rate the speed of our service? (1 = very slow, 5 = very fast)",r:true,why:"Neutral, one topic, balanced scale."},
+    {t:"How easy was it to find what you needed on our website? (1–5)",r:true,why:"Neutral wording and a clear scale."},
+    {t:"How many times did you visit the site office last month?",r:true,why:"One clear, factual question."},
+    {t:"What would make our team meetings more useful?",r:true,why:"A neutral open question: good for qualitative research."},
+    {t:"Don’t you agree our friendly, fast staff are great?",r:false,why:"Leading: it pushes the answer."},
+    {t:"How satisfied are you with our prices and delivery?",r:false,why:"Double-barrelled: two questions in one."},
+    {t:"Our website is great, right?",r:false,why:"Leading question."},
+    {t:"Rate us: Excellent / Very good / Good / Amazing",r:false,why:"Unbalanced options: no negative choice."},
+    {t:"Why is our service so much better than the competition?",r:false,why:"It assumes the answer."}]},
+   {title:"Round 3 · Trust this source?",pick:8,L:{label:"DON’T TRUST",icon:"🚩",col:"#e2483d"},R:{label:"TRUST",icon:"🛡",col:"#3fbf6a"},items:[
+    {t:"Statistics Canada census data, published this year.",r:true,why:"Current, official and accurate."},
+    {t:"An industry report from a recognized trade association, 2026.",r:true,why:"Recent and written by an authority."},
+    {t:"A university study with its data and methods explained.",r:true,why:"Supported by evidence."},
+    {t:"Your own survey of 120 clients, with the questions attached.",r:true,why:"Primary research you can check."},
+    {t:"A 2009 blog post with no author.",r:false,why:"Old, and no authority behind it."},
+    {t:"A supplier’s ad saying its product is “the safest on Earth”.",r:false,why:"Its purpose is to sell, not to inform."},
+    {t:"A viral social media post with no source.",r:false,why:"No evidence, no author."},
+    {t:"Numbers from a website that refuses to say where they come from.",r:false,why:"You cannot check if they are accurate."}]}]},
+15:{ type:"sort", name:"RESEARCH LAB", short:"Session 10 · Research and report structure", boss:"priya",
+  brief:[["Primary vs secondary","Primary: you collect it (surveys, interviews, focus groups, observation). Secondary: someone else collected it (Statistics Canada, reports, databases)."],
+         ["Qualitative vs quantitative","Qualitative: opinions, attitudes, ideas. Quantitative: numbers, statistics, percentages."],
+         ["Report structure","Overview → background and scope → main body → conclusions (and recommendations if asked)."]],
+  mission:"Three waves: primary or secondary research, qualitative or quantitative data, then put each sentence in the right part of the report.",
+  waves:[
+   {title:"Wave 1 · Primary or secondary?",pick:8,lanes:["pri","sec"],items:[
+    ["Surveying 50 shoppers on the street.","pri"],["Running a focus group with local residents.","pri"],["Interviewing the site supervisor.","pri"],["Counting trucks at the gate for a week.","pri"],
+    ["Using Statistics Canada census data.","sec"],["Reading a real-estate firm’s market report.","sec"],["Citing figures from a trade magazine.","sec"],["Searching the library database for past studies.","sec"]]},
+   {title:"Wave 2 · Qualitative or quantitative?",pick:8,lanes:["qual","quan"],items:[
+    ["72% of respondents prefer email updates.","quan"],["Average delivery time is 3.4 days.","quan"],["Number of complaints per month.","quan"],["Ratings on a 1–5 scale.","quan"],
+    ["Clients describe the service as “slow but friendly”.","qual"],["Open-ended answers about job satisfaction.","qual"],["Employees’ ideas for better meetings.","qual"],["Notes from a focus group discussion.","qual"]]},
+   {title:"Wave 3 · Which part of the report?",pick:8,lanes:["rov","rbg","rbd","rcn"],items:[
+    ["This report examines late deliveries at GreenBuild Supplies.","rov"],["In brief: deliveries are 2 days late on average.","rov"],
+    ["The study covers June to August, at the Ottawa warehouse.","rbg"],["The manager asked for this report after 30 client complaints.","rbg"],
+    ["Average delivery time was 5.1 days (target: 3).","rbd"],["61% of 90 contractors are considering other suppliers.","rbd"],
+    ["We conclude that one dispatcher cannot handle 140 orders a day.","rcn"],["We recommend hiring a second dispatcher and route software.","rcn"]]}]}
+});
 /* ================= SPRITES ================= */
 const PAL = {K:"#14152b",Y:"#ffd84a",y:"#e0a91c",H:"#3b2418",S:"#c68a5f",T:"#2bb3a3",W:"#f7f4ec",P:"#2e3a6e",B:"#6b3f22",R:"#e2483d",C:"#ff6b5a",L:"#4a7bd9",G:"#3fbf6a",D:"#9aa0b5"};
 const TOP = [
@@ -777,16 +886,16 @@ function decide(side){
 }
 function showRewrite(it,pts,mult){
   const opts=shuffle(it.rw.map((t,i)=>({t,i})));
-  swCard("REWRITE IT!", it.t, `<b>✓ Yes, it’s vague! +${pts}${mult>1?" · combo x"+mult:""}</b> ${esc(it.why)}`, "ok");
-  document.getElementById("rwBox").innerHTML=`<div class="rwq">Which rewrite is clearest? <span>+150 bonus</span></div>`+opts.map((o,k)=>`<button type="button" class="opt" data-i="${o.i}"><i>${k+1}</i><span>${esc(o.t)}</span></button>`).join("");
+  swCard("REWRITE IT!", it.t, `<b>${(G.F.rounds[G.ri].rw||{}).ok||"✓ Yes, it’s vague!"} +${pts}${mult>1?" · combo x"+mult:""}</b> ${esc(it.why)}`, "ok");
+  document.getElementById("rwBox").innerHTML=`<div class="rwq">${(G.F.rounds[G.ri].rw||{}).q||"Which rewrite is clearest?"} <span>+150 bonus</span></div>`+opts.map((o,k)=>`<button type="button" class="opt" data-i="${o.i}"><i>${k+1}</i><span>${esc(o.t)}</span></button>`).join("");
   document.querySelectorAll("#rwBox .opt").forEach(b=>b.onclick=()=>pickRewrite(+b.dataset.i,it));
 }
 function pickRewrite(i,it){
   if(G.phase!=="rewrite") return; const ok=i===0;
   document.querySelectorAll("#rwBox .opt").forEach(b=>{ b.disabled=true; const j=+b.dataset.i; if(j===0) b.classList.add("right"); else if(j===i) b.classList.add("wrong"); });
-  if(ok){ G.score+=150; SFX.good(); swFeedback(true,"✓ Perfect rewrite! +150","It says exactly what, who and when.",90,true); }
-  else { SFX.bad(); G.mistakes.push({t:it.t,your:"Rewrite: "+it.rw[i],right:"Rewrite: "+it.rw[0],why:"A clear message says what, who and when."});
-    swFeedback(false,"✗ Still vague. The best rewrite is highlighted in green.","A clear message says exactly what, who and when.",170,true); }
+  if(ok){ G.score+=150; SFX.good(); swFeedback(true,"✓ Perfect rewrite! +150",(G.F.rounds[G.ri].rw||{}).why||"It says exactly what, who and when.",90,true); }
+  else { SFX.bad(); G.mistakes.push({t:it.t,your:"Rewrite: "+it.rw[i],right:"Rewrite: "+it.rw[0],why:(G.F.rounds[G.ri].rw||{}).why||"A clear message says what, who and when."});
+    swFeedback(false,(G.F.rounds[G.ri].rw||{}).no||"✗ Still vague. The best rewrite is highlighted in green.",(G.F.rounds[G.ri].rw||{}).why||"A clear message says exactly what, who and when.",170,true); }
 }
 function swFeedback(ok,head,why,frames,keepRw){ G.phase="fb"; G.fbT=frames; G.fbMin=frames-30;
   if(!keepRw) document.getElementById("rwBox").innerHTML="";
@@ -1053,7 +1162,7 @@ function todaysFloor(){ const w=currentWeek(); const r=firstOpenUndone(weekDays(
   return r?r.n:null; }
 function goToday(){ if(INSTRUCTOR) return showFloors(); showWeek(); }
 function showWeek(){
-  mode="menu"; const f=todaysFloor(), w=currentWeek(); const icons={1:"📬",2:"🗂",3:"🌍",4:"✉",5:"✂",6:"✅",7:"🎯",8:"📧",9:"✎",10:"🗓",11:"💌"};
+  mode="menu"; const f=todaysFloor(), w=currentWeek(); const icons={1:"📬",2:"🗂",3:"🌍",4:"✉",5:"✂",6:"✅",7:"🎯",8:"📧",9:"✎",10:"🗓",11:"💌",12:"📨",13:"🏆",14:"⚖",15:"🔬"};
   const days=DAYS.filter(d=>WEEK_OF[d]===w);
   const rows=days.map(n=>{ const F=FLOORS[n], done=!!P.cleared[n], isToday=n===f;
     let st, cls;
@@ -1077,7 +1186,7 @@ function showWeek(){
   if(f) document.getElementById("wGo").onclick=()=>showBrief(f);
   document.getElementById("wNo").onclick=nameGate;
 }
-function rankOf(x,w){ const T = w===3?[20000,14000,7000]:w===2?[13000,9500,5000]:[25000,17000,9000]; return x>=T[0]?"DIRECTOR":x>=T[1]?"MANAGER":x>=T[2]?"COORD.":"INTERN"; }
+function rankOf(x,w){ const T = w===4?[23000,16000,8000]:w===3?[20000,14000,7000]:w===2?[13000,9500,5000]:[25000,17000,9000]; return x>=T[0]?"DIRECTOR":x>=T[1]?"MANAGER":x>=T[2]?"COORD.":"INTERN"; }
 function weekTotal(w){ return DAYS.filter(d=>WEEK_OF[d]===w).reduce((s,d)=>s+(P.best[d]||0),0); }
 function setDeck(type){ document.getElementById("sortDeck").hidden = type!=="sort"; document.getElementById("swipeDeck").hidden = type!=="swipe"; document.getElementById("penDeck").hidden = type!=="pen"; }
 
