@@ -650,6 +650,119 @@ Object.assign(FLOORS,{
     ["Average delivery time was 5.1 days (target: 3).","rbd"],["61% of 90 contractors are considering other suppliers.","rbd"],
     ["We conclude that one dispatcher cannot handle 140 orders a day.","rcn"],["We recommend hiring a second dispatcher and route software.","rcn"]]}]}
 });
+/* ================= WEEK 5 · LESSON 5 · BUSINESS ETIQUETTE ================= */
+Object.assign(UNLOCK,{16:"2026-11-09",17:"2026-11-10",18:"2026-11-11",19:"2026-11-12"});
+Object.assign(DAY_OF,{16:"Monday",17:"Tuesday",18:"Wednesday",19:"Thursday"});
+DAYS.push(16,17,18,19);
+Object.assign(WEEK_OF,{16:5,17:5,18:5,19:5});
+WEEK_INFO[5]={title:"Week 5 · Lesson 5",sub:"Business etiquette"};
+Object.assign(LANE,{
+  edo:{label:"Do",px:"DO",icon:"👍",col:"#3fbf6a",why:"Good office etiquette: respectful, discreet, professional."},
+  edn:{label:"Don’t",px:"DON’T",icon:"🙅",col:"#e2483d",why:"Avoid it: it hurts your image and the company’s."},
+  icor:{label:"Correct",px:"CORRECT",icon:"🤝",col:"#3fbf6a",why:"That is the professional way to introduce yourself or others."},
+  ifax:{label:"Faux pas",px:"FAUX PAS",icon:"😬",col:"#e2483d",why:"A faux pas: an introduction or handshake mistake."},
+  vm1:{label:"1 · Name & company",px:"NAME",icon:"👤",col:"#4a7bd9",why:"A voicemail starts with your name and company."},
+  vm2:{label:"2 · Date & time",px:"WHEN",icon:"🕒",col:"#9b59b6",why:"Then the date and time of your call."},
+  vm3:{label:"3 · Reason",px:"REASON",icon:"💬",col:"#ff9f1c",why:"Then the reason, in one or two sentences."},
+  vm4:{label:"4 · Request",px:"REQUEST",icon:"🙏",col:"#e84393",why:"Then what you would like them to do."},
+  vm5:{label:"5 · Number",px:"NUMBER",icon:"📞",col:"#3fbf6a",why:"End with your phone number, said slowly, then repeated."},
+  tok:{label:"Builds trust",px:"TRUST",icon:"🛡",col:"#3fbf6a",why:"You represent the company: loyal, discreet, respectful."},
+  tno:{label:"Breaks trust",px:"BREAK",icon:"💥",col:"#e2483d",why:"This damages your image, your team and the company."},
+  cbf:{label:"Before the call",px:"BEFORE",icon:"📝",col:"#4a7bd9",why:"Before: know why and what, jot down your points, pad and pen ready."},
+  cdu:{label:"During the call",px:"DURING",icon:"📞",col:"#ff9f1c",why:"During: introduce yourself, ask questions politely, nothing confidential, redial if it drops."}
+});
+Object.assign(FLOORS,{
+16:{ type:"sort", name:"OFFICE CODE", short:"Session 11 · Etiquette, dress and introductions", boss:"grace",
+  brief:[["Etiquette","The unwritten rules of professional conduct. They are the rules that get business done."],
+         ["Dress","Your biggest nonverbal message. Conservative, pressed, no loud prints. Carry a spare shirt or tie."],
+         ["Introducing yourself","Name and purpose first: “I am Nadia Chraibi, here to meet Paul Martin in Finance.” No Mr./Ms. before your own name."],
+         ["Introducing others","Introduce the lower-ranked person to the higher-ranked person. Handshakes open and close meetings."]],
+  mission:"Wave 1: office etiquette, do or don’t? Wave 2: introductions and handshakes, correct or faux pas?",
+  waves:[
+   {title:"Wave 1 · Do or don’t?",pick:9,lanes:["edo","edn"],items:[
+    ["Keep important files locked away.","edo"],["Wear pressed, conservative clothes to a client meeting.","edo"],["Use code names for confidential records.","edo"],
+    ["Bring a spare shirt or tie, just in case.","edo"],["Stay cheerful and cooperative with the team.","edo"],
+    ["Tap your pencil through the whole meeting.","edn"],["Interrupt a colleague to make your point faster.","edn"],["Criticize your company in front of another firm’s staff.","edn"],
+    ["Gossip about a colleague.","edn"],["File your nails at your desk.","edn"]]},
+   {title:"Wave 2 · Correct or faux pas?",pick:8,lanes:["icor","ifax"],items:[
+    ["“I am Nadia Chraibi, and I am here to meet Paul Martin in Finance.”","icor"],["After giving your name, you ask for the other person’s name and position.","icor"],
+    ["“Ms. Dubois, may I introduce Kevin Tran, our new analyst?” (Ms. Dubois is the VP)","icor"],["You say your name slowly and clearly.","icor"],
+    ["Forgot a name? “Could I have your latest business card?”","icor"],
+    ["“Hello, I am Mr. Karim Benali.”","ifax"],["You wait in silence for the host to guess who you are.","ifax"],
+    ["“Kevin, this is the VP.” (introducing the VP to the new analyst)","ifax"],["You refuse a handshake because of the other person’s gender.","ifax"],["You mumble your name very fast.","ifax"]]}]},
+17:{ type:"pen", name:"NETIQUETTE NINJA", short:"Session 11 · Netiquette and introductions in writing", boss:"lina",
+  brief:[["Netiquette","In email, tone is easily misunderstood. Reread before sending."],
+         ["The rules","Spelling and grammar. Never skip the greeting or closing. Never write in ALL CAPS."],
+         ["Reply time","Answer within one business day, even just to say when you will reply."]],
+  mission:"These messages break netiquette or introduction rules. Tap every mistake.",
+  docs:[
+   {kind:"Email",head:"To: Paul Martin, Finance<br>Subject: Invoice question",
+    body:"[[Invoice 4471 is wrong.|Hello Mr. Martin,|Never skip the greeting.]] I think invoice 4471 lists 40 windows instead of 30. [[PLEASE FIX THIS TODAY.|Could you please check it today?|ALL CAPS reads as shouting. Make requests as questions.]] I attached the delivery slip. [[Maya|Best regards, Maya Chen, Site Coordinator|Never skip the closing.]]",
+    q:{q:"What should you do before you send any email?",o:["Reread it","Add emojis","Write it in capitals","Send it to everyone"],a:0,why:"Always reread: tone is easily misunderstood in email."}},
+   {kind:"Email reply",head:"To: Mr. Daniel Roy (supplier)<br>Subject: Re: Window delivery",
+    body:"Hello Mr. Roy, [[Sorry, I saw your email two weeks ago but forgot.|Thank you for your email.|Answer within one business day.]] Thursday works for us. [[whatever u think is fine lol|Please confirm the delivery time.|Text-speak and a careless tone can offend.]] Best regards, Maya Chen",
+    q:{q:"You need two days to find an answer. What do you do today?",o:["Reply today to say when you will answer","Wait two days without replying","Ignore the email","Call and shout"],a:0,why:"Answer within one business day, even if only to say when you will reply."}},
+   {kind:"Visitor introduction (script)",head:"Front desk · BBL Construction",
+    body:"[[Hi. I am Ms. Nadia Chraibi.|Good morning. I am Nadia Chraibi,|Don’t put Mr. or Ms. before your own name.]] [[I’m here for some meeting.|and I am here to meet Paul Martin in the Finance Department.|Give your name and the purpose of your visit.]] [[You don’t need to know my position.|May I ask your name and position?|After introducing yourself, ask for the other person’s name and position.]]",
+    q:{q:"You introduce the new analyst Kevin to Ms. Dubois, the VP. Who is introduced to whom?",o:["Kevin is introduced to Ms. Dubois","Ms. Dubois is introduced to Kevin","Nobody is introduced","They introduce themselves"],a:0,why:"The lower-ranked person is introduced to the higher-ranked person."}},
+   {kind:"Team chat message",head:"#site-team · Bank Street project",
+    body:"Team, the inspector visits on Friday at 9 a.m. [[ALL OF YOU MUST BE ON TIME!!!|Please be on site by 8:45 a.m.|No ALL CAPS, no shouting.]] [[Also, Ken’s salary raise was refused, haha.|Please bring your safety gear and ID badge.|Never share confidential or personal matters.]] Thanks, Maya",
+    q:{q:"Confidential information should be kept…",o:["In as few hands as possible","On the team chat","In the break room","In a public folder"],a:0,why:"Keep confidential material in as few hands as possible."}}]},
+18:{ type:"swipe", name:"ON THE LINE", short:"Session 12 · Telephone, voicemail and video calls", boss:"omar",
+  brief:[["Before the call","Know the why and the what. Jot down your points. Pad and pen ready."],
+         ["During the call","Name, company and purpose. Make requests as questions. Nothing confidential. If the call drops, the caller redials."],
+         ["Voicemail","Name and company · date and time · reason · what you want · number said slowly, then repeated."],
+         ["Video calls","Test camera and sound, mute when not speaking, neutral background, look at the camera, don’t multitask."]],
+  mission:"Swipe each card. Round 1: polished or sloppy on the phone? Round 2: video-call do or don’t? Round 3: good or bad voicemail habit?",
+  rounds:[
+   {title:"Round 1 · Polished or sloppy?",pick:8,L:{label:"SLOPPY",icon:"🙉",col:"#e2483d"},R:{label:"POLISHED",icon:"✨",col:"#3fbf6a"},items:[
+    {t:"“Good morning, BBL Construction, Sara speaking. How can I help you?”",r:true,why:"Greeting, company, name and an offer to help."},
+    {t:"“Could you tell me when Mr. Roy is available?”",r:true,why:"A request phrased as a question."},
+    {t:"“May I put you on hold for one minute while I check?”",r:true,why:"Ask before putting someone on hold, and say how long."},
+    {t:"The call drops, so you (the caller) call back right away.",r:true,why:"If the call drops, the caller redials."},
+    {t:"“Hi, Maya Chen from Northline Build, calling about the window order.”",r:true,why:"Name, company and purpose."},
+    {t:"“Yeah?”",r:false,why:"No greeting, no name, no company."},
+    {t:"“Hold on.” (silence for three minutes)",r:false,why:"Ask first, and don’t leave people waiting in silence."},
+    {t:"Discussing a colleague’s salary on speakerphone.",r:false,why:"Never discuss confidential matters: you don’t know who is listening."},
+    {t:"“Give me Mr. Roy now.”",r:false,why:"Make requests as questions."}]},
+   {title:"Round 2 · Video call: do or don’t?",pick:8,L:{label:"DON’T",icon:"🙅",col:"#e2483d"},R:{label:"DO",icon:"🙆",col:"#3fbf6a"},items:[
+    {t:"Test your camera and sound before the meeting.",r:true,why:"Avoid wasting everyone’s time."},
+    {t:"Mute your microphone when you are not speaking.",r:true,why:"Background noise distracts everyone."},
+    {t:"Use a neutral wall or a blurred background.",r:true,why:"Your setting sends a nonverbal message."},
+    {t:"Look at the camera when you speak.",r:true,why:"That creates eye contact."},
+    {t:"Join from an unmade bed.",r:false,why:"An unprofessional setting."},
+    {t:"Answer emails while a client is presenting.",r:false,why:"Don’t multitask: people can see it."},
+    {t:"Stay unmuted with music playing in the background.",r:false,why:"Mute when you are not speaking."},
+    {t:"Eat lunch on camera during a client call.",r:false,why:"Your appearance and behaviour are on display."}]},
+   {title:"Round 3 · Voicemail: good or bad?",pick:8,L:{label:"BAD",icon:"👎",col:"#e2483d"},R:{label:"GOOD",icon:"👍",col:"#3fbf6a"},items:[
+    {t:"Start with your name and company.",r:true,why:"The listener knows right away who called."},
+    {t:"Say the date and time of your call.",r:true,why:"It helps them know how recent the message is."},
+    {t:"Give the reason in one or two sentences.",r:true,why:"Short and clear."},
+    {t:"Say your phone number slowly, then repeat it.",r:true,why:"So they can write it down."},
+    {t:"Say clearly what you would like them to do.",r:true,why:"A clear request gets a faster answer."},
+    {t:"“It’s me, call me back.”",r:false,why:"Who is “me”? No name, no number."},
+    {t:"A 4-minute message telling the whole story.",r:false,why:"Keep the reason to one or two sentences."},
+    {t:"Saying your number very fast, only once.",r:false,why:"Say it slowly, then repeat it."},
+    {t:"Leaving confidential pricing details on voicemail.",r:false,why:"Never share confidential matters: others may listen."}]}]},
+19:{ type:"sort", name:"TEAM PLAYER", short:"Session 12 · Calls, voicemail order and teamwork", boss:"ken",
+  brief:[["Voicemail order","1 Name and company · 2 Date and time · 3 Reason · 4 Request · 5 Phone number, slowly and repeated."],
+         ["Before vs during a call","Before: why, what, notes, pad and pen. During: introduce yourself, questions not orders, nothing confidential."],
+         ["Teamwork","You are the company’s image. Be loyal, protect confidential material, no gossip, respect hierarchy."]],
+  mission:"Wave 1: put each piece of the voicemail in the right order. Wave 2: before or during the call? Wave 3: builds trust or breaks trust?",
+  waves:[
+   {title:"Wave 1 · Build the voicemail",pick:10,lanes:["vm1","vm2","vm3","vm4","vm5"],items:[
+    ["“Hello, this is Karim Alami from Capital Build.”","vm1"],["“Hi Mr. Roy, Maya Chen from Northline Build here.”","vm1"],
+    ["“I’m calling on Tuesday, November 10, at 10:15 a.m.”","vm2"],["“It is Monday morning, 9 o’clock.”","vm2"],
+    ["“I’m calling about our order of 40 window frames.”","vm3"],["“It’s about the inspection date for Bank Street.”","vm3"],
+    ["“Could they be delivered on Thursday instead of Monday?”","vm4"],["“Please call me back before 3 p.m. today.”","vm4"],
+    ["“My number is 613-555-0142. Again, 613-555-0142.”","vm5"],["“You can reach me at 819-555-0199… 819-555-0199.”","vm5"]]},
+   {title:"Wave 2 · Before or during the call?",pick:8,lanes:["cbf","cdu"],items:[
+    ["Decide why you are calling and what you will say.","cbf"],["Jot down your main points.","cbf"],["Have a pad and pen ready.","cbf"],["Ask: does this call matter more to me or to them?","cbf"],
+    ["Give the receptionist your name, company and purpose.","cdu"],["Introduce yourself again to the person you reach.","cdu"],["Make your requests as questions.","cdu"],["The line drops, so you redial right away.","cdu"]]},
+   {title:"Wave 3 · Builds trust or breaks trust?",pick:8,lanes:["tok","tno"],items:[
+    ["Speaking well of your company to a client.","tok"],["Locking confidential drawings in the cabinet.","tok"],["Staying informed about your company’s news.","tok"],["Respecting your manager’s decisions in public.","tok"],
+    ["Criticizing your company in front of a supplier.","tno"],["Sharing a colleague’s secret at lunch.","tno"],["Leaving contracts open on the printer.","tno"],["Mocking the boss in the team chat.","tno"]]}]}
+});
 /* ================= SPRITES ================= */
 const PAL = {K:"#14152b",Y:"#ffd84a",y:"#e0a91c",H:"#3b2418",S:"#c68a5f",T:"#2bb3a3",W:"#f7f4ec",P:"#2e3a6e",B:"#6b3f22",R:"#e2483d",C:"#ff6b5a",L:"#4a7bd9",G:"#3fbf6a",D:"#9aa0b5"};
 const TOP = [
@@ -1162,7 +1275,7 @@ function todaysFloor(){ const w=currentWeek(); const r=firstOpenUndone(weekDays(
   return r?r.n:null; }
 function goToday(){ if(INSTRUCTOR) return showFloors(); showWeek(); }
 function showWeek(){
-  mode="menu"; const f=todaysFloor(), w=currentWeek(); const icons={1:"📬",2:"🗂",3:"🌍",4:"✉",5:"✂",6:"✅",7:"🎯",8:"📧",9:"✎",10:"🗓",11:"💌",12:"📨",13:"🏆",14:"⚖",15:"🔬"};
+  mode="menu"; const f=todaysFloor(), w=currentWeek(); const icons={1:"📬",2:"🗂",3:"🌍",4:"✉",5:"✂",6:"✅",7:"🎯",8:"📧",9:"✎",10:"🗓",11:"💌",12:"📨",13:"🏆",14:"⚖",15:"🔬",16:"👔",17:"🥷",18:"📞",19:"🤝"};
   const days=DAYS.filter(d=>WEEK_OF[d]===w);
   const rows=days.map(n=>{ const F=FLOORS[n], done=!!P.cleared[n], isToday=n===f;
     let st, cls;
@@ -1186,7 +1299,7 @@ function showWeek(){
   if(f) document.getElementById("wGo").onclick=()=>showBrief(f);
   document.getElementById("wNo").onclick=nameGate;
 }
-function rankOf(x,w){ const T = w===4?[23000,16000,8000]:w===3?[20000,14000,7000]:w===2?[13000,9500,5000]:[25000,17000,9000]; return x>=T[0]?"DIRECTOR":x>=T[1]?"MANAGER":x>=T[2]?"COORD.":"INTERN"; }
+function rankOf(x,w){ const T = w===5?[23000,16000,8000]:w===4?[23000,16000,8000]:w===3?[20000,14000,7000]:w===2?[13000,9500,5000]:[25000,17000,9000]; return x>=T[0]?"DIRECTOR":x>=T[1]?"MANAGER":x>=T[2]?"COORD.":"INTERN"; }
 function weekTotal(w){ return DAYS.filter(d=>WEEK_OF[d]===w).reduce((s,d)=>s+(P.best[d]||0),0); }
 function setDeck(type){ document.getElementById("sortDeck").hidden = type!=="sort"; document.getElementById("swipeDeck").hidden = type!=="swipe"; document.getElementById("penDeck").hidden = type!=="pen"; }
 
