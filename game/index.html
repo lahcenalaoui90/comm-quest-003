@@ -763,6 +763,114 @@ Object.assign(FLOORS,{
     ["Speaking well of your company to a client.","tok"],["Locking confidential drawings in the cabinet.","tok"],["Staying informed about your company’s news.","tok"],["Respecting your manager’s decisions in public.","tok"],
     ["Criticizing your company in front of a supplier.","tno"],["Sharing a colleague’s secret at lunch.","tno"],["Leaving contracts open on the printer.","tno"],["Mocking the boss in the team chat.","tno"]]}]}
 });
+/* ================= WEEK 6 · LESSON 6 · EMPLOYMENT COMMUNICATION ================= */
+Object.assign(UNLOCK,{20:"2026-11-16",21:"2026-11-17",22:"2026-11-18",23:"2026-11-19"});
+Object.assign(DAY_OF,{20:"Monday",21:"Tuesday",22:"Wednesday",23:"Thursday"});
+DAYS.push(20,21,22,23);
+Object.assign(WEEK_OF,{20:6,21:6,22:6,23:6});
+WEEK_INFO[6]={title:"Week 6 · Lesson 6",sub:"Employment communication"};
+Object.assign(LANE,{
+  myt:{label:"Myth",px:"MYTH",icon:"❌",col:"#e2483d",why:"A myth about the Canadian job market."},
+  fct:{label:"Fact",px:"FACT",icon:"✔",col:"#3fbf6a",why:"A fact about the Canadian job market."},
+  bld:{label:"Builds your case",px:"BUILDS",icon:"💪",col:"#3fbf6a",why:"This shows a real skill or strength, backed by an example."},
+  skp:{label:"Weakens your case",px:"WEAK",icon:"👎",col:"#e2483d",why:"Too vague or assumes the employer will guess your value."},
+  scr:{label:"Screening stage",px:"SCREEN",icon:"📞",col:"#4a7bd9",why:"Screening: fairly structured, often by phone, to screen out unqualified applicants."},
+  sel:{label:"Selection stage",px:"SELECT",icon:"🤝",col:"#ff9f1c",why:"Selection: you meet colleagues and a supervisor and relate your skills to their needs."},
+  fin:{label:"Final stage",px:"FINAL",icon:"🏆",col:"#9b59b6",why:"Final: a senior executive often tries to sell you on joining the organization."},
+  istr:{label:"Structured",px:"STRUCT.",icon:"📋",col:"#4a7bd9",why:"Structured: a set sequence of questions, the same for every candidate."},
+  iopn:{label:"Open-ended",px:"OPEN",icon:"💭",col:"#2bb3a3",why:"Open-ended: the interviewer adapts questions based on your answers."},
+  ipan:{label:"Panel",px:"PANEL",icon:"👥",col:"#9b59b6",why:"Panel: several interviewers meet with you at once."},
+  igrp:{label:"Group",px:"GROUP",icon:"👨‍👩‍👧",col:"#ff9f1c",why:"Group: several candidates are interviewed together, to see how they interact."},
+  ibeh:{label:"Behavioral",px:"BEHAV.",icon:"⏮",col:"#e84393",why:"Behavioral: describe how you handled a real past situation."},
+  isit:{label:"Situational",px:"SITUAT.",icon:"❓",col:"#16a085",why:"Situational: how you would handle a hypothetical situation on the job."}
+});
+Object.assign(FLOORS,{
+20:{ type:"sort", name:"JOB HUNT HQ", short:"Session 13 · Job search strategies and networking", boss:"priya",
+  brief:[["Small business, big country","98.2% of Canadian employers have fewer than 100 employees. Recruiters rank communication, teamwork and analytical skills as the top three skills for new grads."],
+         ["Fit factors","Work preferences (location, hours, coworkers) and your short- vs long-term goals help you target the right jobs."],
+         ["Show your suitability","Frame skills from your education, extracurriculars, volunteering and part-time jobs as real professional experience."],
+         ["Networking","Connect with professionals in your field, often over a coffee chat, to learn and get noticed."]],
+  mission:"Wave 1: myth or fact about the job market? Wave 2: does it build your case or weaken it? 2 waves.",
+  waves:[
+   {title:"Wave 1 · Myth or fact?",pick:6,lanes:["myt","fct"],items:[
+    ["98% of Canadian employers have 100 employees or fewer.","fct"],
+    ["A good sense of humour and risk-taking are the top skills Canadian employers want in new grads.","myt"],
+    ["Communication, teamwork and analytical skills are the top three skills recruiters rank for new grads.","fct"],
+    ["An effective job search is just connecting with employers and applying.","myt"],
+    ["Thinking about your work preferences and your short- and long-term goals helps target the right jobs.","fct"],
+    ["Your part-time jobs, volunteering and class projects don’t count as real experience.","myt"],
+    ["Networking often happens over something informal, like a coffee chat.","fct"],
+    ["Once you pick a career goal, you never need to revisit it.","myt"]]},
+   {title:"Wave 2 · Builds your case or weakens it?",pick:6,lanes:["bld","skp"],items:[
+    ["Describing the skills you developed in a class project, not just the grade.","bld"],
+    ["Mentioning a volunteer role and what you learned leading a small team.","bld"],
+    ["Listing your degree title with no mention of what you actually did.","skp"],
+    ["Explaining a unique strength you brought to a summer job.","bld"],
+    ["Assuming the employer will guess your skills from your job title alone.","skp"],
+    ["Reaching out to a professional in your field to ask about their day-to-day work.","bld"]]}]},
+21:{ type:"pen", name:"RESUME REPAIR", short:"Session 14 · Writing a customized résumé and cover letter", boss:"lina",
+  brief:[["Customization is key","Sending the same résumé and cover letter to everyone is a top mistake. Customize five applications rather than blasting out 100 identical ones."],
+         ["What goes in a résumé","Contact info, a profile/highlights section instead of an objective, accomplishments (not duties) in bullet points, education, optional sections."],
+         ["What to leave out","Subjective self-praise, high school mentions (once you have a higher credential)."],
+         ["The cover letter","Persuades the reader you fit this job, this company — and supplements the résumé instead of repeating it."]],
+  mission:"Grab your red pen! Each document has mistakes in a résumé or cover letter. Tap every weak spot before the clock runs out.",
+  docs:[
+   {kind:"Résumé — profile section",head:"Maya Chen · Draft résumé",
+    body:"[[Objective: To get a job in construction.|Profile: Organized site coordinator with 2 years in residential construction.|A vague “objective” wastes space — use a profile of real strengths instead.]] [[Duties: answered phones, filed paperwork.|Accomplishments: Cut filing errors by 30% by building a new tracking sheet.|A résumé should show accomplishments, not just duties.]]",
+    q:{q:"What should replace an “Objective” section on a modern résumé?",o:["A profile/highlights section","A paragraph about your hobbies","Nothing — leave it blank","Your full home address"],a:0,why:"Use a quick profile of your strengths and accomplishments instead of an objective."}},
+   {kind:"Résumé — what to leave out",head:"Maya Chen · Education and skills",
+    body:"[[Graduated from Our Lady of Fatima High School, 2014.|Ontario College Certificate, Construction Project Management, Algonquin College, 2025.|Leave high school off once you have a higher credential — lead with the most relevant one.]] [[Skills: hard worker, nice person, team player (trust me).|Skills: MS Project scheduling, blueprint reading, OHS compliance.|Subjective self-praise is weak — list concrete, provable skills instead.]]",
+    q:{q:"Which belongs on a résumé?",o:["Concrete skills like “blueprint reading”","Subjective claims like “hard worker, trust me”","Your high school’s name","Your full date of birth"],a:0,why:"Concrete, provable skills are stronger than subjective self-praise."}},
+   {kind:"Cover letter",head:"Cover letter to Northline Build",
+    body:"[[I am writing to apply for any job you might have.|I am writing to apply for the Site Coordinator position posted on October 2.|Name the exact position and where you saw it.]] [[As you can see from my attached résumé, I have done stuff before.|My two years coordinating residential sites prepared me to keep your Bank Street project on schedule.|Don’t just repeat the résumé — connect your experience to this specific job.]]",
+    q:{q:"What should a cover letter do that the résumé doesn’t?",o:["Show why you want this particular job and company","Repeat every line of the résumé","List your hobbies","Give your social insurance number"],a:0,why:"The cover letter supplements the résumé — it should not just repeat it."}},
+   {kind:"Customization check",head:"A generic cover letter opening",
+    body:"[[Dear Hiring Manager, I am applying to your company. I am a hard worker.|Dear Mr. Haddad, I am applying for the Site Coordinator role at Northline Build because of your reputation for on-time commercial projects.|A generic greeting and a vague company reference show the letter wasn’t customized.]]",
+    q:{q:"Is it better to customize five applications or send 100 identical ones?",o:["Customize five applications","Send 100 identical ones","It doesn’t matter","Always send the maximum possible"],a:0,why:"It’s better to customize five job applications than to send out 100 of the same one."}}]},
+22:{ type:"sort", name:"INTERVIEW ROOM", short:"Session 15 · The interview sequence and interview methods", boss:"ken",
+  brief:[["Sequence of interviews","Screening weeds out unqualified applicants. Selection shows fit with colleagues and a supervisor. Final often tries to sell you on joining."],
+         ["Interview methods","Structured, open-ended, panel, group, behavioral and situational interviews each test you differently."],
+         ["Best approach","Follow the interviewer’s lead at screening; show interest and ask insightful questions at selection."]],
+  mission:"Wave 1: which stage of the interview process? Wave 2: which interview method? 2 waves.",
+  waves:[
+   {title:"Wave 1 · Which stage?",pick:6,lanes:["scr","sel","fin"],items:[
+    ["A quick phone call with HR asking standard screening questions.","scr"],
+    ["The same structured questions are asked to every applicant at this stage.","scr"],
+    ["You meet with two future colleagues and your potential supervisor.","sel"],
+    ["You’re asked to relate your experience to the organization’s specific needs.","sel"],
+    ["A senior executive meets you to discuss compensation and sell you on joining.","fin"],
+    ["You might receive the offer on the spot after this meeting.","fin"]]},
+   {title:"Wave 2 · Which method?",pick:6,lanes:["istr","iopn","ipan","igrp","ibeh","isit"],items:[
+    ["Every candidate gets the exact same set of questions, in the same order.","istr"],
+    ["The interviewer changes the next question based on what you just said.","iopn"],
+    ["You answer questions from three interviewers sitting together.","ipan"],
+    ["Several candidates are interviewed together so the panel can see how they interact.","igrp"],
+    ["“Tell me about a time you resolved a conflict with a coworker.”","ibeh"],
+    ["“What would you do if a supplier missed a delivery the day before an inspection?”","isit"]]}]},
+23:{ type:"swipe", name:"STAR OR MISS?", short:"Session 16 · The STAR method and interview preparation", boss:"grace",
+  brief:[["STAR method","Situation, Task, Action, Result — the strongest way to answer a behavioral question."],
+         ["Interview preparation","Learn about the organization, think ahead about questions, bolster your confidence, polish your style, dress professionally, arrive ready."],
+         ["Stress interviews","Recognize what is happening and pause to collect your thoughts before you respond."],
+         ["Pre-employment testing","Some employers test skills or personality before hiring — take it seriously."]],
+  mission:"Round 1: STAR answer or rambling answer? Round 2: good interview habit or bad one? 2 rounds.",
+  rounds:[
+   {title:"Round 1 · STAR or rambling?",pick:8,L:{label:"RAMBLING",icon:"🌀",col:"#e2483d"},R:{label:"STAR ANSWER",icon:"⭐",col:"#3fbf6a"},items:[
+    {t:"“Um, I don’t know, I guess I just dealt with it somehow and it worked out, I think.”",r:false,why:"No situation, no clear action, no result — this rambles instead of using STAR."},
+    {t:"“A supplier missed a delivery two days before inspection. I needed material on site by morning. I called three alternate suppliers and arranged a rush delivery. We passed inspection on schedule.”",r:true,why:"Situation, Task, Action, Result — a complete STAR answer."},
+    {t:"“I’m just naturally a hard worker, so things always go fine for me.”",r:false,why:"Vague self-praise with no specific situation or result."},
+    {t:"“A client complained about site noise. I had to protect both the schedule and the relationship. I proposed quieter work hours and gave daily updates. The client stayed and extended the contract.”",r:true,why:"A clear Situation, Task, Action and Result."},
+    {t:"“Conflict happens, you just move on, nothing special to say really.”",r:false,why:"No specific example, no action, no result."},
+    {t:"“A coworker and I disagreed on scheduling. I asked to compare our reasons privately. We combined both plans into one schedule. We finished two days early.”",r:true,why:"Situation, Task, Action, Result, in order."}]},
+   {title:"Round 2 · Good habit or bad habit?",pick:8,L:{label:"BAD HABIT",icon:"👎",col:"#e2483d"},R:{label:"GOOD HABIT",icon:"👍",col:"#3fbf6a"},items:[
+    {t:"Researching the company’s recent projects before the interview.",r:true,why:"Learning about the organization is the first step of preparation."},
+    {t:"Thinking ahead about likely questions and preparing answers.",r:true,why:"Anticipating questions bolsters your confidence."},
+    {t:"Arriving 15 minutes early, dressed professionally.",r:true,why:"A professional image and being ready when you arrive both matter."},
+    {t:"Keeping other interviews lined up instead of pinning all your hopes on one.",r:true,why:"A smart part of preparing for an active job search."},
+    {t:"Showing up without knowing what the company does.",r:false,why:"Skips the most basic preparation step: research the organization."},
+    {t:"Getting flustered by silence in a stress interview instead of pausing to collect your thoughts.",r:false,why:"In a stress interview, recognize what is happening and take a moment before responding."},
+    {t:"Criticizing your former employer when asked why you left.",r:false,why:"Hurts your professional image, whatever the real reason was."},
+    {t:"Treating a pre-employment test casually since “it’s just for fun.”",r:false,why:"Pre-employment tests are part of the evaluation — take them seriously."}]}]}
+});
 /* ================= SPRITES ================= */
 const PAL = {K:"#14152b",Y:"#ffd84a",y:"#e0a91c",H:"#3b2418",S:"#c68a5f",T:"#2bb3a3",W:"#f7f4ec",P:"#2e3a6e",B:"#6b3f22",R:"#e2483d",C:"#ff6b5a",L:"#4a7bd9",G:"#3fbf6a",D:"#9aa0b5"};
 const TOP = [
